@@ -163,6 +163,8 @@ Ltac find_head t :=
 
 Ltac unify_by_head_of t head :=
   match t with
+  | ?X _ _ _ _ _ _ _ _ _ _ _ _ => unify X head
+  | ?X _ _ _ _ _ _ _ _ _ _ _ => unify X head
   | ?X _ _ _ _ _ _ _ _ _ _ => unify X head
   | ?X _ _ _ _ _ _ _ _ _ => unify X head
   | ?X _ _ _ _ _ _ _ _ => unify X head

@@ -395,3 +395,18 @@ Qed.
 Hint Resolve wf_subtyp_pi' : mcltt.
 #[export]
 Remove Hints wf_subtyp_pi : mcltt.
+
+
+Lemma wf_exp_eq_refl_sub' : forall Γ Δ σ A M,
+    {{ Γ ⊢s σ : Δ }} ->
+    {{ Δ ⊢ M : A }} ->
+    {{ Γ ⊢ (refl A M)[σ] ≈ refl A[σ] M[σ] : (Eq A M M)[σ] }}.
+Proof.
+  impl_opt_constructor.
+Qed.
+
+
+#[export]
+Hint Resolve wf_exp_eq_refl_sub' : mcltt.
+#[export]
+Remove Hints wf_exp_eq_refl_sub : mcltt.

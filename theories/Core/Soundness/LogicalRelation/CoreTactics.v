@@ -20,6 +20,10 @@ Ltac invert_glu_rel1 :=
       progressive_invert H
   | H : pi_glu_exp_pred _ _ _ _ _ _ _ _ _ _ |- _ =>
       progressive_invert H
+  | H : eq_glu_typ_pred _ _ _ _ _ _ _ |- _ =>
+      progressive_invert H
+  | H : eq_glu_exp_pred _ _ _ _ _ _ _ _ _ _ |- _ =>
+      progressive_invert H
   | H : neut_glu_typ_pred _ _ _ _ |- _ =>
       progressive_invert H
   | H : neut_glu_exp_pred _ _ _ _ _ _ |- _ =>

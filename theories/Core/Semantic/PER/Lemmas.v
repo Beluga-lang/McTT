@@ -641,7 +641,7 @@ Proof.
   - pose proof (fun m0 m1 m2 => per_elem_trans _ _ _ _ m0 m1 m2 H); eauto.
 Qed.
 
-(** This lemma gets rid of the unnecessary PER premise. *)
+(** Thess lemmas get rid of the unnecessary PER premises. *)
 Lemma per_univ_elem_pi' :
   forall i a a' ρ B ρ' B'
     (in_rel : relation domain)
@@ -658,11 +658,25 @@ Proof.
   typeclasses eauto.
 Qed.
 
+Lemma per_univ_elem_eq' :
+  forall (i : nat) {a a' m1 m1' m2 m2' : domain} (point_rel elem_rel : relation domain),
+    {{ DF a ≈ a' ∈ per_univ_elem i ↘ point_rel }} ->
+    {{ Dom m1 ≈ m1' ∈ point_rel }} ->
+    {{ Dom m2 ≈ m2' ∈ point_rel }} ->
+    elem_rel <~> per_eq point_rel m1 m2' ->
+    {{ DF Eq a m1 m2 ≈ Eq a' m1' m2' ∈ per_univ_elem i ↘ elem_rel }}.
+Proof.
+  intros.
+  basic_per_univ_elem_econstructor; eauto.
+  typeclasses eauto.
+Qed.
+
+
 Ltac per_univ_elem_econstructor :=
-  (repeat intro; hnf; eapply per_univ_elem_pi') + basic_per_univ_elem_econstructor.
+  (repeat intro; hnf; (eapply per_univ_elem_pi' || eapply per_univ_elem_eq')) + basic_per_univ_elem_econstructor.
 
 #[export]
-Hint Resolve per_univ_elem_pi' : mcltt.
+Hint Resolve per_univ_elem_pi' per_univ_elem_eq' : mcltt.
 
 Lemma per_univ_elem_pi_clean_inversion : forall {i j a a' in_rel ρ ρ' B B' elem_rel},
     {{ DF a ≈ a' ∈ per_univ_elem i ↘ in_rel }} ->
@@ -806,18 +820,15 @@ Proof.
   simpl; induction 1 using per_univ_elem_ind;
     subst;
     mauto;
-    destruct_all;
-    [ assert ({{ DF Π a ρ B ≈ Π a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }})
-      by (per_univ_elem_econstructor; intuition; destruct_rel_mod_eval; mauto)
-    | enough {{ DF Eq a m1 m2 ≈ Eq a' m1' m2' ∈ per_univ_elem i ↘ elem_rel }} by mauto 3;
-      solve [per_univ_elem_econstructor; eauto]
-    ].
-  saturate_refl_for per_univ_elem.
-  econstructor; eauto.
-  intros;
-    destruct_rel_mod_eval;
-    functional_eval_rewrite_clear;
-    trivial.
+    destruct_all.
+    assert ({{ DF Π a ρ B ≈ Π a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }})
+      by (per_univ_elem_econstructor; intuition; destruct_rel_mod_eval; mauto).
+    saturate_refl_for per_univ_elem.
+    econstructor; eauto.
+    intros;
+      destruct_rel_mod_eval;
+      functional_eval_rewrite_clear;
+      trivial.
 Qed.
 
 #[export]

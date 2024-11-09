@@ -28,7 +28,6 @@ Proof.
   econstructor; mauto 3.
   eexists.
   per_univ_elem_econstructor; mauto 3; try solve_refl.
-  typeclasses eauto.
 Qed.
 #[export]
 Hint Resolve rel_exp_eq_cong : mcltt.
@@ -64,7 +63,6 @@ Proof.
   - per_univ_elem_econstructor; mauto 3;
       try (etransitivity; [| symmetry]; eassumption);
       try reflexivity.
-    typeclasses eauto.
   - econstructor; saturate_refl; mauto 3.
     symmetry; mauto 3.
 Qed.
@@ -96,7 +94,6 @@ Proof.
   econstructor; mauto.
   eexists.
   per_univ_elem_econstructor; mauto 3; try solve_refl.
-  typeclasses eauto.
 Qed.
 
 #[export]
@@ -124,7 +121,6 @@ Proof.
   handle_per_univ_elem_irrel.
   eexists; split; econstructor; mauto 3.
   - per_univ_elem_econstructor; mauto 3; try solve_refl.
-    typeclasses eauto.
   - saturate_refl.
     econstructor; intuition.
 Qed.
