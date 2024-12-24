@@ -93,7 +93,6 @@ Qed.
   Hint Resolve glu_rel_eq_refl : mctt.
 
 
-
 Lemma glu_rel_exp_eq_clean_inversion : forall {i Γ Sb M1 M2 A N},
     {{ EG Γ ∈ glu_ctx_env ↘ Sb }} ->
     {{ Γ ⊩ A : Type@i }} ->
@@ -144,10 +143,21 @@ Proof.
     - rewrite <- @exp_eq_sub_compose_typ with (i := i); mauto 3.
   }
   assert {{ ⊩ Γ, A, A[Wk], Eq A[Wk ∘ Wk] #1 #0 }} as [SbΓAAEq] by mauto.
+  assert {{ Γ, A ⊩s Id,,#0 : Γ, A, A[Wk] }} by
+    (eapply glu_rel_sub_extend; mauto 3; bulky_rewrite).
   saturate_syn_judge.
 
-  unshelve eapply (glu_rel_exp_eq_clean_inversion _) in HN; shelve_unifiable; [eassumption | | eassumption | eassumption| eassumption];
-   simpl in HN.
+  assert {{ Γ, A ⊢ (Eq A[Wk∘Wk] #1 #0)[Id,,#0] ≈ Eq A[Wk] #0 #0 : Type@i }} by admit.
+
+  assert {{ Γ, A ⊩s Id,,#0,,refl A[Wk] #0 : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }}.
+  {
+    eapply glu_rel_sub_extend; mauto 3.
+    - eapply glu_rel_eq;
+        try rewrite <- @exp_eq_sub_compose_typ with (A:=A); mauto.
+    - bulky_rewrite.
+      mauto 3.
+  }
+  saturate_syn_judge.
 
   invert_sem_judge.
 

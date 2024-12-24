@@ -1403,14 +1403,16 @@ Qed.
 Hint Resolve glu_rel_exp_preserves_lvl : mctt.
 
 
-
 Ltac saturate_syn_judge1 :=
   match goal with
   | H : {{ ^?Γ ⊩ ^?M : ^?A }} |- _ =>
       assert {{ Γ ⊢ M : A }} by mauto; fail_if_dup
   | H : {{ ^?Γ ⊩s ^?τ : ^?Γ' }} |- _ =>
       assert {{ Γ ⊢s τ : Γ' }} by mauto; fail_if_dup
+  | H : {{ ⊩ ^?Γ }} |- _ =>
+      assert {{ ⊢ Γ }} by mauto; fail_if_dup
   end.
+
 
 #[global]
   Ltac saturate_syn_judge :=
