@@ -93,6 +93,28 @@ Qed.
   Hint Resolve glu_rel_eq_refl : mctt.
 
 
+
+Lemma glu_rel_exp_eq_clean_inversion : forall {i Γ Sb M1 M2 A N},
+    {{ EG Γ ∈ glu_ctx_env ↘ Sb }} ->
+    {{ Γ ⊩ A : Type@i }} ->
+    {{ Γ ⊩ M1 : A }} ->
+    {{ Γ ⊩ M2 : A }} ->
+    {{ Γ ⊩ N : Eq A M1 M2 }} ->
+    glu_rel_exp_resp_sub_env i Sb N {{{Eq A M1 M2}}}.
+Proof.
+  intros * ? HA HM1 HM2 HN.
+  assert {{ Γ ⊩ Eq A M1 M2 : Type@i }} by mauto.
+  eapply glu_rel_exp_clean_inversion2 in HN; eassumption.
+Qed.
+
+
+#[global]
+  Ltac invert_glu_rel_exp H ::=
+  (unshelve eapply (glu_rel_exp_eq_clean_inversion _) in H; shelve_unifiable; try eassumption;
+   simpl in H)
+  + universe_invert_glu_rel_exp H.
+
+
 Lemma glu_rel_eq_eqrec : forall Γ A i M1 M2 B j BR N,
     {{ Γ ⊩ A : Type@i }} ->
     {{ Γ ⊩ M1 : A }} ->

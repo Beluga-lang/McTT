@@ -1227,14 +1227,19 @@ Proof.
   eapply glu_univ_elem_exp_conv; revgoals; mauto 3.
 Qed.
 
+
 #[global]
-Ltac invert_glu_rel_exp H :=
+Ltac basic_invert_glu_rel_exp H :=
   (unshelve eapply (glu_rel_exp_clean_inversion2 _ _) in H; shelve_unifiable; [eassumption | eassumption |];
    simpl in H)
   + (unshelve eapply (glu_rel_exp_clean_inversion1 _) in H; shelve_unifiable; [eassumption |];
      destruct H as [])
   + (inversion H as [? [? [? ?]]]; subst).
 
+
+#[global]
+Ltac invert_glu_rel_exp H :=
+  basic_invert_glu_rel_exp H.
 
 Lemma glu_rel_exp_to_wf_exp : forall {Γ A M},
     {{ Γ ⊩ M : A }} ->
@@ -1304,7 +1309,7 @@ Proof.
 Qed.
 
 Ltac invert_glu_rel_sub H :=
-  (unshelve eapply (glu_rel_sub_clean_inversion3 _ _) in H; shelve_unifiable; [eassumption | eassumption |])
+  (unshelve eapply (glu_rel_sub_clean_inversion3 _ _) in H; shelve_unifiable; [eassumption | eassumption |]; simpl in H)
   + (unshelve eapply (glu_rel_sub_clean_inversion2 _) in H; shelve_unifiable; [eassumption |];
      destruct H as [? []])
   + (unshelve eapply (glu_rel_sub_clean_inversion1 _) in H; shelve_unifiable; [eassumption |];
@@ -1365,6 +1370,16 @@ Ltac apply_glu_rel_judge :=
   clear_dups.
 
 
+Ltac apply_glu_rel_exp_judge :=
+  destruct_glu_rel_exp_with_sub;
+  simplify_evals;
+  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H);
+  handle_functional_glu_univ_elem;
+  unfold univ_glu_exp_pred' in *;
+  destruct_conjs;
+  clear_dups.
+
+
 Lemma glu_rel_exp_preserves_lvl : forall Γ Sb M A i,
     {{ EG Γ ∈ glu_ctx_env ↘ Sb }} ->
     (forall Δ σ ρ,
@@ -1401,6 +1416,7 @@ Ltac saturate_syn_judge1 :=
   Ltac saturate_syn_judge :=
   repeat saturate_syn_judge1.
 
+#[global]
 Ltac invert_sem_judge1 :=
   match goal with
   | H : {{ ^?Γ ⊩ ^?M : ^?A }} |- _ =>
