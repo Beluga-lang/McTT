@@ -1192,60 +1192,6 @@ Ltac destruct_glu_rel_typ_with_sub :=
   unmark_all.
 
 
-Lemma glu_ctx_env_cons_clean_inversion'_helper : forall {Γ TSb A Sb i},
-  {{ EG Γ ∈ glu_ctx_env ↘ TSb }} ->
-  {{ EG Γ, A ∈ glu_ctx_env ↘ Sb }} ->
-  {{ Γ ⊩ A : Type@i }} ->
-  {{ Γ ⊢ A : Type@i }} ->
-  (forall Δ σ ρ,
-      {{ Δ ⊢s σ ® ρ ∈ TSb }} ->
-      glu_rel_typ_with_sub i Δ A σ ρ) /\
-    (Sb <∙> cons_glu_sub_pred i Γ A TSb).
-Proof.
-  intros * HΓ HΓA [? [? [j HA]]] ?.
-  handle_functional_glu_ctx_env.
-  assert (forall Δ σ ρ, {{ Δ ⊢s σ ® ρ ∈ TSb }} -> glu_rel_typ_with_sub i Δ A σ ρ) by
-    (intros; apply_equiv_right; mauto).
-  split; trivial.
-
-  match_by_head glu_ctx_env progressive_invert.
-  handle_functional_glu_ctx_env.
-
-  intros Δ σ ρ.
-  split; intros [].
-  - apply_equiv_left.
-    destruct_glu_rel_typ_with_sub.
-    handle_functional_glu_univ_elem.
-    econstructor; intuition.
-    eapply @glu_univ_elem_exp_conv' with (i:=i0) (j:=i); try eassumption.
-    bulky_rewrite.
-  - rewrite <- H5 in *.
-    destruct_glu_rel_typ_with_sub.
-    handle_functional_glu_univ_elem.
-    econstructor; intuition.
-    eapply @glu_univ_elem_exp_conv' with (i:=i) (j:=i0); try eassumption.
-    bulky_rewrite.
-Qed.
-
-
-Lemma glu_ctx_env_cons_clean_inversion' : forall {Γ TSb A Sb i},
-  {{ EG Γ ∈ glu_ctx_env ↘ TSb }} ->
-  {{ EG Γ, A ∈ glu_ctx_env ↘ Sb }} ->
-  {{ Γ ⊩ A : Type@i }} ->
-  (forall Δ σ ρ,
-      {{ Δ ⊢s σ ® ρ ∈ TSb }} ->
-      glu_rel_typ_with_sub i Δ A σ ρ) /\
-    (Sb <∙> cons_glu_sub_pred i Γ A TSb).
-Proof.
-  mauto using glu_ctx_env_cons_clean_inversion'_helper.
-Qed.
-
-
-Ltac invert_glu_ctx_env H ::=
-  directed (unshelve eapply (glu_ctx_env_cons_clean_inversion' _) in H; shelve_unifiable; try eassumption; destruct H)
-  + basic_invert_glu_ctx_env H.
-
-
 (** *** Lemmas about [glu_rel_exp] *)
 
 Lemma glu_rel_exp_clean_inversion1 : forall {Γ Sb M A},
@@ -1316,6 +1262,62 @@ Qed.
 
 #[export]
 Hint Resolve glu_rel_exp_to_wf_exp : mctt.
+
+
+
+Lemma glu_ctx_env_cons_clean_inversion'_helper : forall {Γ TSb A Sb i},
+  {{ EG Γ ∈ glu_ctx_env ↘ TSb }} ->
+  {{ EG Γ, A ∈ glu_ctx_env ↘ Sb }} ->
+  {{ Γ ⊩ A : Type@i }} ->
+  {{ Γ ⊢ A : Type@i }} ->
+  (forall Δ σ ρ,
+      {{ Δ ⊢s σ ® ρ ∈ TSb }} ->
+      glu_rel_typ_with_sub i Δ A σ ρ) /\
+    (Sb <∙> cons_glu_sub_pred i Γ A TSb).
+Proof.
+  intros * HΓ HΓA [? [? [j HA]]] ?.
+  handle_functional_glu_ctx_env.
+  assert (forall Δ σ ρ, {{ Δ ⊢s σ ® ρ ∈ TSb }} -> glu_rel_typ_with_sub i Δ A σ ρ) by
+    (intros; apply_equiv_right; mauto).
+  split; trivial.
+
+  match_by_head glu_ctx_env progressive_invert.
+  handle_functional_glu_ctx_env.
+
+  intros Δ σ ρ.
+  split; intros [].
+  - apply_equiv_left.
+    destruct_glu_rel_typ_with_sub.
+    handle_functional_glu_univ_elem.
+    econstructor; intuition.
+    eapply @glu_univ_elem_exp_conv' with (i:=i0) (j:=i); try eassumption.
+    bulky_rewrite.
+  - rewrite <- H5 in *.
+    destruct_glu_rel_typ_with_sub.
+    handle_functional_glu_univ_elem.
+    econstructor; intuition.
+    eapply @glu_univ_elem_exp_conv' with (i:=i) (j:=i0); try eassumption.
+    bulky_rewrite.
+Qed.
+
+
+Lemma glu_ctx_env_cons_clean_inversion' : forall {Γ TSb A Sb i},
+  {{ EG Γ ∈ glu_ctx_env ↘ TSb }} ->
+  {{ EG Γ, A ∈ glu_ctx_env ↘ Sb }} ->
+  {{ Γ ⊩ A : Type@i }} ->
+  (forall Δ σ ρ,
+      {{ Δ ⊢s σ ® ρ ∈ TSb }} ->
+      glu_rel_typ_with_sub i Δ A σ ρ) /\
+    (Sb <∙> cons_glu_sub_pred i Γ A TSb).
+Proof.
+  mauto using glu_ctx_env_cons_clean_inversion'_helper.
+Qed.
+
+
+Ltac invert_glu_ctx_env H ::=
+  directed (unshelve eapply (glu_ctx_env_cons_clean_inversion' _) in H; shelve_unifiable; try eassumption; destruct H)
+  + basic_invert_glu_ctx_env H.
+
 
 (** *** Lemmas about [glu_rel_sub] *)
 
@@ -1477,7 +1479,7 @@ Ltac saturate_syn_judge1 :=
   repeat saturate_syn_judge1.
 
 #[global]
-  Ltac invert_sem_judge1 ::=
+  Ltac invert_sem_judge1 :=
   match goal with
   | H : {{ ^?Γ ⊩ ^?M : ^?A }} |- _ =>
       mark H;
