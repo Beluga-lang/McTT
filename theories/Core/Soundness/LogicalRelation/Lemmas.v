@@ -1026,7 +1026,7 @@ Ltac basic_invert_glu_ctx_env H :=
    destruct H as [? [? []]])
   + dependent destruction H.
 
-Ltac invert_glu_ctx_env H := basic_glu_ctx_env H.
+Ltac invert_glu_ctx_env H := basic_invert_glu_ctx_env H.
 
 Lemma glu_ctx_env_subtyp_sub_if : forall Γ Γ' Sb Sb' Δ σ ρ,
     {{ ⊢ Γ ⊆ Γ' }} ->

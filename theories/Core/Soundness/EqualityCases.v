@@ -169,7 +169,7 @@ Proof.
   simpl in *.
 
   repeat invert_glu_rel1.
-  clear_dups.
+  handle_functional_glu_univ_elem.
   saturate_glu_typ_from_el.
   unify_glu_univ_lvl i.
 
