@@ -1,6 +1,5 @@
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
-From Mctt.Core.Completeness Require Import FundamentalTheorem.
 From Mctt.Core.Semantic Require Import Realizability.
 From Mctt.Core.Soundness Require Import
   ContextCases
@@ -166,7 +165,6 @@ Proof.
   assert {{ Δ ⊢s σ : Γ }} by mauto 4.
   apply_glu_rel_judge.
   apply_glu_rel_exp_judge.
-  simpl in *.
 
   repeat invert_glu_rel1.
   handle_functional_glu_univ_elem.
@@ -178,44 +176,43 @@ Proof.
   do 2 deepexec (glu_univ_elem_per_elem i) ltac:(fun H => pose proof H; fail_at_if_dup ltac:(4)).
   saturate_glu_info.
 
-  (* eassert (exists mr, {{ ⟦ eqrec N as Eq A M1 M2 return B | refl -> BR end ⟧ ρ ↘ ^ mr }} *)
-  (*                /\ {{ Γ0 ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,M1,,M2,,N][σ] ® mr ∈ H53 }}). *)
-  (* { *)
-  (*   destruct_glu_eq. *)
-  (*   - assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto. *)
-  (*     pose proof (H78 _ _ HId) as HM''. *)
+  eassert (exists mr, {{ ⟦ eqrec N as Eq A M1 M2 return B | refl -> BR end ⟧ ρ ↘ mr }}
+                 /\ {{ Γ0 ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,M1,,M2,,N][σ] ® mr ∈ H77 }}) as [? [? ?]].
+  {
+    destruct_glu_eq.
+    - assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
+      assert {{ Γ0 ⊢ M'' : B1 }} by (gen_presups; trivial).
+      pose proof (H99 _ _ HId) as HM''.
+      saturate_glu_typ_from_el.
+      assert {{ Γ0 ⊢ B1[Id] ≈ B1 : Type@i }} as HrwB1 by mauto 3.
+      rewrite HrwB1 in *.
+      assert {{ Γ0 ⊢ B1 ≈ A[σ] : Type@i }} as HrwB1' by mauto 4.
+      rewrite HrwB1' in *.
+      saturate_glu_info.
 
-  (*     match goal with *)
-  (*     | H1 : glu_univ_elem _ _ ?El _, H2 : glu_univ_elem i ?P _ _, H3 : ?P _ _, H4 : ?El _ _ _ _ *)
-  (*       |- _ => *)
-  (*         idtac H1 H2 H3 H4 *)
-  (*     end. *)
+      assert (SbΓA Γ0 {{{σ ,, M''}}} d{{{ρ ↦ m'}}}).
+      {
+        match_by_head1 (glu_ctx_env SbΓA) invert_glu_ctx_env.
+        apply_equiv_left.
+        econstructor; mauto 3; bulky_rewrite.
+        admit.
+      }
+      destruct_glu_rel_exp_with_sub.
+      simplify_evals.
+      simpl in *.
 
-  (*     pose proof (glu_univ_elem_exp_conv' H62 H51 HM'' H55). *)
+      eexists; split; mauto 3.
+      admit.
 
-  (*     unify_glu_univ_lvl1 i. *)
+    - match_by_head1 per_bot ltac:(fun H => pose proof (H (length Γ0)) as [V [HV _]]).
+      assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
+      pose proof (H54 _ _ V HId HV).
+      assert {{ Γ0 ⊢ N[σ] ≈ V : (Eq A M1 M2)[σ] }} by admit.
 
-  (*     unify_glu_univ_lvl i. *)
-  (*     saturate_glu_info. *)
-  (*     assert {{ Γ0 ⊢ M'' : B1 }} by mauto. *)
-  (*     assert {{ Γ0 ⊢ M'' : B1 ® m' ∈ El2 }} by bulky_rewrite_in HM''. *)
-  (*     eassert {{ Γ0 ⊢ M'' : B1 ® m' ∈ glu_elem_top _ _ }} as [] by mauto. *)
-  (*     match_by_head1 per_top ltac:(fun H => specialize (H (length Γ0)) as [? []]). *)
+      eexists; split; mauto 3.
 
-  (*     assert (SbΓA Γ0 {{{σ ,, M''}}} d{{{ρ ↦ m'}}}). *)
-  (*     { *)
-  (*       match_by_head1 (glu_ctx_env SbΓA) invert_glu_ctx_env. *)
-  (*       apply_equiv_left. *)
-  (*       econstructor; mauto 3. *)
-  (*       destruct_all. *)
-  (*       handle *)
-  (*     } *)
-
-
-  (*     eexists; split. *)
-  (*     + econstructor; mauto 3. *)
-  (*       econstructor. *)
-  (* } *)
+      admit.
+  }
 
   econstructor; mauto.
 
