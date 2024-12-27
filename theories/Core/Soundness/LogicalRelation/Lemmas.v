@@ -1020,8 +1020,22 @@ Proof.
     econstructor; intuition.
 Qed.
 
+
+Lemma glu_ctx_env_cons_clean_inversion' : forall {Γ TSb A Sb i},
+  {{ EG Γ ∈ glu_ctx_env ↘ TSb }} ->
+  {{ EG Γ, A ∈ glu_ctx_env ↘ Sb }} ->
+  {{ Γ ⊩ A : Type@i }} ->
+  (forall Δ σ ρ,
+      {{ Δ ⊢s σ ® ρ ∈ TSb }} ->
+      glu_rel_typ_with_sub i Δ A σ ρ) /\
+    (Sb <∙> cons_glu_sub_pred i Γ A TSb).
+Proof.
+  mauto using glu_ctx_env_cons_clean_inversion'_helper.
+Qed.
+
 Ltac invert_glu_ctx_env H :=
-  (unshelve eapply (glu_ctx_env_cons_clean_inversion _) in H; shelve_unifiable; [eassumption |];
+  directed (unshelve eapply (glu_ctx_env_cons_clean_inversion' _) in H; shelve_unifiable; try eassumption; destruct H)
+  + (unshelve eapply (glu_ctx_env_cons_clean_inversion _) in H; shelve_unifiable; [eassumption |];
    destruct H as [? [? []]])
   + dependent destruction H.
 
@@ -1419,14 +1433,20 @@ Ltac saturate_syn_judge1 :=
   repeat saturate_syn_judge1.
 
 #[global]
-Ltac invert_sem_judge1 :=
+  Ltac invert_sem_judge1 ::=
   match goal with
   | H : {{ ^?Γ ⊩ ^?M : ^?A }} |- _ =>
-      invert_glu_rel_exp H
+      mark H;
+      let H' := fresh "H" in
+      pose proof H as H';
+      invert_glu_rel_exp H'
   | H : {{ ^?Γ ⊩s ^?τ : ^?Γ' }} |- _ =>
-      invert_glu_rel_sub H
+      mark H;
+      let H' := fresh "H" in
+      pose proof H as H';
+      invert_glu_rel_sub H'
   end.
 
 #[global]
   Ltac invert_sem_judge :=
-  repeat invert_sem_judge1.
+  repeat invert_sem_judge1; unmark_all.
