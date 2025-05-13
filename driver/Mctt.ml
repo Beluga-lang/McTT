@@ -1,4 +1,4 @@
-open Mctt.Main
+open McttLib.Main
 
 let () =
   if Array.length Sys.argv <> 2

@@ -1,7 +1,7 @@
 (include_subdirs no)
 
 (library
- (name Mctt)
+ (name McttLib)
  (public_name mctt.driver)
  (modules Main Lexer PrettyPrinter Test)
  (libraries McttExtracted)
@@ -15,7 +15,7 @@
  (name mctt)
  (public_name mctt)
  (modules Mctt)
- (libraries Mctt))
+ (libraries McttLib))
 
 (env
  (dev
