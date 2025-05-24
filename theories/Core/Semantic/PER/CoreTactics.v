@@ -6,16 +6,23 @@ From Mctt.Core Require Import Base.
 From Mctt.Core.Semantic Require Import PER.Definitions.
 Import Domain_Notations.
 
+Ltac lazy_destruct H H' :=
+  match type of H with
+  | forall _ _ _, exists _, _ => pose proof (H _ _ H'); deex_once
+  | _ => destruct (H _ _ H') as []
+  end.
+
 Ltac destruct_rel_by_assumption in_rel H :=
   repeat
     match goal with
     | H' : {{ Dom ^?c ≈ ^?c' ∈ ?in_rel0 }} |- _ =>
         unify in_rel0 in_rel;
-        destruct (H _ _ H') as [];
+        lazy_destruct H H';
         destruct_all;
         mark_with H' 1
     end;
   unmark_all_with 1.
+
 Ltac destruct_rel_mod_eval :=
   repeat
     match goal with
