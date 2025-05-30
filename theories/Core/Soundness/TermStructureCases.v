@@ -54,7 +54,7 @@ Proof.
   - assert {{ Γ ⊩ #n : A }} as Hn by mauto.
     assert (exists i, {{ Γ ⊢ A : Type@i }}) as [j] by (gen_presups; mauto 3).
     invert_glu_rel_exp Hn.
-    rename x into k.
+    rename i0 into k.
     eexists.
     split; [econstructor |]; try reflexivity; mauto.
     eexists (max j k).

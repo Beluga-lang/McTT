@@ -66,14 +66,14 @@ Proof.
   assert {{ ⊩ Γ }} as [SbΓ] by mauto.
   saturate_syn_judge.
   invert_sem_judge.
-  assert {{ Γ ⊢ A : Type@x }} by mauto.
+  assert {{ Γ ⊢ A : Type@i }} by mauto.
   eexists; split; eauto.
-  exists x; intros.
+  exists i; intros.
   assert {{ Δ ⊢s σ : Γ }} by mauto 4.
   apply_glu_rel_judge.
   saturate_glu_typ_from_el.
   deepexec glu_univ_elem_per_univ ltac:(fun H => pose proof H).
-  match_by_head per_univ ltac:(fun H => destruct H).
+  match_by_head per_univ ltac:(fun H => unfold per_univ in H; deex_once_in H).
   deepexec glu_univ_elem_per_elem ltac:(fun H => pose proof H; fail_at_if_dup ltac:(4)).
   saturate_glu_info.
   eexists; repeat split; mauto.
@@ -101,6 +101,8 @@ Lemma glu_rel_eq_eqrec : forall Γ A i M1 M2 B j BR N,
     {{ Γ, A ⊩ BR : B[Id,,#0,,refl A[Wk] #0] }} ->
     {{ Γ ⊩ N : Eq A M1 M2 }} ->
     {{ Γ ⊩ eqrec N as Eq A M1 M2 return B | refl -> BR end : B[Id,,M1,,M2,,N] }}.
+Proof.
+  intros * HA HM1 HM2 HB HBR HN.
 Admitted.
 
 #[export]

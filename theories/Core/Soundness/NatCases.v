@@ -152,8 +152,8 @@ Proof.
   intros * ? ? ? HMZ **.
   assert {{ Γ ⊢ MZ : A[Id,,zero] }} by mauto 3.
   invert_glu_rel_exp HMZ.
-  assert {{ Γ ⊩ ℕ : Type@i }} as Hℕ by mauto 3.
-  pose (SbΓℕ := cons_glu_sub_pred i Γ {{{ ℕ }}} SbΓ).
+  assert {{ Γ ⊩ ℕ : Type@0 }} as Hℕ by mauto 3.
+  pose (SbΓℕ := cons_glu_sub_pred 0 Γ {{{ ℕ }}} SbΓ).
   assert {{ EG Γ, ℕ ∈ glu_ctx_env ↘ SbΓℕ }} by (invert_glu_rel_exp Hℕ; econstructor; mauto 3; reflexivity).
   destruct_glu_rel_exp_with_sub.
   simplify_evals.
@@ -228,8 +228,8 @@ Lemma glu_rel_exp_natrec_succ_helper : forall {i Γ SbΓ A MZ MS Δ M M' m' σ �
 Proof.
   intros * ? HA ? ? HMS **.
   assert {{ ⊩ Γ }} by (eexists; eassumption).
-  assert {{ Γ ⊩ ℕ : Type@i }} as Hℕ by mauto 3.
-  pose (SbΓℕ := cons_glu_sub_pred i Γ {{{ ℕ }}} SbΓ).
+  assert {{ Γ ⊩ ℕ : Type@0 }} as Hℕ by mauto 3.
+  pose (SbΓℕ := cons_glu_sub_pred 0 Γ {{{ ℕ }}} SbΓ).
   assert {{ EG Γ, ℕ ∈ glu_ctx_env ↘ SbΓℕ }} by (invert_glu_rel_exp Hℕ; econstructor; mauto 3; reflexivity).
   assert {{ Γ, ℕ ⊢ A : Type@i }} by mauto 2.
   invert_glu_rel_exp HA.
