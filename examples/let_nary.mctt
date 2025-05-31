@@ -17,8 +17,8 @@ let ((Nary : forall (n : Nat) -> Type@0) :=
        fun (n : Nat)
            (f : rec succ n return y . Type@0
                 | zero => Nat
-           	| succ m, r => forall (a : Nat) -> r
-           	end)
+            | succ m, r => forall (a : Nat) -> r
+            end)
            (arg : Nat)
          -> f arg
      ))
@@ -26,15 +26,15 @@ let ((Nary : forall (n : Nat) -> Type@0) :=
     ((n : Nat) := 3)
     ((f : Nary n) :=
      (
-       (fun (add : forall (a : Nat) (b : Nat) -> Nat) -> (fun (a : Nat) (b : Nat) (c : Nat) -> add a (add b c)))
-       (
-         fun (a : Nat)
-             (b : Nat)
-      	   -> rec a return y . Nat
-              | zero => b
-              | succ m, r => succ r
-              end
-       )
+       let ((add : forall (a : Nat) (b : Nat) -> Nat) :=
+            (fun (a : Nat)
+                 (b : Nat)
+               -> rec a return y . Nat
+                  | zero => b
+                  | succ m, r => succ r
+                  end))
+       in
+       fun (a : Nat) (b : Nat) (c : Nat) -> add a (add b c)
      ))
 
 in
@@ -42,3 +42,9 @@ in
        | zero => toNat
        | succ m, r => fun (g : Nary (succ m)) -> r (appNary m g (succ m))
        end) f) : Nat
+(*
+  Basically:
+  f 3 2 1
+  where
+  f x y z = x + (y + z)
+*)

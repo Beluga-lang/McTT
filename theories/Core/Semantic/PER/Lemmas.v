@@ -428,6 +428,7 @@ Proof with mautosolve.
       intros.
       assert (in_rel c' c) by eauto.
       assert (in_rel c c) by (etransitivity; eassumption).
+      destruct_all.
       destruct_rel_mod_eval.
       functional_eval_rewrite_clear.
       econstructor; eauto.
@@ -1178,7 +1179,7 @@ Proof with intuition.
 Qed.
 
 Ltac invert_per_ctx_env H :=
-  (unshelve eapply (per_ctx_env_cons_clean_inversion _) in H; [eassumption | |]; destruct H as [? [? []]])
+  (unshelve eapply (per_ctx_env_cons_clean_inversion _) in H; [eassumption | |]; deex_in H; destruct H as [])
   + (inversion H; subst).
 
 Ltac invert_per_ctx_envs := match_by_head per_ctx_env ltac:(fun H => directed invert_per_ctx_env H).
@@ -1222,7 +1223,7 @@ Proof.
   assert {{ Dom ρ ↯ ≈ ρ' ↯ ∈ tail_rel0 }} by intuition.
   unshelve eexists; [eassumption |].
   destruct_rel_typ.
-  eapply per_elem_subtyping with (i := max x (max i0 i)); try eassumption.
+  eapply per_elem_subtyping with (i := max i1 (max i0 i)); try eassumption.
   - eauto using per_subtyp_cumu_right.
   - saturate_refl.
     eauto using per_univ_elem_cumu_max_left.

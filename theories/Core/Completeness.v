@@ -16,7 +16,6 @@ Proof with mautosolve.
   destruct_conjs.
   functional_initial_env_rewrite_clear.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
-  rename x into elem_rel.
   destruct_by_head rel_typ.
   functional_eval_rewrite_clear.
   destruct_by_head rel_exp.

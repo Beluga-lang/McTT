@@ -3,34 +3,49 @@ let ((Vec : forall (A : Type@0) (n : Nat) -> Type@2) :=
      (fun (A : Type@0) (n : Nat) -> forall (C : forall (l : Nat) -> Type@1) (nil : C 0) (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) -> C n))
 
     ((nil : forall (A : Type@0) -> Vec A 0) :=
-     (fun (A : Type@0) (C : forall (l : Nat) -> Type@1) (nil : C 0) (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) -> nil))
+     (fun (A : Type@0)
+          (C : forall (l : Nat) -> Type@1)
+          (nil : C 0)
+          (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) ->
+        nil
+     ))
 
     ((cons : forall (A : Type@0) (n : Nat) (head : A) (tail : Vec A n) -> Vec A (succ n)) :=
-     (fun (A : Type@0) (n : Nat) (head : A) (tail : forall (C : forall (l : Nat) -> Type@1) (nil : C 0) (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) -> C n) (C : forall (l : Nat) -> Type@1) (nil : C 0) (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) -> cons n head (tail C nil cons)))
+     (fun (A : Type@0)
+          (n : Nat)
+          (head : A)
+          (tail : forall (C : forall (l : Nat) -> Type@1) (nil : C 0) (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) -> C n)
+          (C : forall (l : Nat) -> Type@1)
+          (nil : C 0)
+          (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) ->
+        cons n head (tail C nil cons)
+     ))
 
     ((vecRec : forall (A : Type@0) (n : Nat) (vec : Vec A n) (C : forall (l : Nat) -> Type@1) (nil : C 0) (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) -> C n) :=
      (fun (A : Type@0) (n : Nat) (vec : forall (C : forall (l : Nat) -> Type@1) (nil : C 0) (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) -> C n) (C : forall (l : Nat) -> Type@1) (nil : C 0) (cons : forall (l : Nat) (a : A) (r : C l) -> C (succ l)) -> vec C nil cons))
 
-in (let ((totalHead : forall (A : Type@0) (n : Nat) (vec : Vec A (succ n)) -> A) :=
-   	 (
-       	  fun (A : Type@0) (n : Nat) (vec : Vec A (succ n)) ->
+in
+let ((totalHead : forall (A : Type@0) (n : Nat) (vec : Vec A (succ n)) -> A) :=
+     (fun (A : Type@0) (n : Nat) (vec : Vec A (succ n)) ->
            vecRec A (succ n) vec (fun (l : Nat) -> rec l return r . Type@0 | zero => Nat | succ l, r => A end) 0 (fun (l : Nat) (a : A) (r : rec l return r . Type@0 | zero => Nat | succ l, r => A end) -> a)
-      	 ))
+     ))
 
-	((vec : Vec (forall (n : Nat) -> Nat) 3) :=
-	 (
-           cons (forall (n : Nat) -> Nat) 2
-             (fun (n : Nat) -> succ (succ (succ n)))
-             (
-               cons (forall (n : Nat) -> Nat) 1
+    ((vec : Vec (forall (n : Nat) -> Nat) 3) :=
+     (cons (forall (n : Nat) -> Nat) 2
+           (fun (n : Nat) -> succ (succ (succ n)))
+           (cons (forall (n : Nat) -> Nat) 1
                  (fun (n : Nat) -> succ n)
-              	 (
-                   cons (forall (n : Nat) -> Nat) 0
-                     (fun (n : Nat) -> succ (succ n))
-                     (nil (forall (n : Nat) -> Nat))
+                 (cons (forall (n : Nat) -> Nat) 0
+                       (fun (n : Nat) -> succ (succ n))
+                       (nil (forall (n : Nat) -> Nat))
                  )
              )
-         ))
-
-   in totalHead ((forall (n : Nat) -> Nat)) 2 vec 4)
+     ))
+in
+totalHead ((forall (n : Nat) -> Nat)) 2 vec 4
 ) : Nat
+(*
+  When
+    vec = [fun x -> 3 + x; fun x -> 1 + x; fun x -> 2 + x]
+  we get its head (fun x -> 3 + x) and applies it to 4.
+*)

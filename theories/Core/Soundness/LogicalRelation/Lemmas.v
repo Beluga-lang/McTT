@@ -1237,7 +1237,7 @@ Ltac basic_invert_glu_rel_exp H :=
   (unshelve eapply (glu_rel_exp_clean_inversion2 _ _) in H; shelve_unifiable; [eassumption | eassumption |];
    simpl in H)
   + (unshelve eapply (glu_rel_exp_clean_inversion1 _) in H; shelve_unifiable; [eassumption |];
-     destruct H as [])
+     deex_once_in H)
   + (inversion H as [? [? [? ?]]]; subst).
 
 

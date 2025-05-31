@@ -1,3 +1,5 @@
+.vscode
+
 # Dune outputs
 _build
 *.opam

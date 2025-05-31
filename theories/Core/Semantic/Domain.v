@@ -65,7 +65,7 @@ Module Domain_Notations.
   Notation "f x .. y" := (d_app .. (d_app f x) .. y) (in custom domain at level 40, f custom domain, x custom domain at next level, y custom domain at next level) : mctt_scope.
   Notation "'Eq' a m n" := (d_eq a m n) (in custom domain at level 1, a custom domain at level 30, m custom domain at level 35, n custom domain at level 40) : mctt_scope.
   Notation "'refl' m" := (d_refl m) (in custom domain at level 1, m custom domain at level 40) : mctt_scope.
-  Notation "'eqrec' n 'under' ρ 'as' 'Eq' a m1 m2 'return' B | 'refl' -> BR 'end'" := (d_eqrec ρ a B BR m1 m2 n) (in custom domain at level 0, a custom domain at level 30, B custom domain at level 60, BR custom domain at level 60, m1 custom domain at level 35, m2 custom domain at level 40, n custom domain at level 60) : mctt_scope.
+  Notation "'eqrec' n 'under' ρ 'as' 'Eq' a m1 m2 'return' B | 'refl' -> BR 'end'" := (d_eqrec ρ a B BR m1 m2 n) (in custom domain at level 0, a custom domain at level 30, B custom exp at level 60, BR custom exp at level 60, m1 custom domain at level 35, m2 custom domain at level 40, n custom domain at level 60) : mctt_scope.
   Notation "'!' n" := (d_var n) (in custom domain at level 0, n constr at level 0) : mctt_scope.
   Notation "'⇑' a m" := (d_neut a m) (in custom domain at level 0, a custom domain at level 30, m custom domain at level 30) : mctt_scope.
   Notation "'⇓' a m" := (d_dom a m) (in custom domain at level 0, a custom domain at level 30, m custom domain at level 30) : mctt_scope.
