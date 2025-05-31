@@ -143,15 +143,16 @@ Proof.
         rewrite <- H5.
         firstorder.
   - deepexec glu_univ_elem_per_univ ltac:(fun H => pose proof H).
+    unfold per_univ in H10. deex.
     firstorder.
-    specialize (H _ _ _ H10) as [? []].
+    specialize (H _ _ _ H8) as [? []].
     econstructor; mauto 3.
     + apply_equiv_left. trivial.
     + intros.
       saturate_weakening_escape.
       deepexec H ltac:(fun H => destruct H).
-      progressive_invert H16.
-      deepexec H20 ltac:(fun H => pose proof H).
+      progressive_invert H14.
+      deepexec H18 ltac:(fun H => pose proof H).
       functional_read_rewrite_clear.
       bulky_rewrite.
 
@@ -325,7 +326,7 @@ Proof.
     saturate_weakening_escape.
     destruct_glu_eq;
       dir_inversion_clear_by_head read_nf.
-    + pose proof (PER_refl1 _ _ _ _ _ H25).
+    + pose proof (PER_refl1 _ _ _ _ _ H21).
       gen_presups.
       assert {{ Γ ⊢w Id : Γ }} by mauto 4.
       assert (P Γ {{{ B[Id] }}}) as HB by mauto 3.

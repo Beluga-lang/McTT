@@ -9,6 +9,24 @@ Create HintDb mctt discriminated.
 #[export]
 Typeclasses Transparent arrows.
 
+(** Destruct existential quantification but keeps the name *)
+Ltac deex_once_in H :=
+  match type of H with
+    | exists (name:_), _ =>
+      let name' := fresh name in
+      destruct H as [name' H]
+    end.
+
+Ltac deex_in H :=
+  repeat deex_once_in H.
+
+Ltac deex_once :=
+  match goal with
+    | [ H: exists (name:_), _ |- _ ] => deex_once_in H
+    end.
+
+Ltac deex := repeat deex_once.
+
 (** *** Generalization of Variables *)
 
 Tactic Notation "gen" ident(x) := generalize dependent x.
@@ -63,7 +81,7 @@ Tactic Notation "on_all_hyp_rev:" tactic4(tac) :=
 
 Ltac destruct_logic :=
   destruct_one_pair
-  || destruct_one_ex
+  || deex_once
   || match goal with
     | [ H : ?X \/ ?Y |- _ ] => destruct H
     | [ ev : { _ } + { _ } |- _ ] => destruct ev
@@ -378,6 +396,33 @@ Proof.
     auto.
 Qed.
 
+Lemma equiv_rel_PER A (R R' : relation A) :
+    (@PER A) R ->
+    relation_equivalence R R' ->
+    PER R'.
+Proof.
+  intros. inversion H. 
+  unfold Symmetric in *. 
+  unfold Transitive in *. auto.
+  constructor.
+  - unfold Symmetric. intros. auto.
+    apply H0. apply PER_Symmetric. apply H0. auto.
+  - unfold Transitive. intros.
+    apply H0 in H1. apply H0 in H2.
+    apply H0. eauto.
+Qed.
+
+#[global]
+Ltac saturate_PER :=
+  repeat match goal with
+    | H : ?R ?a ?b , H1 : relation_equivalence ?R ?R' , H2 : PER ?R' |- _ =>
+        assert (PER R) by (eapply equiv_rel_PER; eauto; try symmetry; eauto);
+        fail_if_dup
+    | H : ?R ?a ?b , H1 : relation_equivalence ?R ?R' , H2 : PER ?R |- _ =>
+        assert (PER R') by (eapply equiv_rel_PER; eauto);
+        fail_if_dup
+    end.
+    
 #[global]
 Ltac saturate_refl :=
   repeat match goal with
