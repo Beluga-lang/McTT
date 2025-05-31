@@ -132,7 +132,7 @@ Qed.
 
 #[global]
   Ltac destruct_glu_eq :=
-  match_by_head1 glu_eq ltac:(fun H => destruct H).
+  match_by_head1 glu_eq ltac:(fun H => dependent destruction H).
 
 Lemma glu_univ_elem_trm_resp_typ_exp_eq : forall i P El a,
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
@@ -802,12 +802,12 @@ Proof.
       symmetry. trivial.
   - simpl_glu_rel.
     econstructor; eauto.
-    destruct_glu_eq; progressive_invert H20; econstructor; mauto 3; intros.
+    destruct_glu_eq; match_by_head1 per_eq progressive_invert; econstructor; mauto 3; intros.
     + etransitivity; mauto.
     + etransitivity; eauto.
       symmetry. eauto.
     + resp_per_IH.
-    + specialize (H20 (length Δ)).
+    + match_by_head1 per_bot ltac:(fun H => specialize (H (length Δ))).
       destruct_all.
       functional_read_rewrite_clear.
       mauto.
@@ -1064,7 +1064,7 @@ Proof.
       * assert {{ Δ0 ⊢w σ ∘ σ0 : Γ }} by mauto 4.
         bulky_rewrite.
         etransitivity;
-          [| deepexec H14 ltac:(fun H => apply H)].
+          [| deepexec H13 ltac:(fun H => apply H)].
         mauto 4.
   - destruct_conjs.
     split; [mauto 3 |].

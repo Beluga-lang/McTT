@@ -1,6 +1,5 @@
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
-From Mctt.Core.Completeness Require Import FundamentalTheorem.
 From Mctt.Core.Semantic Require Import Realizability.
 From Mctt.Core.Soundness Require Import
   ContextCases
@@ -92,16 +91,25 @@ Qed.
 #[export]
   Hint Resolve glu_rel_eq_refl : mctt.
 
+Lemma glu_rel_exp_eq_clean_inversion : forall {i Γ Sb M1 M2 A N},
+    {{ EG Γ ∈ glu_ctx_env ↘ Sb }} ->
+    {{ Γ ⊩ A : Type@i }} ->
+    {{ Γ ⊩ M1 : A }} ->
+    {{ Γ ⊩ M2 : A }} ->
+    {{ Γ ⊩ N : Eq A M1 M2 }} ->
+    glu_rel_exp_resp_sub_env i Sb N {{{Eq A M1 M2}}}.
+Proof.
+  intros * ? HA HM1 HM2 HN.
+  assert {{ Γ ⊩ Eq A M1 M2 : Type@i }} by mauto.
+  eapply glu_rel_exp_clean_inversion2 in HN; eassumption.
+Qed.
 
-Ltac apply_glu_rel_exp_judge :=
-  destruct_glu_rel_exp_with_sub;
-  simplify_evals;
-  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H);
-  handle_functional_glu_univ_elem;
-  unfold univ_glu_exp_pred' in *;
-  destruct_conjs;
-  clear_dups.
 
+#[global]
+  Ltac invert_glu_rel_exp H ::=
+  directed (unshelve eapply (glu_rel_exp_eq_clean_inversion _) in H; shelve_unifiable; try eassumption;
+   simpl in H)
+  + universe_invert_glu_rel_exp H.
 
 Lemma glu_rel_eq_eqrec : forall Γ A i M1 M2 B j BR N,
     {{ Γ ⊩ A : Type@i }} ->
@@ -112,29 +120,7 @@ Lemma glu_rel_eq_eqrec : forall Γ A i M1 M2 B j BR N,
     {{ Γ ⊩ N : Eq A M1 M2 }} ->
     {{ Γ ⊩ eqrec N as Eq A M1 M2 return B | refl -> BR end : B[Id,,M1,,M2,,N] }}.
 Proof.
-  (* intros * HA HM1 HM2 HB HBR HN.
-  assert {{ ⊩ Γ }} as [SbΓ] by mauto.
-  saturate_syn_judge.
-  assert {{ Γ, A ⊢ A[Wk] : Type@i }} by mauto.
-  pose (SbΓA := cons_glu_sub_pred i Γ {{{ A }}} SbΓ).
-  assert {{ EG Γ, A ∈ glu_ctx_env ↘ SbΓA }} by (invert_glu_rel_exp HA; econstructor; mauto 3; reflexivity).
-  pose (SbΓAA := cons_glu_sub_pred i {{{ Γ, A }}} {{{ A[Wk] }}} SbΓA).
-  assert {{ EG Γ, A, A[Wk] ∈ glu_ctx_env ↘ SbΓAA }}. {
-    invert_glu_rel_exp HA. eapply glu_ctx_env_cons; mauto 3.
-    - intros. dependent destruction H8. saturate_glu_typ_from_el.
-      econstructor; mauto.
-    - unfold SbΓAA. reflexivity.  
-  }
-  assert {{ Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by mauto.
-  pose (SbΓAAEq := cons_glu_sub_pred i {{{ Γ, A, A[Wk] }}} {{{ Eq A[Wk∘Wk] #1 #0 }}} SbΓAA).
-  assert {{ EG Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ∈ glu_ctx_env ↘ SbΓAAEq }}. {
-    invert_glu_rel_exp HA. eapply glu_ctx_env_cons; mauto 3.
-    - admit.
-    - unfold SbΓAAEq. reflexivity.  
-  }
-   *)
-
-     intros * HA HM1 HM2 HB HBR HN.
+  intros * HA HM1 HM2 HB HBR HN.
   assert {{ ⊩ Γ }} by mauto.
   assert {{ ⊩ Γ }} as [SbΓ] by mauto.
   saturate_syn_judge.

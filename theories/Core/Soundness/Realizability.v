@@ -326,7 +326,7 @@ Proof.
     saturate_weakening_escape.
     destruct_glu_eq;
       dir_inversion_clear_by_head read_nf.
-    + pose proof (PER_refl1 _ _ _ _ _ H25).
+    + pose proof (PER_refl1 _ _ _ _ _ H21).
       gen_presups.
       assert {{ Γ ⊢w Id : Γ }} by mauto 4.
       assert (P Γ {{{ B[Id] }}}) as HB by mauto 3.
