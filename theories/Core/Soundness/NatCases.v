@@ -372,8 +372,8 @@ Proof.
   assert {{ Γ ⊢ MZ : A[Id,,zero] }} by mauto 2.
   invert_glu_rel_exp HMZ.
   assert {{ ⊩ Γ }} by (eexists; eassumption).
-  assert {{ Γ ⊩ ℕ : Type@i }} as Hℕ by mauto 3.
-  pose (SbΓℕ := cons_glu_sub_pred i Γ {{{ ℕ }}} SbΓ).
+  assert {{ Γ ⊩ ℕ : Type@0 }} as Hℕ by mauto 3.
+  pose (SbΓℕ := cons_glu_sub_pred 0 Γ {{{ ℕ }}} SbΓ).
   assert {{ EG Γ, ℕ ∈ glu_ctx_env ↘ SbΓℕ }} by (invert_glu_rel_exp Hℕ; econstructor; mauto 3; reflexivity).
   assert {{ Γ, ℕ ⊢ A : Type@i }} by mauto 2.
   pose proof HA.
@@ -587,14 +587,14 @@ Lemma glu_rel_exp_natrec_helper : forall {i Γ SbΓ A MZ MS},
 Proof.
   intros * ? HA ? ?.
   assert {{ ⊩ Γ }} by mauto 2.
-  assert {{ Γ ⊩ ℕ : Type@i }} as Hℕ by mauto 3.
+  assert {{ Γ ⊩ ℕ : Type@0 }} as Hℕ by mauto 3.
   assert {{ Γ ⊩ A[Id,,zero] : Type@i }}.
   {
-    assert {{ Γ ⊢ ℕ : Type@i }} by mauto 2.
+    assert {{ Γ ⊢ ℕ : Type@0 }} by mauto 2.
     assert {{ Γ ⊢ ℕ ⊆ ℕ[Id] }} by mauto 4.
     mauto.
   }
-  pose (SbΓℕ := cons_glu_sub_pred i Γ {{{ ℕ }}} SbΓ).
+  pose (SbΓℕ := cons_glu_sub_pred 0 Γ {{{ ℕ }}} SbΓ).
   assert {{ EG Γ, ℕ ∈ glu_ctx_env ↘ SbΓℕ }} by (invert_glu_rel_exp Hℕ; econstructor; mauto 3; reflexivity).
   pose proof HA.
   invert_glu_rel_exp HA.
@@ -628,8 +628,8 @@ Lemma glu_rel_exp_natrec : forall {Γ i A MZ MS M},
 Proof.
   intros * HA HMZ HMS HM.
   assert {{ ⊩ Γ }} as [SbΓ] by mauto 2.
-  assert {{ Γ ⊩ ℕ : Type@i }} as Hℕ by mauto 3.
-  pose (SbΓℕ := cons_glu_sub_pred i Γ {{{ ℕ }}} SbΓ).
+  assert {{ Γ ⊩ ℕ : Type@0 }} as Hℕ by mauto 3.
+  pose (SbΓℕ := cons_glu_sub_pred 0 Γ {{{ ℕ }}} SbΓ).
   assert {{ EG Γ, ℕ ∈ glu_ctx_env ↘ SbΓℕ }} by (invert_glu_rel_exp Hℕ; econstructor; mauto 3; try reflexivity).
   assert {{ Γ, ℕ ⊩ Type@i : Type@(S i) }} by mauto 3.
   pose proof HM.
