@@ -120,6 +120,7 @@ Lemma glu_rel_eq_eqrec : forall Γ A i M1 M2 B j BR N,
     {{ Γ ⊩ N : Eq A M1 M2 }} ->
     {{ Γ ⊩ eqrec N as Eq A M1 M2 return B | refl -> BR end : B[Id,,M1,,M2,,N] }}.
 Proof.
+  intros * HA HM1 HM2 HB HBR HN.
   assert {{ ⊩ Γ }} by mauto.
   assert {{ ⊩ Γ }} as [SbΓ] by mauto.
   saturate_syn_judge.
