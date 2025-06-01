@@ -216,10 +216,10 @@ Section glu_univ_elem_cumulativity.
       simpl in *;
       try solve [repeat split; intros; destruct_conjs; mauto 2 | intuition mauto 3].
 
-    - rename x into IP'.
-      rename x0 into IEl'.
-      rename x1 into OP'.
-      rename x2 into OEl'.
+    - rename IP0 into IP'.
+      rename IEl0 into IEl'.
+      rename OP0 into OP'.
+      rename OEl0 into OEl'.
       destruct_by_head pi_glu_typ_pred.
       econstructor; intros; mauto 4.
       + assert {{ Δ ⊢ IT[σ] ® IP }} by mauto.
@@ -233,10 +233,10 @@ Section glu_univ_elem_cumulativity.
         enough {{ Δ ⊢ OT[σ,,M] ® OP m equiv_m }} by mauto.
         enough {{ Δ ⊢ M : IT[σ] ® m ∈ IEl }} by mauto.
         eapply IHHglu...
-    - rename x into IP'.
-      rename x0 into IEl'.
-      rename x1 into OP'.
-      rename x2 into OEl'.
+    - rename IP0 into IP'.
+      rename IEl0 into IEl'.
+      rename OP0 into OP'.
+      rename OEl0 into OEl'.
       destruct_by_head pi_glu_exp_pred.
       handle_per_univ_elem_irrel.
       econstructor; intros; mauto 4.
@@ -254,10 +254,10 @@ Section glu_univ_elem_cumulativity.
         assert (exists mn, {{ $| m & n |↘ mn }} /\ {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl n equiv_n }}) by mauto 4.
         destruct_conjs.
         functional_eval_rewrite_clear...
-    - rename x into IP'.
-      rename x0 into IEl'.
-      rename x1 into OP'.
-      rename x2 into OEl'.
+    - rename IP0 into IP'.
+      rename IEl0 into IEl'.
+      rename OP0 into OP'.
+      rename OEl0 into OEl'.
       destruct_by_head pi_glu_typ_pred.
       destruct_by_head pi_glu_exp_pred.
       handle_per_univ_elem_irrel.
@@ -500,9 +500,8 @@ Proof.
   - bulky_rewrite.
     mauto 3.
   - destruct_by_head pi_glu_typ_pred.
-    rename x into IP. rename x0 into IEl. rename x1 into OP. rename x2 into OEl.
     rename A0 into A'. rename IT0 into IT'. rename OT0 into OT'.
-    rename x3 into OP'. rename x4 into OEl'.
+    rename OP0 into OP'. rename OEl0 into OEl'.
     assert {{ Γ ⊢ IT ® IP }}.
     {
       assert {{ Γ ⊢ IT[Id] ® IP }} by mauto 4.
@@ -593,9 +592,7 @@ Proof.
     eapply glu_univ_elem_typ_cumu_ge; revgoals; mautosolve 3.
   - rename A0 into A'.
     rename IT0 into IT'. rename OT0 into OT'.
-    rename x into IP. rename x0 into IEl.
-    rename x1 into OP. rename x2 into OEl.
-    rename x3 into OP'. rename x4 into OEl'.
+    rename OP0 into OP'. rename OEl0 into OEl'.
     handle_per_univ_elem_irrel.
     econstructor; mauto 3.
     + enough {{ Sub Π a ρ B <: Π a' ρ' B' at i }} by (eapply per_elem_subtyping; try eassumption).

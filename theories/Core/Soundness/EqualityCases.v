@@ -161,7 +161,7 @@ Proof.
   eexists; split; eauto.
   exists j; intros.
   assert {{ Δ ⊢s σ : Γ }} by mauto 4.
-  apply_glu_rel_judge.
+  apply_glu_rel_judge
   apply_glu_rel_exp_judge.
 
   repeat invert_glu_rel1.
@@ -193,13 +193,13 @@ Proof.
         match_by_head1 (glu_ctx_env SbΓA) invert_glu_ctx_env.
         apply_equiv_left.
         econstructor; mauto 3; bulky_rewrite.
+        simpl.
         admit.
       }
       destruct_glu_rel_exp_with_sub.
       simplify_evals.
-      simpl in *.
-
       eexists; split; mauto 3.
+      handle_per_univ_elem_irrel.
       admit.
 
     - match_by_head1 per_bot ltac:(fun H => pose proof (H (length Γ0)) as [V [HV _]]).
@@ -208,6 +208,7 @@ Proof.
       assert {{ Γ0 ⊢ N[σ] ≈ V : (Eq A M1 M2)[σ] }} by admit.
 
       eexists; split; mauto 3.
+      
 
       admit.
   }
