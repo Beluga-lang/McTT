@@ -399,7 +399,7 @@ Proof.
     handle_per_univ_elem_irrel.
     assert {{ Dom ρσ ↦ m1 ↦ m2 ≈ ρ'σ ↦ m1' ↦ m2' ∈ env_relΔAA }} by (unfold env_relΔAA; unshelve eexists; intuition).
     assert {{ Dom ρσ ↦ n ↦ n ≈ ρσ ↦ m1 ↦ m2 ∈ env_relΔAA }}. {
-      unfold env_relΔAA; unshelve eexists; intuition. simpl. 
+      unfold env_relΔAA; unshelve eexists; intuition. simpl.
       saturate_PER.
       (* TODO *)
       apply H43; eauto.

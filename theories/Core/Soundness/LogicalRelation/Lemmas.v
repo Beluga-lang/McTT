@@ -1147,12 +1147,18 @@ Qed.
 
 (** *** Tactics for [glu_rel_*] *)
 
+Ltac deex_destruct_glu_rel H H' :=
+  match type of H with
+  | forall _ _ _ _, exists _, _ => pose proof (H _ _ _ H'); deex_once
+  | _ => destruct (H _ _ _ H') as []
+  end.
+
 Ltac destruct_glu_rel_by_assumption sub_glu_rel H :=
   repeat
     match goal with
     | H' : {{ ^?Δ ⊢s ^?σ ® ^?ρ ∈ ?sub_glu_rel0 }} |- _ =>
         unify sub_glu_rel0 sub_glu_rel;
-        destruct (H _ _ _ H') as [];
+        deex_destruct_glu_rel H H';
         destruct_conjs;
         mark_with H' 1
     end;
@@ -1423,7 +1429,7 @@ Ltac apply_glu_rel_judge :=
   match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H);
   handle_functional_glu_univ_elem;
   unfold univ_glu_exp_pred' in *;
-  destruct_conjs;
+  destruct_all;
   clear_dups.
 
 
@@ -1433,7 +1439,7 @@ Ltac apply_glu_rel_exp_judge :=
   match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H);
   handle_functional_glu_univ_elem;
   unfold univ_glu_exp_pred' in *;
-  destruct_conjs;
+  destruct_all;
   clear_dups.
 
 
