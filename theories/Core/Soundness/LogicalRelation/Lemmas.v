@@ -1149,7 +1149,9 @@ Qed.
 
 Ltac deex_destruct_glu_rel H H' :=
   match type of H with
-  | forall _ _ _ _, exists _, _ => pose proof (H _ _ _ H'); deex_once
+  | forall _ _ _ _, exists _, _ => 
+      let H'' := fresh "H" in
+        pose proof (H _ _ _ H') as H''; deex_once_in H''
   | _ => destruct (H _ _ _ H') as []
   end.
 

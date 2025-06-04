@@ -129,7 +129,7 @@ Proof.
   assert {{ ⊩ Γ , A }} by mauto.
   assert {{ ⊩ Γ , A }} as [SbΓA] by mauto.
   assert {{ Γ ⊩s Id,,M1,,M2 : Γ, A, A[Wk] }} by (eapply glu_rel_sub_extend; mauto 4).
-  assert {{ ⊩ Γ , A, A[Wk] }} by mauto.
+  assert {{ ⊩ Γ , A, A[Wk] }} by (unshelve mauto; eauto). 
   assert {{ ⊩ Γ , A, A[Wk] }} as [SbΓAA] by mauto.
   assert {{ Γ ⊩s Id,,M1,,M2,,N : Γ, A, A[Wk], Eq A[Wk ∘ Wk] #1 #0 }}.
   {
@@ -164,53 +164,78 @@ Proof.
   apply_glu_rel_judge.
   apply_glu_rel_exp_judge.
 
-  repeat invert_glu_rel1.
+  rename m2 into n.
+  rename m1 into m2.
+  rename m0 into m1.
+  rename m into a.
+  
+  repeat invert_glu_rel1.  
   handle_functional_glu_univ_elem.
   saturate_glu_typ_from_el.
   unify_glu_univ_lvl i.
 
+  rename B1 into Aσ.
+  rename M0 into M1σ.
+  rename N1 into M2σ.
+
   deepexec (glu_univ_elem_per_univ i) ltac:(fun H => pose proof H).
-  match_by_head per_univ ltac:(fun H => destruct H).
+  match_by_head per_univ ltac:(fun H => unfold per_univ in H; deex_in H).
   do 2 deepexec (glu_univ_elem_per_elem i) ltac:(fun H => pose proof H; fail_at_if_dup ltac:(4)).
   saturate_glu_info.
 
-  eassert (exists mr, {{ ⟦ eqrec N as Eq A M1 M2 return B | refl -> BR end ⟧ ρ ↘ mr }}
-                 /\ {{ Γ0 ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,M1,,M2,,N][σ] ® mr ∈ El0 }}) as [? [? ?]].
+  eassert (exists mr, {{ ⟦ eqrec N as Eq A M1 M2 return B | refl -> BR end ⟧ ρ ↘ mr }} /\ 
+                      {{ Γ0 ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,M1,,M2,,N][σ] ® mr ∈ El0 }}) as [? [? ?]].
   {
     destruct_glu_eq.
     - assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
-      assert {{ Γ0 ⊢ M'' : B1 }} by (gen_presups; trivial).
+      assert {{ Γ0 ⊢ M'' : Aσ }} by (gen_presups; trivial).
       pose proof (H91 _ _ HId) as HM''.
       saturate_glu_typ_from_el.
-      assert {{ Γ0 ⊢ B1[Id] ≈ B1 : Type@i }} as HrwB1 by mauto 3.
+      assert {{ Γ0 ⊢ Aσ[Id] ≈ Aσ : Type@i }} as HrwB1 by mauto 3.
       rewrite HrwB1 in *.
-      assert {{ Γ0 ⊢ B1 ≈ A[σ] : Type@i }} as HrwB1' by mauto 4.
+      assert {{ Γ0 ⊢ Aσ ≈ A[σ] : Type@i }} as HrwB1' by mauto 4.
       rewrite HrwB1' in *.
-      saturate_glu_info.
+      saturate_glu_info. 
 
       assert (SbΓA Γ0 {{{σ ,, M''}}} d{{{ρ ↦ m'}}}).
       {
         match_by_head1 (glu_ctx_env SbΓA) invert_glu_ctx_env.
         apply_equiv_left.
         econstructor; mauto 3; bulky_rewrite.
-        handle_functional_glu_univ_elem.
-        admit.
+        handle_per_univ_elem_irrel.
+        handle_functional_glu_univ_elem. simpl.
+        eapply glu_univ_elem_resp_per_elem with (m:=m2) (R:=R); try symmetry; eauto.
+        assert {{ Γ0 ⊢ #0[σ,,M''] ≈ M2σ : A[σ] }} by mauto.
+        assert {{ Γ0 ⊢ M2σ[Id] ≈ #0[σ,,M''] : A[σ] }} by mauto 4.
+        eapply glu_univ_elem_trm_resp_exp_eq; eauto.
       }
+      (* seems we need to construct various instances of SbΓAAEq, 
+         similar to what we did in the completeness *)
       destruct_glu_rel_exp_with_sub.
       simplify_evals.
-      eexists; split; mauto 3. 
+      handle_per_univ_elem_irrel.
+      eexists; split; mauto 3.
+      (* m9 (⟦ BR ⟧ ρ ↦ m') -> El7 -> m (⟦ B ⟧ ρ ↦ m' ↦ m' ↦ refl m') *)
+      (* m8 (⟦ BR ⟧ ρ ↦ m) -> El0 -> m7 (⟦ B ⟧ ρ ↦ m1 ↦ m2 ↦ refl m') *)
+      assert (exists R, {{ DF m7 ≈ m ∈ per_univ_elem j ↘ R }}) by admit.
+      deex_in H47. handle_per_univ_elem_irrel.
+      eapply glu_univ_elem_resp_per_univ with (a':=m) in H74 as H'; mauto.
       handle_functional_glu_univ_elem.
-      admit.
-
+      assert {{ Γ0 ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,M''] ≈ B[Id,,M1,,M2,,N][σ] : Type@j }} by admit.
+      eapply glu_univ_elem_trm_resp_typ_exp_eq; eauto.
+      assert {{ Γ0 ⊢ BR[σ,,M''] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,#0,,refl A[Wk] #0][σ,,M''] }} by admit.
+      eapply glu_univ_elem_trm_resp_exp_eq; eauto.
     - match_by_head1 per_bot ltac:(fun H => pose proof (H (length Γ0)) as [V [HV _]]).
       assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
       pose proof (H45 _ _ V HId HV).
       assert {{ Γ0 ⊢ N[σ] ≈ V : (Eq A M1 M2)[σ] }} by admit.
 
       eexists; split; mauto 3.
-      
-
-      admit.
+      eapply realize_glu_elem_bot; mauto 3.
+      econstructor; mauto 3.
+      + admit.
+      + admit.
+      + intros. admit.
   }
 
   econstructor; mauto.

@@ -280,7 +280,7 @@ Proof.
   apply_predicate_equivalence.
   clear_dups.
   unfold univ_glu_exp_pred' in *.
-  destruct_conjs.
+  destruct_all.
   handle_functional_glu_univ_elem.
   match goal with
   | _: {{ ⟦ MS ⟧ ρ ↦ m' ↦ r' ↘ ^?m }} |- _ =>
