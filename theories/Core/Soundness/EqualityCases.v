@@ -1,6 +1,10 @@
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
 From Mctt.Core.Semantic Require Import Realizability.
+From Mctt.Core.Completeness Require Import 
+  UniverseCases
+  EqualityCases
+  FundamentalTheorem.
 From Mctt.Core.Soundness Require Import
   ContextCases
   LogicalRelation
@@ -196,7 +200,6 @@ Proof.
       assert {{ Γ0 ⊢ Aσ ≈ A[σ] : Type@i }} as HrwB1' by mauto 4.
       rewrite HrwB1' in *.
       saturate_glu_info. 
-
       assert (SbΓA Γ0 {{{σ ,, M''}}} d{{{ρ ↦ m'}}}).
       {
         match_by_head1 (glu_ctx_env SbΓA) invert_glu_ctx_env.
@@ -215,15 +218,39 @@ Proof.
       simplify_evals.
       handle_per_univ_elem_irrel.
       eexists; split; mauto 3.
+      assert {{Γ0 ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,M''] ≈ B[Id,,M1,,M2,,N][σ] : Type@j }} by admit.
+      assert {{ Γ0 ⊢ BR[σ,,M''] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,#0,,refl A[Wk] #0][σ,,M''] }} by admit.
       (* m9 (⟦ BR ⟧ ρ ↦ m') -> El7 -> m (⟦ B ⟧ ρ ↦ m' ↦ m' ↦ refl m') *)
       (* m8 (⟦ BR ⟧ ρ ↦ m) -> El0 -> m7 (⟦ B ⟧ ρ ↦ m1 ↦ m2 ↦ refl m') *)
-      assert (exists R, {{ DF m7 ≈ m ∈ per_univ_elem j ↘ R }}) by admit.
+      (* by relating m7 and m, we can show El7 is equivalent to EL0 *)
+      assert (exists R, {{ DF m7 ≈ m ∈ per_univ_elem j ↘ R }}). {
+        assert {{ Γ ⊢ A : Type@i }} as HwfA by mauto 3.
+        assert {{ Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊢ B : Type@j }} as HwfB by admit.
+        apply completeness_fundamental_exp in HwfA.
+        apply completeness_fundamental_exp in HwfB.
+        pose proof HwfA.
+        invert_rel_exp_of_typ HwfA. 
+        rename x into env_relΓ.
+        destruct_all.
+        eapply eval_eqrec_relΓAAEq_helper in H53 as [env_relΓAAEq [equiv_ΓAAEq HΓAAEq]]; eauto.
+        assert ({{ Dom ρ ↦ m1 ↦ m2 ↦ refl m' ≈ ρ ↦ m' ↦ m' ↦ refl m' ∈ env_relΓAAEq }}). {
+          eapply HΓAAEq; eauto.
+          - eapply (@glu_ctx_env_per_env Γ); mauto.
+          - etransitivity; [|symmetry]; eassumption. 
+          - econstructor; eauto. 
+            etransitivity; [|symmetry]; eassumption.
+            etransitivity; [|symmetry]; eassumption.  
+        }
+        invert_rel_exp_of_typ HwfB.
+        (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relB]; shelve_unifiable; [eassumption |]).
+        gen ρ. intros.
+        (on_all_hyp: destruct_rel_by_assumption env_relΓAAEq).
+        simplify_evals. mauto.
+      }
       deex_in H47. handle_per_univ_elem_irrel.
       eapply glu_univ_elem_resp_per_univ with (a':=m) in H74 as H'; mauto.
       handle_functional_glu_univ_elem.
-      assert {{ Γ0 ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,M''] ≈ B[Id,,M1,,M2,,N][σ] : Type@j }} by admit.
       eapply glu_univ_elem_trm_resp_typ_exp_eq; eauto.
-      assert {{ Γ0 ⊢ BR[σ,,M''] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,#0,,refl A[Wk] #0][σ,,M''] }} by admit.
       eapply glu_univ_elem_trm_resp_exp_eq; eauto.
     - match_by_head1 per_bot ltac:(fun H => pose proof (H (length Γ0)) as [V [HV _]]).
       assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
@@ -237,10 +264,7 @@ Proof.
       + admit.
       + intros. admit.
   }
-
   econstructor; mauto.
-
-
 Admitted.
 
 #[export]
