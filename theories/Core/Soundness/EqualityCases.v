@@ -115,6 +115,9 @@ Qed.
    simpl in H)
   + universe_invert_glu_rel_exp H.
 
+#[local]
+  Hint Resolve completeness_fundamental_ctx completeness_fundamental_exp : mctt.
+
 Lemma glu_rel_eq_eqrec : forall Γ A i M1 M2 B j BR N,
     {{ Γ ⊩ A : Type@i }} ->
     {{ Γ ⊩ M1 : A }} ->
@@ -212,13 +215,11 @@ Proof.
         assert {{ Γ0 ⊢ M2σ[Id] ≈ #0[σ,,M''] : A[σ] }} by mauto 4.
         eapply glu_univ_elem_trm_resp_exp_eq; eauto.
       }
-      (* seems we need to construct various instances of SbΓAAEq, 
-         similar to what we did in the completeness *)
       destruct_glu_rel_exp_with_sub.
       simplify_evals.
       handle_per_univ_elem_irrel.
       eexists; split; mauto 3.
-      assert {{Γ0 ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,M''] ≈ B[Id,,M1,,M2,,N][σ] : Type@j }} by admit.
+      assert {{ Γ0 ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,M''] ≈ B[Id,,M1,,M2,,N][σ] : Type@j }} by admit.
       assert {{ Γ0 ⊢ BR[σ,,M''] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,#0,,refl A[Wk] #0][σ,,M''] }} by admit.
       (* m9 (⟦ BR ⟧ ρ ↦ m') -> El7 -> m (⟦ B ⟧ ρ ↦ m' ↦ m' ↦ refl m') *)
       (* m8 (⟦ BR ⟧ ρ ↦ m) -> El0 -> m7 (⟦ B ⟧ ρ ↦ m1 ↦ m2 ↦ refl m') *)
@@ -247,7 +248,7 @@ Proof.
         (on_all_hyp: destruct_rel_by_assumption env_relΓAAEq).
         simplify_evals. mauto.
       }
-      deex_in H47. handle_per_univ_elem_irrel.
+      deex. handle_per_univ_elem_irrel.
       eapply glu_univ_elem_resp_per_univ with (a':=m) in H74 as H'; mauto.
       handle_functional_glu_univ_elem.
       eapply glu_univ_elem_trm_resp_typ_exp_eq; eauto.
@@ -255,15 +256,28 @@ Proof.
     - match_by_head1 per_bot ltac:(fun H => pose proof (H (length Γ0)) as [V [HV _]]).
       assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
       pose proof (H45 _ _ V HId HV).
-      assert {{ Γ0 ⊢ N[σ] ≈ V : (Eq A M1 M2)[σ] }} by admit.
-
+      assert {{ Γ0 ⊢ N[σ] ≈ V : (Eq A M1 M2)[σ] }}. {
+        assert {{ Γ0 ⊢ (Eq A M1 M2)[σ][Id] ≈ (Eq A M1 M2)[σ] : Type@i }} by mauto 4.
+        assert {{ Γ0 ⊢ N[σ][Id] ≈ V : (Eq A M1 M2)[σ] }} by mauto 3.
+        mauto 4.
+      }
       eexists; split; mauto 3.
       eapply realize_glu_elem_bot; mauto 3.
       econstructor; mauto 3.
-      + admit.
-      + admit.
-      + intros. admit.
-  }
+      + eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
+      + assert {{ ⊨ Γ }} by mauto 3.
+        assert {{ Γ ⊨ A : Type@i }} by mauto 3.
+        assert {{ Γ ⊨ M1 : A }} by mauto 3.
+        assert {{ Γ ⊨ M2 : A }} by mauto 3.
+        assert {{ Γ, A ⊨ BR : B[Id,,#0,,refl A[Wk] #0] }} by mauto.
+        assert {{ Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊨ B : Type@j }} by mauto 3.
+        unfold valid_ctx in *. unfold per_ctx in *. deex.
+        eapply (@eval_eqrec_neut_same_ctx _ _ _ _ A _ M1 _ M2); mauto 3.
+        eapply (@glu_ctx_env_per_env Γ); mauto.
+      + intros. 
+        assert {{ Δ ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ][σ0] ≈ M' : B[Id,,M1,,M2,,N][σ][σ0] }} by admit.
+        auto.
+      }
   econstructor; mauto.
 Admitted.
 
