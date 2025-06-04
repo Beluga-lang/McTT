@@ -456,12 +456,6 @@ Proof.
     (on_all_hyp: destruct_rel_by_assumption env_relΔAAEq).
     assert {{ Dom ρσ ↦ m1 ↦ m2 ↦ ⇑ a1 n ≈ ρ'σ ↦ m1' ↦ m2' ↦ ⇑ a' n' ∈ env_relΔAAEq }} by 
       (unshelve eexists; simpl; intuition; eauto).
-    assert {{ Dom ρσ ↦ m1 ↦ m2 ↦ (⇑ (Eq a m1 m2) n) ≈ ρ'σ ↦ m1' ↦ m2' ↦ (⇑ (Eq a0 m1' m2') n') ∈ env_relΔAAEq }} by (unshelve eexists; simpl; intuition; eauto).
-    assert {{ Dom ρσ ↦ m1 ↦ m2 ↦ (⇑ a1 n) ≈ ρσ ↦ m1 ↦ m2 ↦ (⇑ (Eq a m1 m2) n) ∈ env_relΔAAEq }}. {
-      unshelve eexists; simpl; intuition; eauto.
-      eapply H41. econstructor; eauto.
-      etransitivity; [|symmetry]; eauto. 
-    }
     (on_all_hyp: destruct_rel_by_assumption env_relΔAAEq).
     destruct_conjs.
     destruct_by_head rel_typ.
@@ -477,7 +471,8 @@ Proof.
     + repeat (econstructor; mauto 3).
     + econstructor; mauto.  
       econstructor; mauto.
-      eapply eval_eqrec_neut with (b:=a'1).
+      simpl in *.
+      eapply eval_eqrec_neut with (b:=a'0).
       repeat (econstructor; mauto 3).
       eapply per_bot_then_per_elem; mauto.
       rewrite_relation_equivalence_right. mauto.
@@ -665,12 +660,8 @@ Proof.
     (on_all_hyp: destruct_rel_by_assumption env_relΓAAEq).
     assert {{ Dom ρ ↦ m1 ↦ m2 ↦ ⇑ an n ≈ ρ' ↦ m1' ↦ m2' ↦ ⇑ an' n' ∈ env_relΓAAEq }} by
       (unshelve eexists; simpl; intuition; eauto).
-    assert {{ Dom ρ ↦ m1 ↦ m2 ↦ (⇑ (Eq a m1 m2) n) ≈ ρ' ↦ m1'' ↦ m2'' ↦ (⇑ (Eq a'' m1'' m2'') n'') ∈ env_relΓAAEq }} by (unshelve eexists; simpl; intuition; eauto).
-    assert {{ Dom ρ ↦ m1 ↦ m2 ↦ (⇑ an n) ≈ ρ ↦ m1 ↦ m2 ↦ (⇑ (Eq a m1 m2) n) ∈ env_relΓAAEq }}. {
-      unshelve eexists; simpl; intuition; eauto.
-      eapply H58. econstructor; eauto.
-      etransitivity; [|symmetry]; eauto. 
-    }
+    assert {{ Dom ρ ↦ m1 ↦ m2 ↦ ⇑ an n ≈ ρ' ↦ m1'' ↦ m2'' ↦ ⇑ an'' n'' ∈ env_relΓAAEq }} by
+      (unshelve eexists; simpl; intuition; eauto).
     (on_all_hyp: destruct_rel_by_assumption env_relΓAAEq).
     destruct_conjs.
     destruct_by_head rel_typ.
@@ -684,7 +675,7 @@ Proof.
     deex. eexists; split. 
     handle_per_univ_elem_irrel.
     + repeat (econstructor; mauto 3).
-    + econstructor; mauto.
+    + econstructor; mauto. 
       eapply per_bot_then_per_elem; mauto.
       handle_per_univ_elem_irrel. mauto.
       eapply (@eval_eqrec_neut_same_ctx Γ _ _ );

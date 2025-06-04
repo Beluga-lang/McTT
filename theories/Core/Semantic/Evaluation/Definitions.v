@@ -82,7 +82,7 @@ with eval_eqrec : domain -> exp -> exp -> domain -> domain -> domain -> env -> d
   `( {{ ⟦ BR ⟧ ρ ↦ n ↘ br }} ->
      {{ eqrec refl n as Eq a m1 m2 ⟦return B | refl -> BR end⟧ ρ ↘ br }} )
 | eval_eqrec_neut :
-  `( {{ ⟦ B ⟧ ρ ↦ m1 ↦ m2 ↦ ⇑ (Eq a m1 m2) n ↘ b }} ->
+  `( {{ ⟦ B ⟧ ρ ↦ m1 ↦ m2 ↦ ⇑ c n ↘ b }} ->
      {{ eqrec ⇑ c n as Eq a m1 m2 ⟦return B | refl -> BR end⟧ ρ ↘ ⇑ b (eqrec n under ρ as Eq a m1 m2 return B | refl -> BR end) }} )
 where "'eqrec' n 'as' 'Eq' a m1 m2 '⟦return' B | 'refl' -> BR 'end⟧' ρ '↘' r" := (eval_eqrec a B BR m1 m2 n ρ r) (in custom judg)
 with eval_sub : sub -> env -> env -> Prop :=
