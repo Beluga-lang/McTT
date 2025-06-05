@@ -151,7 +151,9 @@ Proof.
     (eapply glu_rel_sub_extend; mauto 3; bulky_rewrite).
   saturate_syn_judge.
 
-  assert {{ Γ, A ⊢ (Eq A[Wk∘Wk] #1 #0)[Id,,#0] ≈ Eq A[Wk] #0 #0 : Type@i }} by admit.
+  assert {{ Γ, A ⊢ (Eq A[Wk∘Wk] #1 #0)[Id,,#0] ≈ Eq A[Wk] #0 #0 : Type@i }}. {
+    admit.
+  }
 
   assert {{ Γ, A ⊩s Id,,#0,,refl A[Wk] #0 : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }}.
   {
@@ -177,6 +179,7 @@ Proof.
   rename m into a.
   
   repeat invert_glu_rel1.  
+  rename Γ0 into Δ.
   handle_functional_glu_univ_elem.
   saturate_glu_typ_from_el.
   unify_glu_univ_lvl i.
@@ -191,19 +194,26 @@ Proof.
   saturate_glu_info.
 
   eassert (exists mr, {{ ⟦ eqrec N as Eq A M1 M2 return B | refl -> BR end ⟧ ρ ↘ mr }} /\ 
-                      {{ Γ0 ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,M1,,M2,,N][σ] ® mr ∈ El0 }}) as [? [? ?]].
+                      {{ Δ ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,M1,,M2,,N][σ] ® mr ∈ El0 }}) as [? [? ?]].
   {
-    destruct_glu_eq.
-    - assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
-      assert {{ Γ0 ⊢ M'' : Aσ }} by (gen_presups; trivial).
+    destruct_glu_eq; rename Γ0 into Δ.
+    - assert {{ Δ ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,M''] ≈ B[Id,,M1,,M2,,N][σ] : Type@j }}.  {
+        assert {{ Δ ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,M''] ≈ B[(Id,,M1,,M2,,N)∘σ] : Type@j }} by admit.
+        mauto 4.
+      }
+      assert {{ Δ ⊢ BR[σ,,M''] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,#0,,refl A[Wk] #0][σ,,M''] }}. {
+        admit.
+      }
+      assert {{ Δ ⊢w Id : Δ }} as HId by mauto.
+      assert {{ Δ ⊢ M'' : Aσ }} by (gen_presups; trivial).
       pose proof (H91 _ _ HId) as HM''.
       saturate_glu_typ_from_el.
-      assert {{ Γ0 ⊢ Aσ[Id] ≈ Aσ : Type@i }} as HrwB1 by mauto 3.
+      assert {{ Δ ⊢ Aσ[Id] ≈ Aσ : Type@i }} as HrwB1 by mauto 3.
       rewrite HrwB1 in *.
-      assert {{ Γ0 ⊢ Aσ ≈ A[σ] : Type@i }} as HrwB1' by mauto 4.
+      assert {{ Δ ⊢ Aσ ≈ A[σ] : Type@i }} as HrwB1' by mauto 4.
       rewrite HrwB1' in *.
       saturate_glu_info. 
-      assert (SbΓA Γ0 {{{σ ,, M''}}} d{{{ρ ↦ m'}}}).
+      assert (SbΓA Δ {{{σ ,, M''}}} d{{{ρ ↦ m'}}}).
       {
         match_by_head1 (glu_ctx_env SbΓA) invert_glu_ctx_env.
         apply_equiv_left.
@@ -211,29 +221,27 @@ Proof.
         handle_per_univ_elem_irrel.
         handle_functional_glu_univ_elem. simpl.
         eapply glu_univ_elem_resp_per_elem with (m:=m2) (R:=R); try symmetry; eauto.
-        assert {{ Γ0 ⊢ #0[σ,,M''] ≈ M2σ : A[σ] }} by mauto.
-        assert {{ Γ0 ⊢ M2σ[Id] ≈ #0[σ,,M''] : A[σ] }} by mauto 4.
+        assert {{ Δ ⊢ #0[σ,,M''] ≈ M2σ : A[σ] }} by mauto.
+        assert {{ Δ ⊢ M2σ[Id] ≈ #0[σ,,M''] : A[σ] }} by mauto 4.
         eapply glu_univ_elem_trm_resp_exp_eq; eauto.
       }
       destruct_glu_rel_exp_with_sub.
       simplify_evals.
       handle_per_univ_elem_irrel.
       eexists; split; mauto 3.
-      assert {{ Γ0 ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,M''] ≈ B[Id,,M1,,M2,,N][σ] : Type@j }} by admit.
-      assert {{ Γ0 ⊢ BR[σ,,M''] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,#0,,refl A[Wk] #0][σ,,M''] }} by admit.
       (* m9 (⟦ BR ⟧ ρ ↦ m') -> El7 -> m (⟦ B ⟧ ρ ↦ m' ↦ m' ↦ refl m') *)
       (* m8 (⟦ BR ⟧ ρ ↦ m) -> El0 -> m7 (⟦ B ⟧ ρ ↦ m1 ↦ m2 ↦ refl m') *)
-      (* by relating m7 and m, we can show El7 is equivalent to EL0 *)
+      (* by relating m7 and m, we can show El7 is equivalent to El0 *)
       assert (exists R, {{ DF m7 ≈ m ∈ per_univ_elem j ↘ R }}). {
         assert {{ Γ ⊢ A : Type@i }} as HwfA by mauto 3.
-        assert {{ Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊢ B : Type@j }} as HwfB by admit.
-        apply completeness_fundamental_exp in HwfA.
-        apply completeness_fundamental_exp in HwfB.
-        pose proof HwfA.
-        invert_rel_exp_of_typ HwfA. 
+        assert {{ Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊢ B : Type@j }} as HwfB by auto.
+        apply completeness_fundamental_exp in HwfA as HrelA.
+        apply completeness_fundamental_exp in HwfB as HrelB.
+        pose proof HrelA.
+        invert_rel_exp_of_typ HrelA. 
         rename x into env_relΓ.
         destruct_all.
-        eapply eval_eqrec_relΓAAEq_helper in H53 as [env_relΓAAEq [equiv_ΓAAEq HΓAAEq]]; eauto.
+        eapply eval_eqrec_relΓAAEq_helper in H47 as [env_relΓAAEq [equiv_ΓAAEq HΓAAEq]]; eauto.
         assert ({{ Dom ρ ↦ m1 ↦ m2 ↦ refl m' ≈ ρ ↦ m' ↦ m' ↦ refl m' ∈ env_relΓAAEq }}). {
           eapply HΓAAEq; eauto.
           - eapply (@glu_ctx_env_per_env Γ); mauto.
@@ -242,7 +250,7 @@ Proof.
             etransitivity; [|symmetry]; eassumption.
             etransitivity; [|symmetry]; eassumption.  
         }
-        invert_rel_exp_of_typ HwfB.
+        invert_rel_exp_of_typ HrelB.
         (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relB]; shelve_unifiable; [eassumption |]).
         gen ρ. intros.
         (on_all_hyp: destruct_rel_by_assumption env_relΓAAEq).
@@ -253,15 +261,7 @@ Proof.
       handle_functional_glu_univ_elem.
       eapply glu_univ_elem_trm_resp_typ_exp_eq; eauto.
       eapply glu_univ_elem_trm_resp_exp_eq; eauto.
-    - match_by_head1 per_bot ltac:(fun H => pose proof (H (length Γ0)) as [V [HV _]]).
-      assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
-      pose proof (H45 _ _ V HId HV).
-      assert {{ Γ0 ⊢ N[σ] ≈ V : (Eq A M1 M2)[σ] }}. {
-        assert {{ Γ0 ⊢ (Eq A M1 M2)[σ][Id] ≈ (Eq A M1 M2)[σ] : Type@i }} by mauto 4.
-        assert {{ Γ0 ⊢ N[σ][Id] ≈ V : (Eq A M1 M2)[σ] }} by mauto 3.
-        mauto 4.
-      }
-      eexists; split; mauto 3.
+    - eexists; split; mauto 3.
       eapply realize_glu_elem_bot; mauto 3.
       econstructor; mauto 3.
       + eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
@@ -274,9 +274,25 @@ Proof.
         unfold valid_ctx in *. unfold per_ctx in *. deex.
         eapply (@eval_eqrec_neut_same_ctx _ _ _ _ A _ M1 _ M2); mauto 3.
         eapply (@glu_ctx_env_per_env Γ); mauto.
-      + intros. 
-        assert {{ Δ ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ][σ0] ≈ M' : B[Id,,M1,,M2,,N][σ][σ0] }} by admit.
-        auto.
+      + intros Δ' τ w **.
+        (* match_by_head1 per_bot ltac:(fun H => pose proof (H (length Γ0)) as [V [HV _]]).
+        assert {{ Γ0 ⊢w Id : Γ0 }} as HId by mauto.
+        pose proof (H45 _ _ V HId HV).
+        assert {{ Γ0 ⊢ N[σ] ≈ V : (Eq A M1 M2)[σ] }}. {
+          assert {{ Γ0 ⊢ (Eq A M1 M2)[σ][Id] ≈ (Eq A M1 M2)[σ] : Type@i }} by mauto 4.
+          assert {{ Γ0 ⊢ N[σ][Id] ≈ V : (Eq A M1 M2)[σ] }} by mauto 3.
+          mauto 4.
+        }
+        eexists; split; mauto 3. *)
+        assert {{ Δ' ⊢s σ∘τ ® ρ ∈ SbΓ }} by (eapply glu_ctx_env_sub_monotone; eassumption).
+        clear_glu_ctx Δ.
+        destruct_glu_rel_exp_with_sub.
+        simplify_evals.
+        match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H).
+        apply_predicate_equivalence. 
+        match_by_head read_ne ltac:(fun H => directed inversion_clear H).
+        handle_functional_glu_univ_elem.
+        simpl.
       }
   econstructor; mauto.
 Admitted.

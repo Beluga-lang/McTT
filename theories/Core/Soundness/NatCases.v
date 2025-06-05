@@ -469,6 +469,7 @@ Proof.
     assert {{ Δ' ⊢s τ : Δ }} by mauto 3.
     assert {{ Δ' ⊢s σ∘τ : Γ }} by mauto 3.
     assert {{ Δ' ⊢s σ∘τ ® ρ ∈ SbΓ }} by (eapply glu_ctx_env_sub_monotone; eassumption).
+    clear_glu_ctx Δ.
     assert {{ Δ', ℕ ⊢s q (σ∘τ) ® ρ ↦ ⇑! ℕ (length Δ') ∈ SbΓℕ }} by (unfold SbΓℕ; mauto 3).
     destruct_glu_rel_exp_with_sub.
     simplify_evals.
