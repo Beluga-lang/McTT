@@ -117,7 +117,7 @@ Qed.
 #[local]
   Hint Resolve completeness_fundamental_ctx completeness_fundamental_exp : mctt.
 
-Lemma presup_exp_eq_eqrec_Awkqσ_Aσwk : forall {Γ σ Δ i A},
+Lemma wf_exp_eq_eqrec_Awkqσ_Aσwk : forall {Γ σ Δ i A},
     {{ ⊢ Γ }} ->
     {{ ⊢ Δ }} ->
     {{ Γ ⊢s σ : Δ }} ->
@@ -150,6 +150,21 @@ Proof.
   }}
   mauto 3.
 Qed.
+
+Lemma wf_exp_eq_eqrec_cong_sub : forall {Γ σ Δ i j A A' M1 M1' M2 M2' N N' B B' BR BR'},
+    {{ ⊢ Γ }} ->
+    {{ ⊢ Δ }} ->
+    {{ Γ ⊢s σ : Δ }} ->
+    {{ Γ ⊢ A[σ] ≈ A' : Type@i }} ->
+    {{ Γ ⊢ M1[σ] ≈ M1' : A[σ] }} ->
+    {{ Γ ⊢ M2[σ] ≈ M2' : A[σ] }} ->
+    {{ Γ ⊢ N[σ] ≈ N' : Eq A[σ] M1[σ] M2[σ]}} ->
+    {{ Γ , A[σ] ⊢ BR[q σ] ≈ BR' : A[σ] }} ->
+    {{ Γ , A[σ] , A[σ][Wk], Eq A[σ][Wk∘Wk] #1 #0 ⊢ B[q (q (q σ))] ≈ B' : Type@j }} ->
+    {{ Γ ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] ≈ 
+           eqrec N' as Eq A' M1' M2' return B' | refl -> BR' end : B[Id,,M1,,M2,,N][σ] }}.
+Proof.
+Admitted.
 
 Lemma glu_rel_eq_eqrec : forall Γ A i M1 M2 B j BR N,
     {{ Γ ⊩ A : Type@i }} ->
@@ -254,11 +269,19 @@ Proof.
     - assert {{ Δ ⊢w Id : Δ }} as HId by mauto.
       assert {{ Δ ⊢ Mσ : Aσ }} by (gen_presups; trivial).
       pose proof (H75 _ _ HId) as HMσ.
+      pose proof (H71 _ _ HId) as HM1σ.
+      pose proof (H72 _ _ HId) as HM2σ.
       saturate_glu_typ_from_el.
       assert {{ Δ ⊢ Aσ[Id] ≈ Aσ : Type@i }} as HrwB1 by mauto 3.
       rewrite HrwB1 in *.
       assert {{ Δ ⊢ Aσ ≈ A[σ] : Type@i }} as HrwB1' by mauto 4.
       rewrite HrwB1' in *.
+      assert {{ Δ ⊢ M1σ[Id] ≈ M1σ : A[σ] }} as HrwM1 by mauto 3.
+      rewrite HrwM1 in *.
+      assert {{ Δ ⊢ M2σ[Id] ≈ M2σ : A[σ] }} as HrwM2 by mauto 3.
+      rewrite HrwM2 in *.
+      assert {{ Δ ⊢ M1σ ≈ M1[σ] : A[σ] }} as HrwM1' by mauto 4.
+      assert {{ Δ ⊢ M2σ ≈ M2[σ] : A[σ] }} as HrwM2' by mauto 4.
       saturate_glu_info. 
       assert (SbΓA Δ {{{σ ,, Mσ}}} d{{{ρ ↦ m'}}}).
       {
@@ -269,7 +292,14 @@ Proof.
         admit.
       }
       assert {{ Δ ⊢ BR[σ,,Mσ] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,#0,,refl A[Wk] #0][σ,,Mσ] }}. {
-        admit.
+        rewrite H84.
+        transitivity {{{ eqrec (refl Aσ Mσ) as Eq Aσ Mσ Mσ return B[q (q (q σ))] | refl -> BR[q σ] end }}}.
+        - eapply wf_exp_eq_conv'.
+          + symmetry. etransitivity; [eapply wf_exp_eq_eqrec_beta|]; mauto 3.
+            admit. admit. admit.
+          + admit.
+        - symmetry. eapply (@wf_exp_eq_eqrec_cong_sub Δ _ Γ _ j); mauto 3.
+          admit. admit.
       }
       destruct_glu_rel_exp_with_sub.
       simplify_evals.
@@ -328,7 +358,7 @@ Proof.
         assert {{ Δ', A[σ∘τ] ⊢s q (σ∘τ) ® ρ ↦ ⇑! a (length Δ') ∈ SbΓA }}. {
           assert {{ Δ', A[σ∘τ] ⊢ A[(σ∘τ)][Wk] ≈ A[Wk][q (σ∘τ)] : Type@i }}. { 
             symmetry.
-            eapply (@presup_exp_eq_eqrec_Awkqσ_Aσwk _ _ Γ); mauto 3.
+            eapply (@wf_exp_eq_eqrec_Awkqσ_Aσwk _ _ Γ); mauto 3.
           }
           unfold SbΓA. eapply cons_glu_sub_pred_helper; mauto 3. 
           - eapply glu_ctx_env_sub_monotone; mauto.
@@ -355,11 +385,18 @@ Proof.
         destruct_conjs.
         clear_dups.
         rename Γ0 into Δ'.
+        assert {{ Δ' ⊢ A[σ∘τ] ® glu_typ_top i a}} as []. {
+          eapply realize_glu_typ_top; mauto 3.
+          eapply glu_univ_elem_typ_resp_exp_eq; mauto.
+        }
         assert {{ Δ' ⊢ M1[σ∘τ] : A[σ∘τ] ® m1 ∈ glu_elem_top i a }} as [] by (eapply realize_glu_elem_top; eassumption).
         assert {{ Δ' ⊢ M2[σ∘τ] : A[σ∘τ] ® m2 ∈ glu_elem_top i a }} as [] by (eapply realize_glu_elem_top with (El:=El); eauto).
         assert {{ Δ' , A[σ∘τ] ⊢ BR[q (σ∘τ)] : B[Id,,#0,,refl A[Wk] #0][q (σ∘τ)] ® m5 ∈ glu_elem_top j m }} as [] by (eapply realize_glu_elem_top with (El:=El5); eauto).
         assert {{ Δ', A[σ∘τ], A[Wk][σ∘τ], (Eq A[Wk∘Wk] #1 #0)[σ∘τ] ⊢ B[q (q (q (σ∘τ)))] ® glu_typ_top j m4 }} as [] by (eapply realize_glu_typ_top; eauto).
-        admit.
+        assert {{ Δ' ⊢ B[Id,,M1,,M2,,N][σ][τ] ≈ B[Id,,M1,,M2,,N][σ∘τ] : Type@j }} by mauto 3.
+        assert {{ Δ' ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ][τ] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ∘τ] : B[Id,,M1,,M2,,N][σ∘τ] }} by mauto 4.
+        rewrite H140. rewrite H141.
+        eapply (@wf_exp_eq_eqrec_cong_sub _ _ Γ); fold nf_to_exp; fold ne_to_exp; eauto.
     }
   econstructor; mauto.
 Admitted.
