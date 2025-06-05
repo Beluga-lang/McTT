@@ -406,6 +406,18 @@ Proof.
 Qed.
 
 
+Lemma wf_exp_eq_eqrec_cong' : forall {Γ A A' M1 M1' M2 M2' B B' BR BR' M M' i j},
+    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    {{ Γ ⊢ M1 ≈ M1' : A }} ->
+    {{ Γ ⊢ M2 ≈ M2' : A }} ->
+    {{ Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊢ B ≈ B' : Type@j }} ->
+    {{ Γ, A ⊢ BR ≈ BR' : B[Id,,#0,,refl A[Wk] #0] }} ->
+    {{ Γ ⊢ M ≈ M' : Eq A M1 M2 }} ->
+    {{ Γ ⊢ eqrec M as Eq A M1 M2 return B | refl -> BR end ≈ eqrec M' as Eq A' M1' M2' return B' | refl -> BR' end : B[Id,,M1,,M2,,M] }}.
+Proof.
+  impl_opt_constructor.
+Qed.
+
 #[export]
 Hint Resolve wf_exp_eq_refl_sub' : mctt.
 #[export]
