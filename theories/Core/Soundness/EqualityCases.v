@@ -206,7 +206,7 @@ Proof.
     assert {{ Γ, A ⊩s Id,,#0 : Γ, A, A[Wk] }} by
     (eapply glu_rel_sub_extend; mauto 3; bulky_rewrite).
     assert {{ ⊩ Γ, A, A[Wk], Eq A[Wk ∘ Wk] #1 #0 }} by mauto.
-      assert {{ Γ, A ⊢ (Eq A[Wk∘Wk] #1 #0)[Id,,#0] ≈ Eq A[Wk] #0 #0 : Type@i }}. {
+    assert {{ Γ, A ⊢ (Eq A[Wk∘Wk] #1 #0)[Id,,#0] ≈ Eq A[Wk] #0 #0 : Type@i }}. {
       admit.
     }
     eapply glu_rel_sub_extend; mauto 3.
@@ -406,7 +406,19 @@ Proof.
             eapply var_per_elem; eauto.
             eapply var_per_elem; eauto.
             reflexivity. reflexivity.
-          - admit. (* *** *)
+          - eapply mk_eq_glu_exp_pred with (B:={{{ A[σ∘τ][Wk∘Wk][Wk] }}}) (M:={{{ #2 }}}) (N:={{{ #1 }}}); mauto 3. 
+            + admit.
+            + admit.
+            + admit.
+            + admit.
+            + admit.
+            + admit.
+            + admit.
+            + admit.
+            + econstructor. 
+              * admit.
+              * intros. dependent destruction H44. simpl. 
+                admit. (* *** *)
         }
         clear_glu_ctx Δ.
         destruct_glu_rel_exp_with_sub.
@@ -428,9 +440,9 @@ Proof.
         assert {{ Δ' ⊢ M2[σ∘τ] : A[σ∘τ] ® m2 ∈ glu_elem_top i a }} as [] by (eapply realize_glu_elem_top with (El:=El); eauto).
         assert {{ Δ' , A[σ∘τ] ⊢ BR[q (σ∘τ)] : B[Id,,#0,,refl A[Wk] #0][q (σ∘τ)] ® m5 ∈ glu_elem_top j m }} as [] by (eapply realize_glu_elem_top with (El:=El5); eauto).
         assert {{ Δ', A[σ∘τ], A[σ∘τ][Wk], (Eq A[Wk∘Wk] #1 #0)[q (q (σ∘τ))] ⊢ B[q (q (q (σ∘τ)))] ® glu_typ_top j m4 }} as [] by (eapply realize_glu_typ_top; eauto).
-        assert {{ Δ' ⊢ B[Id,,M1,,M2,,N][σ][τ] ≈ B[Id,,M1,,M2,,N][σ∘τ] : Type@j }} by mauto 3.
         assert {{ Δ' ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ][τ] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ∘τ] : B[Id,,M1,,M2,,N][σ∘τ] }} by mauto 4.
-        rewrite H142. rewrite H143.
+        assert {{ Δ' ⊢ B[Id,,M1,,M2,,N][σ][τ] ≈ B[Id,,M1,,M2,,N][σ∘τ] : Type@j }} as -> by mauto 3.
+        rewrite H142.
         assert {{ Δ' ⊢ A[σ∘τ][Id] ≈ A[σ∘τ] : Type@i }} by mauto 3.
         eapply (@wf_exp_eq_eqrec_cong_sub _ _ Γ i j); fold nf_to_exp; fold ne_to_exp; eauto.
         * assert {{ Δ' ⊢ A[σ∘τ][Id] ≈ A0 : Type@i }} by mauto 3. 
@@ -444,8 +456,10 @@ Proof.
           assert {{ Δ' ⊢ (Eq A M1 M2)[σ∘τ][Id] ≈ (Eq A M1 M2)[σ∘τ] : Type@i }} by mauto 4.
           eapply wf_exp_eq_conv' with (A:={{{ (Eq A M1 M2)[σ∘τ][Id] }}}); mauto 3. 
           transitivity {{{ N[σ∘τ][Id] }}}; mauto 4.
-        * assert {{ Δ' , A[σ∘τ] ⊢ BR[q (σ∘τ)][Id] ≈ BR' : B[Id,,#0,,refl A[Wk] #0][q (σ∘τ)][Id]}} by mauto 4. 
-          admit.
+        * assert {{ Δ' , A[σ∘τ] ⊢ BR[q (σ∘τ)][Id] ≈ BR' : B[Id,,#0,,refl A[Wk] #0][q (σ∘τ)][Id]}} by mauto 4.
+          clear dependent Γ. clear dependent Δ. gen_presups. 
+          eapply wf_exp_eq_conv' with (A:={{{ B[Id,,#0,,refl A[Wk] #0][q (σ∘τ)][Id] }}}); mauto 3.
+          transitivity {{{ BR[q (σ∘τ)][Id] }}}; mauto 4.
         * assert {{ Δ', A[σ∘τ], A[σ∘τ][Wk], (Eq A[Wk∘Wk] #1 #0)[q (q (σ∘τ))] ⊢ B[q (q (q (σ∘τ)))][Id] ≈ B' : Type@j }} by mauto 4. 
           transitivity {{{ B[q (q (q (σ∘τ)))][Id] }}}; mauto. 
     }
