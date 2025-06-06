@@ -294,7 +294,8 @@ Proof.
     econstructor; firstorder eauto.
 
   - handle_per_univ_elem_irrel.
-    destruct_glu_eq; saturate_refl_for R; econstructor; mauto using (PER_refl1 _ R).
+    pose proof (PER_refl1 _ R).
+    destruct_glu_eq; saturate_refl_for R; econstructor; mauto.
 Qed.
 
 Lemma glu_univ_elem_trm_typ : forall i P El a,
@@ -697,7 +698,8 @@ Lemma glu_nat_resp_per_nat : forall m n,
 Proof.
   induction 1; intros; progressive_inversion; mauto.
   econstructor.
-  - mauto using (PER_refl2 _ per_bot).
+  - pose proof (PER_refl2 _ per_bot).
+    mauto.
   - intros.
     specialize (H (length Δ)).
     destruct_all.
@@ -787,8 +789,8 @@ Proof.
       simplify_evals.
       eauto.
   - resp_per_IH.
-  - mauto using (PER_refl2 _ R).
-  - mauto using (PER_refl2 _ R).
+  - pose proof (PER_refl2 _ R). mauto.
+  - pose proof (PER_refl2 _ R). mauto.
   - split; intros []; econstructor; intuition.
   - split; intros []; econstructor; intuition;
       destruct_glu_eq;
