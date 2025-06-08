@@ -191,6 +191,30 @@ Proof.
   mauto using wf_exp_eq_eqrec_EqAwkwkqqσ.
 Qed.
 
+Lemma wf_exp_eq_eqrec_Aσwkwkwkτ1 : forall {Γ Δ Ψ σ τ i A B},
+  {{ Γ ⊢s σ : Δ }} ->
+  {{ Δ ⊢ A : Type@i }} ->
+  {{ Ψ ⊢s τ : Γ, A[σ], A[σ][Wk], B }} ->
+  {{ Ψ ⊢ A[σ][Wk][Wk][Wk][τ] ≈ A[σ][Wk][Wk][Wk∘τ] : Type@i }}.
+Proof.
+Admitted.
+
+Lemma wf_exp_eq_eqrec_Aσwkwkwkτ2 : forall {Γ Δ Ψ σ τ i A B},
+  {{ Γ ⊢s σ : Δ }} ->
+  {{ Δ ⊢ A : Type@i }} ->
+  {{ Ψ ⊢s τ : Γ, A[σ], A[σ][Wk], B }} ->
+  {{ Ψ ⊢ A[σ][Wk][Wk][Wk][τ] ≈ A[σ][Wk][Wk∘Wk∘τ] : Type@i }}.
+Proof.
+Admitted.
+
+Lemma wf_exp_eq_eqrec_Aσwkwkwkτ3 : forall {Γ Δ Ψ σ τ i A B},
+  {{ Γ ⊢s σ : Δ }} ->
+  {{ Δ ⊢ A : Type@i }} ->
+  {{ Ψ ⊢s τ : Γ, A[σ], A[σ][Wk], B }} ->
+  {{ Ψ ⊢ A[σ][Wk][Wk][Wk][τ] ≈ A[σ][Wk∘Wk∘Wk∘τ] : Type@i }}.
+Proof.
+Admitted.
+
 (* This is possibly OK *)
 Lemma wf_exp_eq_eqrec_cong_sub : forall {Γ σ Δ i j A A' M1 M1' M2 M2' N N' B B' BR BR'},
     {{ Γ ⊢s σ : Δ }} ->
@@ -339,7 +363,8 @@ Proof.
             * admit.
             * admit. 
             * admit.
-          + admit.
+          + eapply exp_eq_sub_sub_compose_cong_typ; mauto 4.
+            admit. admit.
         - symmetry. eapply (@wf_exp_eq_eqrec_cong_sub Δ _ Γ _ j); mauto 3.
           + eapply exp_eq_refl. mauto 4.
           + eapply exp_eq_refl.
@@ -450,12 +475,24 @@ Proof.
               eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
               eapply glu_univ_elem_typ_monotone; mauto 3.
               repeat (eapply weakening_compose; mauto 4).
-            + intros Ψ' τ' **. admit.
-            + intros Ψ' τ' **. admit.
+            + intros Ψ' τ' **.
+              eapply glu_univ_elem_trm_resp_typ_exp_eq with (A:=({{{ A[σ∘τ][Wk][Wk∘Wk∘τ'] }}})); mauto 4 using wf_exp_eq_eqrec_Aσwkwkwkτ2.
+              eapply glu_univ_elem_trm_resp_exp_eq with (M:=({{{ #0[Wk∘Wk∘τ'] }}})); mauto 3.
+              eapply glu_univ_elem_exp_monotone with (Γ:={{{ Ψ, A[σ∘τ] }}}); mauto 3.
+              eapply var0_glu_elem; mauto 3.
+              eapply weakening_compose; mauto 3. admit.
+            + intros Ψ' τ' **.
+              eapply glu_univ_elem_trm_resp_typ_exp_eq with (A:=({{{ A[σ∘τ][Wk][Wk][Wk∘τ'] }}})); mauto 4 using wf_exp_eq_eqrec_Aσwkwkwkτ1.
+              eapply glu_univ_elem_trm_resp_exp_eq with (M:=({{{ #0[Wk∘τ'] }}})); mauto 3.
+              eapply glu_univ_elem_exp_monotone with (Γ:={{{ Ψ, A[σ∘τ], A[σ∘τ][Wk] }}}); mauto 3.
+              replace (S (length Ψ)) with (length ({{{ Ψ, A[σ∘τ] }}})) by auto.
+              eapply var0_glu_elem; mauto 3.
+              eapply glu_univ_elem_typ_monotone; mauto 4. admit.
             + econstructor. 
               * eapply var_per_bot. 
               * intros Ψ' τ' **.
                 match_by_head read_ne ltac:(fun H => directed dependent destruction H). simpl.
+                eapply var_weaken_gen with (Γ1:=nil) (Γ2:={{{Ψ, A[σ∘τ], A[σ∘τ][Wk]}}}) in H92 as Hvar; simpl in *; eauto.
                 admit.
         }
         clear_glu_ctx Δ.
