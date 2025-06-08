@@ -129,21 +129,20 @@ Proof.
   assert {{ ⊢ Δ, A, A[Wk] }} by mauto 2.
   assert {{ Δ, A, A[Wk] ⊢s Wk∘Wk : Δ }} by mauto 3.
   assert {{ Δ, A, A[Wk] ⊢ A[Wk∘Wk] : Type@i }} by mauto 2.
-  assert {{ Γ ⊢ A[σ] : Type@i }} by mauto 2.
   assert {{ Γ, A[σ] ⊢s q σ : Δ, A }} by mauto 2.
   assert {{ Γ, A[σ] ⊢s Wk : Γ }} by mauto 3.
-  assert {{ Γ, A[σ] ⊢ A[σ][Wk] : Type@i }} by mauto 2.
+  assert {{ Γ, A[σ] ⊢ A[σ][Wk] : Type@i }} by mauto 3.
   assert {{ ⊢ Γ, A[σ], A[σ][Wk] }} by mauto 3.
   assert {{ Γ, A[σ], A[σ][Wk] ⊢s Wk : Γ, A[σ] }} by mauto 2.
-  assert {{ Γ, A[σ], A[σ][Wk] ⊢ A[σ][Wk∘Wk] : Type@i }} by mauto 3.
+  assert {{ Γ, A[σ], A[σ][Wk] ⊢ A[σ][Wk∘Wk] : Type@i }} by mauto 4.
   assert {{ Γ, A[σ] ⊢ A[Wk][q σ] ≈ A[σ][Wk] : Type@i }} by mauto 3.
   assert {{ ⊢ Γ, A[σ], A[Wk][q σ] ≈ Γ, A[σ], A[σ][Wk] }} by (econstructor; mauto 3).
   assert {{ Γ, A[σ], A[σ][Wk] ⊢s q (q σ) : Δ, A, A[Wk] }} by mauto 3.
   assert {{ Γ, A[σ], A[σ][Wk] ⊢ A[Wk][q σ∘Wk] : Type@i }} by mauto 3.
   assert {{ Γ, A[σ], A[σ][Wk] ⊢ A[Wk][q σ∘Wk] ≈ A[σ][Wk∘Wk] : Type@i }}. {  {
     transitivity {{{ A[Wk][q σ][Wk] }}}; [mauto 3 |].
-    transitivity {{{ A[σ][Wk][Wk] }}}; [| mauto 2].
-    eapply exp_eq_sub_cong_typ1; mauto 3.
+    transitivity {{{ A[σ][Wk][Wk] }}}; [| mauto 3].
+    eapply exp_eq_sub_cong_typ1; mauto 4.
   }}
   mauto 3.
 Qed.
@@ -406,19 +405,20 @@ Proof.
             eapply var_per_elem; eauto.
             eapply var_per_elem; eauto.
             reflexivity. reflexivity.
-          - eapply mk_eq_glu_exp_pred with (B:={{{ A[σ∘τ][Wk∘Wk][Wk] }}}) (M:={{{ #2 }}}) (N:={{{ #1 }}}); mauto 3. 
+          - eapply mk_eq_glu_exp_pred with (B:={{{ A[σ∘τ][Wk][Wk][Wk] }}}) (M:={{{ #2 }}}) (N:={{{ #1 }}}); mauto 4. 
             + admit.
-            + admit.
-            + admit.
-            + admit.
-            + admit.
-            + admit.
-            + admit.
-            + admit.
+            + repeat (eapply exp_sub_typ; mauto 3). mauto 4.
+            + intros. assert {{Δ0 ⊢ A[σ∘τ][Wk∘Wk∘Wk∘σ0] ≈ A[σ∘τ][Wk][Wk][Wk][σ0] : Type@i }} by admit.
+              eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
+              eapply glu_univ_elem_typ_monotone; mauto 3.
+              repeat (eapply weakening_compose; mauto 4).
+            + intros. admit.
+            + intros. admit.
             + econstructor. 
-              * admit.
-              * intros. dependent destruction H44. simpl. 
-                admit. (* *** *)
+              * eapply var_per_bot. 
+              * intros.
+                match_by_head read_ne ltac:(fun H => directed dependent destruction H). simpl.
+                admit.
         }
         clear_glu_ctx Δ.
         destruct_glu_rel_exp_with_sub.
