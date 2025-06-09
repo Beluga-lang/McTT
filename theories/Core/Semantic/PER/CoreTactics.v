@@ -6,6 +6,9 @@ From Mctt.Core Require Import Base.
 From Mctt.Core.Semantic Require Import PER.Definitions.
 Import Domain_Notations.
 
+Hint Extern 1 (?R <~> ?R) => reflexivity : mctt.
+Hint Extern 1 (?R <∙> ?R) => reflexivity : mctt.
+
 (* this is specific for destruct_rel_by_assumption, 
    so H must have shape forall c c' (c ≈ c' ∈ rel ), P *)
 Ltac deex_destruct_rel H H' :=

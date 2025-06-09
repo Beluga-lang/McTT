@@ -756,7 +756,6 @@ Proof.
     handle_per_univ_elem_irrel.
     pose proof (H9 _ equiv_c _ H4).
     resp_per_IH.
-  - reflexivity.
   - simpl_glu_rel.
     invert_per_univ_elem H10.
 

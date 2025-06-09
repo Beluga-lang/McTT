@@ -77,8 +77,6 @@ Proof.
   intros.
   eexists; split; eauto.
   econstructor; mauto.
-  per_univ_elem_econstructor; eauto.
-  reflexivity.
 Qed.
 
 #[export]
