@@ -173,6 +173,22 @@ Proof.
     [eapply wf_exp_eq_sub_cong|]; mauto 3.
 Qed.
 
+Lemma exp_eq_compose_exp_twice : forall {Γ Δ Ψ σ τ στ M M' A i},
+  {{ Γ ⊢s τ : Δ }} ->
+  {{ Δ ⊢s σ : Ψ }} ->
+  {{ Γ ⊢s στ ≈ σ∘τ : Ψ }} ->
+  {{ Ψ ⊢ M ≈ M' : A }} ->
+  {{ Ψ ⊢ A : Type@i }} ->
+  {{ Γ ⊢ M[στ] ≈ M'[σ][τ] : A[στ] }}.
+Proof.
+  intros. gen_presups.
+  transitivity {{{ M[σ∘τ] }}}; mauto 3 using exp_eq_compose_typ.
+  erewrite @exp_eq_compose_typ_twice with (σ:=σ) (τ:=τ); mauto 3.
+  transitivity {{{ M[σ][τ] }}}; mauto 3 using wf_eq_typ_exp_sub_cong_twice.
+  erewrite <- exp_eq_compose_typ; mauto 3.
+  eapply wf_exp_eq_sub_cong; mauto 3.
+Qed.
+
 Corollary wf_eq_exp_sub_cong_twice : forall {Γ σ σ' τ τ' Δ Δ' Ψ M M' A},
   {{ Γ ⊢s τ : Δ }} ->
   {{ Δ ⊢s σ : Ψ }} ->
@@ -1042,10 +1058,22 @@ Proof.
         eapply glu_univ_elem_resp_per_elem with (m:=m1); mauto 3.
         eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
       }
-      assert {{ Δ ⊢s (Id,,#0,,refl A[Wk] #0)∘(σ,,Mσ) ≈ (Id,,M1,,M2,,N)∘σ : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0}} by admit.
+      assert {{ Δ ⊢ (Eq A M1 M2)[σ] ≈ Eq A[σ] Mσ Mσ : Type@i }}. {
+        transitivity {{{ Eq A[σ] M1[σ] M2[σ] }}}; mauto 3.
+        eapply wf_exp_eq_eq_cong; mauto 3.
+      }
+      assert {{ Δ ⊢s (Id,,#0,,refl A[Wk] #0)∘(σ,,Mσ) ≈ (Id,,M1,,M2,,N)∘σ : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0}}. {
+        etransitivity; [eapply test|]; mauto 3.
+        etransitivity; [|eapply wf_exp_eq_σM1M2N]; mauto 3.
+        repeat (eapply wf_sub_eq_extend_cong; mauto 3).
+        eapply wf_exp_eq_conv'; mauto 3.
+        eapply wf_eq_typ_exp_sub_cong_twice; mauto 3. transitivity σ; mauto 3.
+        eapply wf_exp_eq_conv'; [|symmetry; eapply wf_exp_eq_eqrec_syn_gen_M1M2]; mauto 3.
+        transitivity {{{ refl Aσ Mσ }}}; mauto 4.
+      }
       assert {{ Δ ⊢ B[Id,,#0,,refl A[Wk] #0][σ,,Mσ] ≈ B[Id,,M1,,M2,,N][σ] : Type@j }} by mauto 3.
       assert {{ Δ ⊢ BR[σ,,Mσ] ≈ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] : B[Id,,#0,,refl A[Wk] #0][σ,,Mσ] }}. {
-        rewrite H95.
+        rewrite H96.
         assert {{ ⊢ Δ, A[σ] ≈ Δ, Aσ }} by (eapply wf_ctx_eq_extend'; mauto 3).
         assert {{ Δ, A[σ] ⊢ A[σ][Wk] ≈ Aσ[Wk] : Type@i }} by (eapply exp_eq_sub_cong_typ1; mauto 3).
         assert {{ Δ, A[σ] ⊢s Id,,#0 : Δ, A[σ], A[σ][Wk] }} by (gen_presups; econstructor; mauto 3).
@@ -1055,10 +1083,6 @@ Proof.
         assert {{ Δ, A[σ], A[σ][Wk], (Eq A[Wk∘Wk] #1 #0)[(q (q σ))] ⊢s q (q (q σ)) : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by mauto 4.
         assert {{ Δ, A[σ], A[σ][Wk], Eq A[σ][Wk∘Wk] #1 #0 ⊢s q (q (q σ)) : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }}. {
           eapply ctxeq_sub; mauto 3. eapply wf_ctx_eq_extend''; mauto 3. etransitivity; [eapply wf_exp_eq_eqrec_EqAwkwkqqσ_EqAσwkwk|]; mauto 3.
-        }
-        assert {{ Δ ⊢ (Eq A M1 M2)[σ] ≈ Eq A[σ] Mσ Mσ : Type@i }}. {
-          transitivity {{{ Eq A[σ] M1[σ] M2[σ] }}}; mauto 3.
-          eapply wf_exp_eq_eq_cong; mauto 3.
         }
         assert {{ Δ ⊢ refl Aσ Mσ : Eq A[σ] Mσ Mσ }} by (gen_presups; eapply wf_conv'; mauto 3).
         transitivity {{{ eqrec (refl Aσ Mσ) as Eq Aσ Mσ Mσ return B[q (q (q σ))] | refl -> BR[q σ] end }}}.
@@ -1072,29 +1096,35 @@ Proof.
               assert {{ Δ, A[σ] ⊢ Eq Aσ[Wk] #0 #0 ≈ (Eq A[σ][Wk∘Wk] #1 #0)[Id,,#0] : Type@i }}. {
                 transitivity {{{Eq A[σ][Wk] #0 #0}}}.
                 apply wf_exp_eq_eq_cong; mauto 4.
-                symmetry. eapply wf_exp_eq_eqrec_qqqIdM1M2Eq'; mauto 3.
+                symmetry. eapply wf_exp_eq_eqrec_syn_gen_A; mauto 3.
               }
               eapply wf_conv'; [eapply wf_exp_sub|]; mauto 3.
               eapply @ctxeq_exp_eq with (Γ:={{{Δ, A[σ]}}}); mauto 3 using wf_ctx_eq_extend''.
               eapply wf_eq_typ_exp_sub_cong_twice; mauto 3. 
               econstructor; mauto 3.
               eapply wf_conv'; mauto 3. gen_presups. econstructor; mauto 3.
-              symmetry. etransitivity; [|eapply wf_exp_eq_eqrec_qqqIdM1M2Eq']; mauto 3.
+              symmetry. etransitivity; [|eapply wf_exp_eq_eqrec_syn_gen_A]; mauto 3.
               eapply wf_sub_eq_compose_cong; mauto 3.
               eapply wf_sub_eq_extend_cong; mauto 3. 
               eapply wf_exp_eq_conv'; [eapply wf_exp_eq_refl_cong|]; mauto 3.
               eapply wf_exp_eq_conv'; mauto 3.
-            * eapply wf_exp_eq_conv' with (A:={{{ B[σ,,Mσ,,Mσ,,refl Aσ Mσ] }}}); mauto 3.
-              admit.
+            * eapply wf_exp_eq_conv' with (i:=j) (A:={{{ B[σ,,Mσ,,Mσ,,refl Aσ Mσ] }}}); mauto 3.
+              symmetry. eapply wf_exp_eq_conv' with (i:=j); [eapply exp_eq_compose_exp_twice|]; mauto 3.
+              symmetry. eapply exp_eq_compose_typ_twice; mauto 3 using test.
+              symmetry. etransitivity; [eapply test|]; mauto 3.
+              repeat (eapply wf_sub_eq_extend_cong; mauto 3).
+              eapply wf_exp_eq_conv'; mauto 3.
+              eapply wf_exp_eq_conv'; [|symmetry; eapply wf_exp_eq_eqrec_syn_gen_M1M2]; mauto 3.
+              transitivity {{{ refl Aσ Mσ }}}; mauto 4.
               eapply exp_eq_compose_typ_twice; mauto 3.
-              symmetry. eapply wf_exp_eq_eqrec_qqqIdM1M2Eq'; mauto 3.
+              symmetry. eapply wf_exp_eq_eqrec_syn_gen_N; mauto 3.
           + eapply exp_eq_sub_sub_compose_cong_typ; mauto 4.
             * transitivity {{{σ,,Mσ,,Mσ,,refl Aσ Mσ}}}.
-              eapply wf_exp_eq_eqrec_qqqIdM1M2Eq'; mauto 3.
+              eapply wf_exp_eq_eqrec_syn_gen_N; mauto 3.
               transitivity {{{σ,,M1[σ],,M2[σ],,N[σ]}}}; mauto 3 using wf_exp_eq_σM1M2N.
               repeat (eapply wf_sub_eq_extend_cong; mauto 3).
               eapply wf_exp_eq_conv' with (A:={{{ A[σ] }}}); mauto 3.
-              eapply wf_exp_eq_conv'; [|symmetry; eapply wf_exp_eq_eqrec_qqqIdM1M2Eq']; mauto 3.
+              eapply wf_exp_eq_conv'; [|symmetry; eapply wf_exp_eq_eqrec_syn_gen_M1M2]; mauto 3.
         - symmetry. eapply @wf_exp_eq_eqrec_cong_sub with (Γ:=Δ) (Δ:=Γ) (j:=j); mauto 3.
           + eapply exp_eq_refl. mauto 4.
       }
@@ -1306,7 +1336,9 @@ Proof.
           transitivity {{{ B[q (q (q (σ∘τ)))][Id] }}}; mauto. 
     }
   econstructor; mauto.
-Admitted.
+Qed.
+
+Print Assumptions glu_rel_eq_eqrec.
 
 #[export]
   Hint Resolve glu_rel_eq_eqrec : mctt.
