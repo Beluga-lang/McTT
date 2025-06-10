@@ -443,15 +443,12 @@ Proof.
     handle_per_univ_elem_irrel.
     assert {{ Dom ρσ ↦ m1 ↦ m2 ↦ refl n ≈ ρ'σ ↦ m1' ↦ m2' ↦ refl n' ∈ env_relΔAAEq }} by (eapply HΔAAEq; mauto).
     assert {{ Dom ρσ ↦ n ↦ n ↦ refl n ≈ ρσ ↦ m1 ↦ m2 ↦ refl n ∈ env_relΔAAEq }}. {
+      assert (elem_relA ρσ ρ'σ H10 n m2) by (do 2 (etransitivity; [|symmetry]; eauto)). 
       eapply HΔAAEq; mauto 3.
       - etransitivity; [|symmetry]; eassumption.
       - symmetry; auto.
-      - etransitivity; [|symmetry]; eauto. etransitivity; [|symmetry]; eauto.
       - econstructor; mauto 3.
-        etransitivity; [|symmetry]; eauto.
-        etransitivity; [|symmetry]; eauto.
-        etransitivity; [|symmetry]; eauto.
-        etransitivity; [|symmetry]; eauto.
+        all: etransitivity; [|symmetry]; eauto.
     }
     (on_all_hyp: destruct_rel_by_assumption env_relΔAAEq).
     destruct_conjs.
