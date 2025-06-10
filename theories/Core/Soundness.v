@@ -31,6 +31,8 @@ Proof.
   mauto.
 Qed.
 
+Print Assumptions soundness.
+
 Theorem soundness' : forall {Γ M A W},
     {{ Γ ⊢ M : A }} ->
     nbe Γ M A W ->
