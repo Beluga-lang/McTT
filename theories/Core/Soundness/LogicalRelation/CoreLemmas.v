@@ -132,7 +132,7 @@ Qed.
 
 #[global]
   Ltac destruct_glu_eq :=
-  match_by_head1 glu_eq ltac:(fun H => destruct H).
+  match_by_head1 glu_eq ltac:(fun H => dependent destruction H).
 
 Lemma glu_univ_elem_trm_resp_typ_exp_eq : forall i P El a,
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
@@ -294,7 +294,8 @@ Proof.
     econstructor; firstorder eauto.
 
   - handle_per_univ_elem_irrel.
-    destruct_glu_eq; saturate_refl_for R; econstructor; mauto using (PER_refl1 _ R).
+    pose proof (PER_refl1 _ R).
+    destruct_glu_eq; saturate_refl_for R; econstructor; mauto.
 Qed.
 
 Lemma glu_univ_elem_trm_typ : forall i P El a,
@@ -684,9 +685,9 @@ Qed.
 
 Ltac invert_glu_univ_elem H :=
   (unshelve eapply (glu_univ_elem_pi_clean_inversion2 _ _) in H; shelve_unifiable; [eassumption | eassumption |];
-   destruct H as [? [? [? [? [? []]]]]])
+   deex_in H; destruct H as [? [? []]])
   + (unshelve eapply (glu_univ_elem_pi_clean_inversion1 _) in H; shelve_unifiable; [eassumption |];
-   destruct H as [? [? [? [? [? [? [? [? []]]]]]]]])
+   deex_in H; destruct H as [? [? [? []]]])
   + basic_invert_glu_univ_elem H.
 
 Lemma glu_nat_resp_per_nat : forall m n,
@@ -697,7 +698,8 @@ Lemma glu_nat_resp_per_nat : forall m n,
 Proof.
   induction 1; intros; progressive_inversion; mauto.
   econstructor.
-  - mauto using (PER_refl2 _ per_bot).
+  - pose proof (PER_refl2 _ per_bot).
+    mauto.
   - intros.
     specialize (H (length Δ)).
     destruct_all.
@@ -754,7 +756,6 @@ Proof.
     handle_per_univ_elem_irrel.
     pose proof (H9 _ equiv_c _ H4).
     resp_per_IH.
-  - reflexivity.
   - simpl_glu_rel.
     invert_per_univ_elem H10.
 
@@ -787,8 +788,8 @@ Proof.
       simplify_evals.
       eauto.
   - resp_per_IH.
-  - mauto using (PER_refl2 _ R).
-  - mauto using (PER_refl2 _ R).
+  - pose proof (PER_refl2 _ R). mauto.
+  - pose proof (PER_refl2 _ R). mauto.
   - split; intros []; econstructor; intuition.
   - split; intros []; econstructor; intuition;
       destruct_glu_eq;
@@ -802,12 +803,12 @@ Proof.
       symmetry. trivial.
   - simpl_glu_rel.
     econstructor; eauto.
-    destruct_glu_eq; progressive_invert H20; econstructor; mauto 3; intros.
+    destruct_glu_eq; match_by_head1 per_eq progressive_invert; econstructor; mauto 3; intros.
     + etransitivity; mauto.
     + etransitivity; eauto.
       symmetry. eauto.
     + resp_per_IH.
-    + specialize (H20 (length Δ)).
+    + match_by_head1 per_bot ltac:(fun H => specialize (H (length Δ))).
       destruct_all.
       functional_read_rewrite_clear.
       mauto.
@@ -1064,7 +1065,7 @@ Proof.
       * assert {{ Δ0 ⊢w σ ∘ σ0 : Γ }} by mauto 4.
         bulky_rewrite.
         etransitivity;
-          [| deepexec H14 ltac:(fun H => apply H)].
+          [| deepexec H13 ltac:(fun H => apply H)].
         mauto 4.
   - destruct_conjs.
     split; [mauto 3 |].

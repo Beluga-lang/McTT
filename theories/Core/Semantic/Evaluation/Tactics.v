@@ -12,4 +12,6 @@ Ltac simplify_evals :=
           || match_by_head eval_eqrec ltac:(fun H => directed dependent destruction H)
           || match_by_head eval_sub ltac:(fun H => directed dependent destruction H));
   functional_eval_rewrite_clear;
-  clear_dups.
+  clear_dups;
+  repeat (match_by_head eval_exp ltac:(fun H => simpl in H)) 
+  .

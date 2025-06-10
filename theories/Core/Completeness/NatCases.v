@@ -36,7 +36,6 @@ Proof.
   eexists; split; mauto.
   econstructor; mauto.
   per_univ_elem_econstructor; mauto.
-  reflexivity.
 Qed.
 
 #[export]
@@ -54,7 +53,7 @@ Proof.
   intros * [env_relΓ].
   eexists_rel_exp_of_typ.
   intros.
-  econstructor; mauto.
+  econstructor; mauto 3.
   eexists.
   per_univ_elem_econstructor.
   reflexivity.
