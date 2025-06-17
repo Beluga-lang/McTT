@@ -200,17 +200,15 @@ Lemma eval_eqrec_relΓAAEq_helper : forall {Γ env_relΓ i A},
     {{ DF a ≈ a' ∈ per_univ_elem i ↘ R }} ->
     {{ Dom m1 ≈ m1' ∈ R }} ->
     {{ Dom m2 ≈ m2' ∈ R }} ->
-    per_eq R m1 m2' n n' ->
+    {{ Dom n ≈ n' ∈ per_eq R m1 m2' }} ->
     {{ Dom ρ ↦ m1 ↦ m2 ↦ n ≈ ρ' ↦ m1' ↦ m2' ↦ n' ∈ env_relΓAAEq }}).
 Proof.
   intros * HΓ HA.
   destruct_conjs.
+  eapply eval_eqrec_relΓA_helper in HA as HΓA; eauto.
+  destruct HΓA as [env_relΓA [equiv_ΓA HΓA]].
   apply rel_exp_eqrec_wf_Awk in HA as HA'.
   apply rel_exp_eqrec_wf_EqAwkwk in HA as HEq.
-  invert_rel_exp_of_typ HA.
-  (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relA]; shelve_unifiable; [eassumption |]).
-  pose (env_relΓA := cons_per_ctx_env env_relΓ elem_relA).
-  assert {{ EF Γ, A ≈ Γ, A ∈ per_ctx_env ↘ env_relΓA }} by (econstructor; mauto 3; try reflexivity; typeclasses eauto).
   invert_rel_exp_of_typ HA'.
   (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relA']; shelve_unifiable; [eassumption |]).
   pose (env_relΓAA := cons_per_ctx_env env_relΓA elem_relA').
@@ -226,7 +224,7 @@ Proof.
   destruct_by_head rel_exp.
   invert_rel_typ_body.
   handle_per_univ_elem_irrel.
-  assert {{ Dom ρ ↦ m1 ≈ ρ' ↦ m1' ∈ env_relΓA }} by (unfold env_relΓA; mauto 3).
+  assert {{ Dom ρ ↦ m1 ≈ ρ' ↦ m1' ∈ env_relΓA }} by (eapply HΓA; mauto 3).
   (on_all_hyp: destruct_rel_by_assumption env_relΓA).
   destruct_by_head rel_typ.
   destruct_by_head rel_exp.
@@ -238,11 +236,7 @@ Proof.
   destruct_by_head rel_exp.
   invert_rel_typ_body.
   handle_per_univ_elem_irrel.
-  assert {{ Dom ρ ↦ m1 ↦ m2 ↦ n ≈ ρ' ↦ m1' ↦ m2' ↦ n' ∈ env_relΓAAEq }}.
-  {
-    (unshelve eexists; simpl; intuition; eauto).
-  }
-  auto.
+  unshelve eexists; simpl; intuition; eauto.
 Qed.
 
 Lemma eval_eqrec_sub_neut : forall {Γ env_relΓ σ Δ env_relΔ i j A A' M1 M1' M2 M2' B B' BR BR' m m'},
@@ -269,10 +263,10 @@ Lemma eval_eqrec_sub_neut : forall {Γ env_relΓ σ Δ env_relΔ i j A A' M1 M1'
                eqrec m' under ρ' as Eq a' m1' m2' return B'[q (q (q σ))] | refl -> BR'[q σ] end ∈ per_bot }}).
 Proof.
   intros * equiv_Γ_Γ equiv_Δ_Δ HA HAA' HM1 HM2 HBR HB equiv_m_m'. intros.
-  eapply eval_eqrec_relΓA_helper in HA as HA'; eauto.
-  destruct HA' as [env_relΔA [equiv_ΔA HΔA]].
-  eapply eval_eqrec_relΓAAEq_helper in HA as HA'; eauto.
-  destruct HA' as [env_relΔAAEq [equiv_ΔAAEq HΔAAEq]].
+  eapply eval_eqrec_relΓA_helper in HA as HΔA; eauto.
+  destruct HΔA as [env_relΔA [equiv_ΔA HΔA]].
+  eapply eval_eqrec_relΓAAEq_helper in HA as HΔAAEq; eauto.
+  destruct HΔAAEq as [env_relΔAAEq [equiv_ΔAAEq HΔAAEq]].
   invert_rel_exp_of_typ HA.
   (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relA]; shelve_unifiable; [eassumption |]).  
   invert_rel_exp HM1.
