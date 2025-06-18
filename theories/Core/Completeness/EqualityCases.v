@@ -205,38 +205,20 @@ Lemma eval_eqrec_relΓAAEq_helper : forall {Γ env_relΓ i A},
 Proof.
   intros * HΓ HA.
   destruct_conjs.
-  eapply eval_eqrec_relΓA_helper in HA as HΓA; eauto.
-  destruct HΓA as [env_relΓA [equiv_ΓA HΓA]].
   apply rel_exp_eqrec_wf_Awk in HA as HA'.
   apply rel_exp_eqrec_wf_EqAwkwk in HA as HEq.
-  invert_rel_exp_of_typ HA'.
-  (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relA']; shelve_unifiable; [eassumption |]).
-  pose (env_relΓAA := cons_per_ctx_env env_relΓA elem_relA').
-  assert {{ EF Γ, A, A[Wk] ≈ Γ, A, A[Wk] ∈ per_ctx_env ↘ env_relΓAA }} by (econstructor; mauto 3; try reflexivity; typeclasses eauto).
-  invert_rel_exp_of_typ HEq.
-  (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relEq]; shelve_unifiable; [eassumption |]).
-  pose (env_relΓAAEq := cons_per_ctx_env env_relΓAA elem_relEq).
-  assert {{ EF Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ≈ Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ∈ per_ctx_env ↘ env_relΓAAEq }} by (econstructor; mauto 3; try reflexivity; typeclasses eauto).
-  eexists env_relΓAAEq; split; auto.
-  intros.   
-  (on_all_hyp: destruct_rel_by_assumption env_relΓ).
-  destruct_by_head rel_typ.
-  destruct_by_head rel_exp.
-  invert_rel_typ_body.
-  handle_per_univ_elem_irrel.
+  eapply eval_eqrec_relΓA_helper in HA as HΓA; eauto.
+  destruct HΓA as [env_relΓA [equiv_ΓA HΓA]].
+  eapply @eval_eqrec_relΓA_helper with (A:={{{ A [Wk] }}}) in equiv_ΓA as HΓAA; eauto.
+  destruct HΓAA as [env_relΓAA [equiv_ΓAA HΓAA]].
+  eapply @eval_eqrec_relΓA_helper with (A:={{{ Eq A[Wk∘Wk] #1 #0 }}}) in equiv_ΓAA as HΓAAEq; eauto.
+  destruct HΓAAEq as [env_relΓAAEq [equiv_ΓAAEq HΓAAEq]].
+  unshelve eexists; simpl; intuition; eauto.
   assert {{ Dom ρ ↦ m1 ≈ ρ' ↦ m1' ∈ env_relΓA }} by (eapply HΓA; mauto 3).
   (on_all_hyp: destruct_rel_by_assumption env_relΓA).
-  destruct_by_head rel_typ.
-  destruct_by_head rel_exp.
-  invert_rel_typ_body.
-  handle_per_univ_elem_irrel.
-  assert {{ Dom ρ ↦ m1 ↦ m2 ≈ ρ' ↦ m1' ↦ m2' ∈ env_relΓAA }} by (unfold env_relΓAA; unshelve eexists; intuition).
-  (on_all_hyp: destruct_rel_by_assumption env_relΓAA).
-  destruct_by_head rel_typ.
-  destruct_by_head rel_exp.
-  invert_rel_typ_body.
-  handle_per_univ_elem_irrel.
-  unshelve eexists; simpl; intuition; eauto.
+  assert {{ Dom ρ ↦ m1 ↦ m2 ≈ ρ' ↦ m1' ↦ m2' ∈ env_relΓAA }} by (eapply HΓAA; mauto 3).
+  eapply HΓAAEq with (a:= d{{{ Eq a m1 m2 }}}); mauto 4.
+  eapply per_univ_elem_eq'; mauto 3.
 Qed.
 
 Lemma eval_eqrec_sub_neut : forall {Γ env_relΓ σ Δ env_relΔ i j A A' M1 M1' M2 M2' B B' BR BR' m m'},
