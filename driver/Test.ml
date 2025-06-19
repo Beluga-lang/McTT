@@ -883,6 +883,219 @@ let%expect_test "let_vector.mctt works" =
         7 : Nat
   |}]
 
+let%expect_test "let_simple_subst.mctt works" =
+  let _ = main_of_example "let_simple_subst.mctt" in
+  [%expect
+    {|
+      Parsed:
+        (fun (subst : forall (eq : 0 =<Nat> 1)
+                             (p : forall (n : Nat) -> Type@0)
+                             (prf : p 0)
+                        -> p 1)
+          -> subst)
+          (fun (eq : 0 =<Nat> 1)
+               (p : forall (n : Nat) -> Type@0)
+            -> rec eq as 0 =<Nat> 1 return x y z . forall (prf : p x) -> p y
+               | refl v => fun (prf : p v) -> prf
+               end)
+        : forall (eq : 0 =<Nat> 1)
+                 (p : forall (n : Nat) -> Type@0)
+                 (prf : p 0)
+            -> p 1
+      Elaborated:
+        (fun (x1 : forall (x2 : 0 =<Nat> 1)
+                          (x3 : forall (x4 : Nat) -> Type@0)
+                          (x5 : x3 0)
+                     -> x3 1)
+          -> x1)
+          (fun (x6 : 0 =<Nat> 1)
+               (x7 : forall (x8 : Nat) -> Type@0)
+            -> rec x6 as 0 =<Nat> 1
+                 return x9 x10 A1 . forall (x11 : x7 x9) -> x7 x10
+               | refl x12 => fun (x13 : x7 x12) -> x13
+               end)
+        : forall (x1 : 0 =<Nat> 1)
+                 (x2 : forall (x3 : Nat) -> Type@0)
+                 (x4 : x2 0)
+            -> x2 1
+      Normalized Result:
+        fun (x1 : 0 =<Nat> 1)
+            (x2 : forall (x3 : Nat) -> Type@0)
+            (x4 : x2 0)
+          -> (rec x1 as 0 =<Nat> 1 return x5 x6 A1 . forall (x7 : x2 x5) -> x2 x6
+              | refl x8 => fun (x9 : x2 x8) -> x9
+              end)
+               x4
+        : forall (x1 : 0 =<Nat> 1)
+                 (x2 : forall (x3 : Nat) -> Type@0)
+                 (x4 : x2 0)
+            -> x2 1
+  |}]
+
+let%expect_test "let_simple_inequality.mctt works" =
+  let _ = main_of_example "let_simple_inequality.mctt" in
+  [%expect
+    {|
+      Parsed:
+        (fun (Nary : forall (p : Type@0)
+                            (n : Nat)
+                       -> Type@0)
+             (buildNaryZ : forall (p : Type@0)
+                                  (v : p)
+                             -> Nary p 0)
+             (buildNaryS : forall (p : Type@0)
+                                  (n : Nat)
+                                  (v : forall (arg : p) -> Nary p n)
+                             -> Nary p (succ n))
+             (toP : forall (p : Type@0)
+                           (f : Nary p 0)
+                      -> p)
+             (appNary : forall (p : Type@0)
+                               (n : Nat)
+                               (f : Nary p (succ n))
+                               (arg : p)
+                          -> Nary p n)
+             (subst : forall (eq : 0 =<Nat> 1)
+                             (p : forall (n : Nat) -> Type@0)
+                             (prf : p 1)
+                        -> p 0)
+          -> (fun (bottom : Type@1)
+                  (inequality : forall (eq : 0 =<Nat> 1) -> bottom)
+               -> inequality)
+               (forall (p : Type@0) -> p)
+               (fun (eq : 0 =<Nat> 1)
+                    (p : Type@0)
+                 -> toP p
+                      (subst eq (Nary p)
+                        (buildNaryS p 0 (fun (arg : p) -> buildNaryZ p arg)))))
+          (fun (p : Type@0)
+               (n : Nat)
+            -> rec n return y . Type@0
+               | zero => p
+               | succ m, r => forall (a : p) -> r
+               end)
+          (fun (p : Type@0)
+               (v : p)
+            -> v)
+          (fun (p : Type@0)
+               (n : Nat)
+               (v : forall (arg : p)
+                      -> rec n return y . Type@0
+                         | zero => p
+                         | succ m, r => forall (a : p) -> r
+                         end)
+            -> v)
+          (fun (p : Type@0)
+               (f : p)
+            -> f)
+          (fun (p : Type@0)
+               (n : Nat)
+               (f : rec succ n return y . Type@0
+                    | zero => p
+                    | succ m, r => forall (a : p) -> r
+                    end)
+               (arg : p)
+            -> f arg)
+          (fun (eq : 0 =<Nat> 1)
+               (p : forall (n : Nat) -> Type@0)
+            -> rec eq as 0 =<Nat> 1 return x y z . forall (prf : p y) -> p x
+               | refl v => fun (prf : p v) -> prf
+               end)
+        : forall (eq : 0 =<Nat> 1)
+                 (p : Type@0)
+            -> p
+      Elaborated:
+        (fun (x1 : forall (A1 : Type@0)
+                          (x2 : Nat)
+                     -> Type@0)
+             (x3 : forall (A2 : Type@0)
+                          (x4 : A2)
+                     -> x1 A2 0)
+             (x5 : forall (A3 : Type@0)
+                          (x6 : Nat)
+                          (x7 : forall (x8 : A3) -> x1 A3 x6)
+                     -> x1 A3 (succ x6))
+             (x9 : forall (A4 : Type@0)
+                          (x10 : x1 A4 0)
+                     -> A4)
+             (x11 : forall (A5 : Type@0)
+                           (x12 : Nat)
+                           (x13 : x1 A5 (succ x12))
+                           (x14 : A5)
+                      -> x1 A5 x12)
+             (x15 : forall (x16 : 0 =<Nat> 1)
+                           (x17 : forall (x18 : Nat) -> Type@0)
+                           (x19 : x17 1)
+                      -> x17 0)
+          -> (fun (A6 : Type@1)
+                  (x20 : forall (x21 : 0 =<Nat> 1) -> A6)
+               -> x20)
+               (forall (A7 : Type@0) -> A7)
+               (fun (x22 : 0 =<Nat> 1)
+                    (A8 : Type@0)
+                 -> x9 A8 (x15 x22 (x1 A8) (x5 A8 0 (fun (x23 : A8) -> x3 A8 x23)))))
+          (fun (A9 : Type@0)
+               (x24 : Nat)
+            -> rec x24 return x25 . Type@0
+               | zero => A9
+               | succ x26, A10 => forall (x27 : A9) -> A10
+               end)
+          (fun (A11 : Type@0)
+               (x28 : A11)
+            -> x28)
+          (fun (A12 : Type@0)
+               (x29 : Nat)
+               (x30 : forall (x31 : A12)
+                        -> rec x29 return x32 . Type@0
+                           | zero => A12
+                           | succ x33, A13 => forall (x34 : A12) -> A13
+                           end)
+            -> x30)
+          (fun (A14 : Type@0)
+               (x35 : A14)
+            -> x35)
+          (fun (A15 : Type@0)
+               (x36 : Nat)
+               (x37 : rec succ x36 return x38 . Type@0
+                      | zero => A15
+                      | succ x39, A16 => forall (x40 : A15) -> A16
+                      end)
+               (x41 : A15)
+            -> x37 x41)
+          (fun (x42 : 0 =<Nat> 1)
+               (x43 : forall (x44 : Nat) -> Type@0)
+            -> rec x42 as 0 =<Nat> 1
+                 return x45 x46 A17 . forall (x47 : x43 x46) -> x43 x45
+               | refl x48 => fun (x49 : x43 x48) -> x49
+               end)
+        : forall (x1 : 0 =<Nat> 1)
+                 (A1 : Type@0)
+            -> A1
+      Normalized Result:
+        fun (x1 : 0 =<Nat> 1)
+            (A1 : Type@0)
+          -> (rec x1 as 0 =<Nat> 1
+                return x2 x3 A2 . forall (x4 : rec x3 return x5 . Type@0
+                                               | zero => A1
+                                               | succ x6, A3 =>
+                                                 forall (x7 : A1) -> A3
+                                               end)
+                                    -> rec x2 return x8 . Type@0
+                                       | zero => A1
+                                       | succ x9, A4 => forall (x10 : A1) -> A4
+                                       end
+              | refl x11 =>
+                fun (x12 : rec x11 return x13 . Type@0
+                           | zero => A1
+                           | succ x14, A5 => forall (x15 : A1) -> A5
+                           end)
+                  -> x12
+              end)
+               (fun (x16 : A1) -> x16)
+        : forall (x1 : 0 =<Nat> 1)
+                 (A1 : Type@0)
+            -> A1
+  |}]
 
 (* let%test "lambda" = *)
 (*   parse "fun (x : Type 5).y" = Some (Coq_fn (x, Coq_typ 5, Coq_var y)) *)
