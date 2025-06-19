@@ -53,7 +53,7 @@ let obj :=
   | LET; ds = let_defns; IN; body = obj; { List.fold_left (fun acc arg => Cst.app acc (snd arg)) (List.rev ds) (List.fold_left (fun acc arg => Cst.fn (fst (fst arg)) (snd (fst arg)) acc) ds body) }
 
 let eq_obj :=
-  | lhs = app_obj; "="; "<"; typ = obj; ">"; rhs = app_obj; { Cst.prop_eq typ lhs rhs }
+  | lhs = app_obj; "="; "<"; typ = obj; ">"; rhs = app_obj; { Cst.prop_eq lhs typ rhs }
   | ~ = app_obj; <>
 
 let app_obj :=
