@@ -29,6 +29,13 @@ Inductive read_nf_order : nat -> domain_nf -> Prop :=
          {{ ⟦ B ⟧ p ↦ ⇑! a s ↘ b }} ->
          read_nf_order (S s) d{{{ ⇓ b m' }}}) ->
      read_nf_order s d{{{ ⇓ (Π a p B) m }}} )
+| rnf_refl :
+  `( read_typ_order s a ->
+     read_nf_order s d{{{ ⇓ a m' }}} ->
+     read_nf_order s d{{{ ⇓ (Eq a m1 m2) (refl m') }}} )
+| rnf_eq_neut :
+  `( read_ne_order s n ->
+     read_nf_order s d{{{ ⇓ (Eq a m1 m2) (⇑ b n) }}} )
 | rnf_neut :
   `( read_ne_order s m ->
      read_nf_order s d{{{ ⇓ (⇑ a b) (⇑ c m) }}} )
@@ -60,6 +67,22 @@ with read_ne_order : nat -> domain_ne -> Prop :=
          read_nf_order (S (S s)) d{{{ ⇓ bs ms }}}) ->
      read_ne_order s m ->
      read_ne_order s d{{{ rec m under p return B | zero -> mz | succ -> MS end }}} )
+| read_ne_eqrec :
+  `( read_typ_order s a ->
+     read_nf_order s d{{{ ⇓ a m1 }}} ->
+     read_nf_order s d{{{ ⇓ a m2 }}} ->
+     eval_exp_order B d{{{ p ↦ ⇑! a s ↦ ⇑! a (S s) ↦ ⇑! (Eq a (⇑! a s) (⇑! a (S s))) (S (S s)) }}} ->
+     (forall b,
+         {{ ⟦ B ⟧ p ↦ ⇑! a s ↦ ⇑! a (S s) ↦ ⇑! (Eq a (⇑! a s) (⇑! a (S s))) (S (S s)) ↘ b }} ->
+         read_typ_order (S (S (S s))) b) ->
+     eval_exp_order B d{{{ p ↦ ⇑! a s ↦ ⇑! a s ↦ refl (⇑! a s) }}} ->
+     eval_exp_order BR d{{{ p ↦ ⇑! a s }}} ->
+     (forall b br,
+         {{ ⟦ B ⟧ p ↦ ⇑! a s ↦ ⇑! a s ↦ refl (⇑! a s) ↘ b }} ->
+         {{ ⟦ BR ⟧ p ↦ ⇑! a s ↘ br }} ->
+         read_nf_order (S s) d{{{ ⇓ b br }}}) ->
+     read_ne_order s n ->
+     read_ne_order s d{{{ eqrec n under p as Eq a m1 m2 return B | refl -> BR end }}} )
 
 with read_typ_order : nat -> domain -> Prop :=
 | rtyp_univ :
@@ -73,9 +96,14 @@ with read_typ_order : nat -> domain -> Prop :=
          {{ ⟦ B ⟧ p ↦ ⇑! a s ↘ b }} ->
          read_typ_order (S s) b) ->
      read_typ_order s d{{{ Π a p B }}})
+| read_typ_eq :
+  `( read_typ_order s a ->
+     read_nf_order s d{{{ ⇓ a m1 }}} ->
+     read_nf_order s d{{{ ⇓ a m2 }}} ->
+     read_typ_order s d{{{ Eq a m1 m2 }}})
 | rtyp_neut :
   `( read_ne_order s b ->
-    read_typ_order s d{{{ ⇑ a b }}} ).
+     read_typ_order s d{{{ ⇑ a b }}} ).
 
 #[local]
 Hint Constructors read_nf_order read_ne_order read_typ_order : mctt.
@@ -112,14 +140,14 @@ Ltac impl_obl_tac :=
 
 #[tactic="impl_obl_tac",derive(equations=no,eliminator=no)]
 Equations read_nf_impl s d (H : read_nf_order s d) : { m | {{ Rnf d in s ↘ m }} } by struct H :=
-| s, d{{{ ⇓ 𝕌@i a }}}      , H =>
+| s, d{{{ ⇓ 𝕌@i a }}}, H =>
     let (A, HA) := read_typ_impl s a _ in
     exist _ A _
-| s, d{{{ ⇓ ℕ zero }}}, H => exist _ n{{{ zero }}} _
-| s, d{{{ ⇓ ℕ (succ m) }}} , H =>
+| s, d{{{ ⇓ ℕ zero }}}    , H => exist _ n{{{ zero }}} _
+| s, d{{{ ⇓ ℕ (succ m) }}}, H =>
     let (M, HM) := read_nf_impl s d{{{ ⇓ ℕ m }}} _ in
     exist _ n{{{ succ M }}} _
-| s, d{{{ ⇓ ℕ (⇑ ^_ m) }}}  , H =>
+| s, d{{{ ⇓ ℕ (⇑ ^_ m) }}}, H =>
     let (M, HM) := read_ne_impl s m _ in
     exist _ n{{{ ⇑ M }}} _
 | s, d{{{ ⇓ (Π a p B) m }}}, H =>
@@ -128,11 +156,18 @@ Equations read_nf_impl s d (H : read_nf_order s d) : { m | {{ Rnf d in s ↘ m }
     let (b, Hb) := eval_exp_impl B d{{{ p ↦ ⇑! a s }}} _ in
     let (M, HM) := read_nf_impl (S s) d{{{ ⇓ b m' }}} _ in
     exist _ n{{{ λ A M }}} _
+| s, d{{{ ⇓ (Eq a m1 m2) (refl m') }}}, H =>
+    let (A, HA) := read_typ_impl s a _ in
+    let (M', HM') := read_nf_impl s d{{{ ⇓ a m' }}} _ in
+    exist _ n{{{ refl A M' }}} _
+| s, d{{{ ⇓ (Eq a m1 m2) (⇑ b n) }}}, H =>
+    let (N, HN) := read_ne_impl s n _ in
+    exist _ n{{{ ⇑ N }}} _
 | s, d{{{ ⇓ (⇑ a b) (⇑ c m) }}}, H =>
     let (M, HM) := read_ne_impl s m _ in
     exist _ n{{{ ⇑ M }}} _
 
-  with read_ne_impl s d (H : read_ne_order s d) : { m | {{ Rne d in s ↘ m }} } by struct H :=
+with read_ne_impl s d (H : read_ne_order s d) : { m | {{ Rne d in s ↘ m }} } by struct H :=
 | s, d{{{ !x }}}, H => exist _ n{{{ #(s - x - 1) }}} _
 | s, d{{{ m n }}}, H =>
     let (M, HM) := read_ne_impl s m _ in
@@ -148,8 +183,19 @@ Equations read_nf_impl s d (H : read_nf_order s d) : { m | {{ Rnf d in s ↘ m }
     let (MS', HMS') := read_nf_impl (S (S s)) d{{{ ⇓ bs ms }}} _ in
     let (M, HM) := read_ne_impl s m _ in
     exist _ n{{{ rec M return B' | zero -> MZ | succ -> MS' end }}} _
+| s, d{{{ eqrec n under p as Eq a m1 m2 return B | refl -> BR end }}}, H =>
+    let (A, HA) := read_typ_impl s a _ in
+    let (M1, HM1) := read_nf_impl s d{{{ ⇓ a m1 }}} _ in
+    let (M2, HM2) := read_nf_impl s d{{{ ⇓ a m2 }}} _ in
+    let (b, Hb) := eval_exp_impl B d{{{ p ↦ ⇑! a s ↦ ⇑! a (S s) ↦ ⇑! (Eq a (⇑! a s) (⇑! a (S s))) (S (S s)) }}} _ in
+    let (B', HB') := read_typ_impl (S (S (S s))) b _ in
+    let (bbr, Hbbr) := eval_exp_impl B d{{{ p ↦ ⇑! a s ↦ ⇑! a s ↦ refl (⇑! a s) }}} _ in
+    let (br, Hbr) := eval_exp_impl BR d{{{ p ↦ ⇑! a s }}} _ in
+    let (BR', HBR') := read_nf_impl (S s) d{{{ ⇓ bbr br }}} _ in
+    let (N, HN) := read_ne_impl s n _ in
+    exist _ n{{{ eqrec N as Eq A M1 M2 return B' | refl -> BR' end }}} _
 
-      with read_typ_impl s d (H : read_typ_order s d) : { m | {{ Rtyp d in s ↘ m }} } by struct H :=
+with read_typ_impl s d (H : read_typ_order s d) : { m | {{ Rtyp d in s ↘ m }} } by struct H :=
 | s, d{{{ 𝕌@i }}}, H => exist _ n{{{ Type@i }}} _
 | s, d{{{ ℕ }}}, H => exist _ n{{{ ℕ }}} _
 | s, d{{{ Π a p B }}}, H =>
@@ -157,6 +203,11 @@ Equations read_nf_impl s d (H : read_nf_order s d) : { m | {{ Rnf d in s ↘ m }
     let (b, Hb) := eval_exp_impl B d{{{ p ↦ ⇑! a s }}} _ in
     let (B', HB') := read_typ_impl (S s) b _ in
     exist _ n{{{ Π A B' }}} _
+| s, d{{{ Eq a m1 m2 }}}, H =>
+    let (A, HA) := read_typ_impl s a _ in
+    let (M1, HM1) := read_nf_impl s d{{{ ⇓ a m1 }}} _ in
+    let (M2, HM2) := read_nf_impl s d{{{ ⇓ a m2 }}} _ in
+    exist _ n{{{ Eq A M1 M2 }}} _
 | s, d{{{ ⇑ a b }}}, H =>
     let (B, HB) := read_ne_impl s b _ in
     exist _ n{{{ ⇑ B }}} _.

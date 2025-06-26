@@ -1,6 +1,7 @@
 From Mctt Require Import Base LibTactics.
 From Mctt.Core.Completeness Require Import
   ContextCases
+  EqualityCases
   FunctionCases
   NatCases
   SubstitutionCases

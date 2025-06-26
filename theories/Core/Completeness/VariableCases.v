@@ -49,10 +49,9 @@ Lemma rel_exp_var_0_sub : forall {Γ M σ Δ A},
   {{ Γ ⊨ M : A[σ] }} ->
   {{ Γ ⊨ #0[σ ,, M] ≈ M : A[σ] }}.
 Proof with mautosolve.
-  intros * [env_relΓ [? [env_relΔ]]] [].
+  intros * [env_relΓ [? [env_relΔ]]] HM.
+  invert_rel_exp HM.
   destruct_conjs.
-  pose env_relΓ.
-  handle_per_ctx_env_irrel.
   eexists_rel_exp.
   intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
@@ -73,11 +72,10 @@ Lemma rel_exp_var_S_sub : forall {Γ M σ Δ A x B},
   {{ #x : B ∈ Δ }} ->
   {{ Γ ⊨ #(S x)[σ ,, M] ≈ #x[σ] : B[σ] }}.
 Proof with mautosolve.
-  intros * [env_relΓ [? [env_relΔ]]] [] HxinΓ.
+  intros * [env_relΓ [? [env_relΔ]]] HM HxinΓ.
+  invert_rel_exp HM.
   destruct_conjs.
-  pose env_relΓ.
-  handle_per_ctx_env_irrel.
-  unshelve epose proof (valid_lookup _ HxinΓ); shelve_unifiable; [eassumption |].
+  pose proof (valid_lookup ltac:(eassumption) HxinΓ).
   destruct_conjs.
   eexists_rel_exp.
   intros.
@@ -95,18 +93,18 @@ Qed.
 Hint Resolve rel_exp_var_S_sub : mctt.
 
 Lemma rel_exp_var_weaken : forall {Γ B x A},
-    {{ ⊨ Γ , B }} ->
+    {{ ⊨ Γ, B }} ->
     {{ #x : A ∈ Γ }} ->
-    {{ Γ , B ⊨ #x[Wk] ≈ #(S x) : A[Wk] }}.
+    {{ Γ, B ⊨ #x[Wk] ≈ #(S x) : A[Wk] }}.
 Proof with mautosolve.
   intros * [env_relΓB] HxinΓ.
-  inversion_by_head (per_ctx_env env_relΓB); subst.
-  unshelve epose proof (valid_lookup _ HxinΓ); shelve_unifiable; [eassumption |].
+  invert_per_ctx_envs.
+  pose proof (valid_lookup ltac:(eassumption) HxinΓ).
   destruct_conjs.
   eexists_rel_exp.
   apply_relation_equivalence.
   intros.
-  destruct_conjs.
+  destruct_by_head cons_per_ctx_env.
   rename tail_rel into env_relΓ.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   destruct_by_head rel_typ.

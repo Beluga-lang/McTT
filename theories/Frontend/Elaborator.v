@@ -31,6 +31,11 @@ Fixpoint lookup (s : string) (ctx : list string) : option nat :=
 
 Fixpoint elaborate (cst : Cst.obj) (ctx : list string) : option exp :=
   match cst with
+  | Cst.var s =>
+      match lookup s ctx with
+      | Some n => Some (a_var n)
+      | None => None
+      end
   | Cst.typ n => Some (a_typ n)
   | Cst.nat => Some a_nat
   | Cst.zero => Some a_zero
@@ -44,10 +49,10 @@ Fixpoint elaborate (cst : Cst.obj) (ctx : list string) : option exp :=
       | Some m, Some z, Some s, Some n => Some (a_natrec m z s n)
       | _, _, _, _ => None
       end
-  | Cst.var s =>
-      match lookup s ctx with
-      | Some n => Some (a_var n)
-      | None => None
+  | Cst.pi s t c =>
+      match elaborate c (s :: ctx), elaborate t ctx with
+      | Some a, Some t => Some (a_pi t a)
+      | _, _ => None
       end
   | Cst.fn s t c =>
       match elaborate c (s :: ctx), elaborate t ctx with
@@ -60,10 +65,20 @@ Fixpoint elaborate (cst : Cst.obj) (ctx : list string) : option exp :=
       | _, None => None
       | Some a1, Some a2 => Some (a_app a1 a2)
       end
-  | Cst.pi s t c =>
-      match elaborate c (s :: ctx), elaborate t ctx with
-      | Some a, Some t => Some (a_pi t a)
+  | Cst.prop_eq c1 t c2 =>
+      match elaborate c1 ctx, elaborate t ctx, elaborate c2 ctx with
+      | Some a1, Some t, Some a2 => Some (a_eq t a1 a2)
+      | _, _, _ => None
+      end
+  | Cst.refl t c =>
+      match elaborate t ctx, elaborate c ctx with
+      | Some t, Some a => Some (a_refl t a)
       | _, _ => None
+      end
+  | Cst.eqrec n mx my mz m rx r c1 t c2 =>
+      match elaborate n ctx, elaborate m (mz :: my :: mx :: ctx), elaborate r (rx :: ctx), elaborate c1 ctx, elaborate t ctx, elaborate c2 ctx with
+      | Some n, Some m, Some r, Some a1, Some t, Some a2 => Some (a_eqrec t m r a1 a2 n)
+      | _, _, _, _, _, _ => None
       end
   end
 .
@@ -100,6 +115,23 @@ Inductive user_exp : exp -> Prop :=
   `( user_exp M ->
      user_exp N ->
      user_exp (a_app M N) )
+| user_exp_eq :
+  `( user_exp A ->
+     user_exp M1 ->
+     user_exp M2 ->
+     user_exp (a_eq A M1 M2) )
+| user_exp_refl :
+  `( user_exp A ->
+     user_exp M ->
+     user_exp (a_refl A M) )
+| user_exp_eqrec :
+  `( user_exp A ->
+     user_exp B ->
+     user_exp BR ->
+     user_exp M1 ->
+     user_exp M2 ->
+     user_exp N ->
+     user_exp (a_eqrec A B BR M1 M2 N) )
 | user_exp_vlookup :
   `( user_exp (a_var x) ).
 
@@ -121,34 +153,41 @@ Proof.
   functional induction (elaborate O vs) using elaborate_fun_ind;
     intros; inversion_clear Heq; mauto 4.
 
-  econstructor; mauto 3.
+  - econstructor; mauto 3.
+  - econstructor; mauto 3.
+  - econstructor; mauto 3.
 Qed.
 
 Fixpoint cst_variables (cst : Cst.obj) : StrSet.t :=
  match cst with
+  | Cst.var s => StrSet.singleton s
   | Cst.typ n => StrSet.empty
   | Cst.nat => StrSet.empty
   | Cst.zero => StrSet.empty
   | Cst.succ c => cst_variables c
   | Cst.natrec n mx m z sx sy s => StrSet.union (StrSet.union (cst_variables n) (StrSet.remove mx (cst_variables m))) (StrSet.union (cst_variables z) (StrSet.remove sx (StrSet.remove sy (cst_variables s))))
-  | Cst.var s => StrSet.singleton s
-  | Cst.fn s t c => StrSet.union (cst_variables t) (StrSet.remove s (cst_variables c))
   | Cst.pi s t c => StrSet.union (cst_variables t) (StrSet.remove s (cst_variables c))
+  | Cst.fn s t c => StrSet.union (cst_variables t) (StrSet.remove s (cst_variables c))
   | Cst.app c1 c2 => StrSet.union (cst_variables c1) (cst_variables c2)
+  | Cst.prop_eq c1 t c2 => StrSet.union (cst_variables c1) (StrSet.union (cst_variables t) (cst_variables c2))
+  | Cst.refl t c => StrSet.union (cst_variables t) (cst_variables c)
+  | Cst.eqrec n mx my mz m rx r c1 t c2 => StrSet.union (cst_variables n) (StrSet.union (StrSet.remove mx (StrSet.remove my (StrSet.remove mz (cst_variables m)))) (StrSet.union (StrSet.remove rx (cst_variables r)) (StrSet.union (cst_variables c1) (StrSet.union (cst_variables t) (cst_variables c2)))))
  end
 .
 
 Inductive closed_at : exp -> nat -> Prop :=
- | ca_var : forall x n, x < n -> closed_at (a_var x) n
- | ca_lam : forall t b n, closed_at t n -> closed_at b (1+n) -> closed_at (a_fn t b) n
- | ca_pi : forall t b n, closed_at t n -> closed_at b (1+n) -> closed_at (a_pi t b) n
- | ca_app : forall a1 a2 n, closed_at a1 n -> closed_at a2 n ->
-            closed_at (a_app a1 a2) n
- | ca_nat : forall n, closed_at (a_nat) n
- | ca_zero : forall n, closed_at (a_zero) n
- | ca_type : forall n m, closed_at (a_typ m) n
- | ca_succ : forall a n, closed_at a n -> closed_at (a_succ a) n
- | ca_natrec : forall n m z s l, closed_at n l -> closed_at m (1+l) -> closed_at z l -> closed_at s (2+l) -> closed_at (a_natrec m z s n) l
+ | ca_var : `( x < n -> closed_at (a_var x) n )
+ | ca_type : `( closed_at (a_typ m) n )
+ | ca_nat : `( closed_at (a_nat) n )
+ | ca_zero : `( closed_at (a_zero) n )
+ | ca_succ : `( closed_at a n -> closed_at (a_succ a) n )
+ | ca_natrec : `( closed_at n l -> closed_at m (1+l) -> closed_at z l -> closed_at s (2+l) -> closed_at (a_natrec m z s n) l )
+ | ca_pi : `( closed_at t n -> closed_at b (1+n) -> closed_at (a_pi t b) n )
+ | ca_lam : `( closed_at t n -> closed_at b (1+n) -> closed_at (a_fn t b) n )
+ | ca_app : `( closed_at a1 n -> closed_at a2 n -> closed_at (a_app a1 a2) n )
+ | ca_eq : `( closed_at t n -> closed_at a1 n -> closed_at a2 n -> closed_at (a_eq t a1 a2) n )
+ | ca_refl : `( closed_at t n -> closed_at a n -> closed_at (a_refl t a) n )
+ | ca_eqrec : `( closed_at a l -> closed_at m (3+l) -> closed_at r (1+l) -> closed_at m1 l -> closed_at m2 l -> closed_at n l -> closed_at (a_eqrec a m r m1 m2 n) l )
 .
 #[local]
 Hint Constructors closed_at: mctt.
@@ -244,6 +283,31 @@ Proof.
     assert (cst_variables cst2 [<=] StrSProp.of_list ctx) by fsetdec.
     destruct (IHcst1 _ H0) as [ast [-> ?]];
       destruct (IHcst2 _ H1) as [ast' [-> ?]]; mauto.
+  - (* eq *)
+    assert (cst_variables cst1 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst2 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst3 [<=] StrSProp.of_list ctx) by fsetdec.
+    destruct (IHcst1 _ H0) as [ast [-> ?]];
+      destruct (IHcst2 _ H1) as [ast' [-> ?]]; 
+      destruct (IHcst3 _ H2) as [ast'' [-> ?]]; mauto.
+  - (* refl *)
+    assert (cst_variables cst1 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst2 [<=] StrSProp.of_list ctx) by fsetdec.
+    destruct (IHcst1 _ H0) as [ast [-> ?]];
+      destruct (IHcst2 _ H1) as [ast' [-> ?]]; mauto.
+  - (* eqrec *)
+    assert (cst_variables cst1 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst2 [<=] StrSProp.of_list (s1 :: s0 :: s :: ctx)) by (simpl; fsetdec).
+    assert (cst_variables cst3 [<=] StrSProp.of_list (s2 :: ctx)) by (simpl; fsetdec).
+    assert (cst_variables cst4 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst5 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst6 [<=] StrSProp.of_list ctx) by fsetdec.
+    destruct (IHcst1 _ H0) as [ast [-> ?]];
+      destruct (IHcst2 _ H1) as [ast' [-> ?]];
+      destruct (IHcst3 _ H2) as [ast'' [-> ?]];
+      destruct (IHcst4 _ H3) as [ast''' [-> ?]];
+      destruct (IHcst5 _ H4) as [ast'''' [-> ?]];
+      destruct (IHcst6 _ H5) as [ast''''' [-> ?]]; mauto.
   - apply Subset_to_In in H.
     edestruct lookup_known as [? [-> ?]]; [auto |].
     apply (In_nth _ _ s)  in H.

@@ -62,10 +62,10 @@ Lemma rel_exp_sub_compose : forall {Γ τ Γ' σ Γ'' M A},
     {{ Γ'' ⊨ M : A }} ->
     {{ Γ ⊨ M[σ ∘ τ] ≈ M[σ][τ] : A[σ ∘ τ] }}.
 Proof with mautosolve.
-  intros * [env_relΓ [? [env_relΓ']]] [? [? [env_relΓ'']]] [].
+  intros * [env_relΓ [? [env_relΓ']]] [? [? [env_relΓ'']]] HM.
   destruct_conjs.
+  invert_rel_exp HM.
   pose env_relΓ'.
-  pose env_relΓ''.
   handle_per_ctx_env_irrel.
   eexists_rel_exp.
   intros.
@@ -91,10 +91,9 @@ Lemma rel_exp_conv : forall {Γ M M' A A' i},
     {{ Γ ⊨ A ≈ A' : Type@i }} ->
     {{ Γ ⊨ M ≈ M' : A' }}.
 Proof with mautosolve.
-  intros * [env_relΓ] []%rel_exp_of_typ_inversion.
+  intros * [env_relΓ] HA.
   destruct_conjs.
-  pose env_relΓ.
-  handle_per_ctx_env_irrel.
+  invert_rel_exp_of_typ HA.
   eexists_rel_exp.
   intros.
   assert (env_relΓ ρ ρ) by (etransitivity; [| symmetry]; eassumption).
@@ -137,10 +136,9 @@ Lemma rel_exp_trans : forall {Γ M1 M2 M3 A},
     {{ Γ ⊨ M2 ≈ M3 : A }} ->
     {{ Γ ⊨ M1 ≈ M3 : A }}.
 Proof with mautosolve.
-  intros * [env_relΓ] [].
+  intros * [env_relΓ] HM2M3.
   destruct_conjs.
-  pose env_relΓ.
-  handle_per_ctx_env_irrel.
+  invert_rel_exp HM2M3.
   eexists_rel_exp.
   intros.
   assert (env_relΓ ρ' ρ) by (symmetry; eauto).

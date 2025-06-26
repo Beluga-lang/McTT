@@ -33,6 +33,25 @@ Inductive eval_exp_order : exp -> env -> Prop :=
      eval_exp_order N p ->
      (forall m n, {{ ⟦ M ⟧ p ↘ m }} -> {{ ⟦ N ⟧ p ↘ n }} -> eval_app_order m n) ->
      eval_exp_order {{{ M N }}} p )
+| eeo_eq :
+  `( eval_exp_order A p ->
+     eval_exp_order M1 p ->
+     eval_exp_order M2 p ->
+     eval_exp_order {{{ Eq A M1 M2 }}} p )
+| eeo_refl :
+  `( eval_exp_order M p ->
+     eval_exp_order {{{ refl A M }}} p )
+| eeo_eqrec :
+  `( eval_exp_order A p ->
+     eval_exp_order M1 p ->
+     eval_exp_order M2 p ->
+     eval_exp_order N p ->
+     (forall a m1 m2 n, {{ ⟦ A ⟧ p ↘ a }} ->
+                    {{ ⟦ M1 ⟧ p ↘ m1 }} ->
+                    {{ ⟦ M2 ⟧ p ↘ m2 }} ->
+                    {{ ⟦ N ⟧ p ↘ n }} ->
+                    eval_eqrec_order a B BR m1 m2 n p ) ->
+     eval_exp_order {{{ eqrec N as Eq A M1 M2 return B | refl -> BR end }}} p )
 | eeo_sub :
   `( eval_sub_order σ p ->
      (forall p', {{ ⟦ σ ⟧s p ↘ p' }} -> eval_exp_order M p') ->
@@ -59,6 +78,14 @@ with eval_app_order : domain -> domain -> Prop :=
   `( eval_exp_order B d{{{ p ↦ n }}} ->
      eval_app_order d{{{ ⇑ (Π a p B) m }}} n )
 
+with eval_eqrec_order : domain -> exp -> exp -> domain -> domain -> domain -> env -> Prop :=
+| eeqo_refl :
+  `( eval_exp_order BR d{{{ p ↦ n }}} ->
+     eval_eqrec_order a B BR m1 m2 d{{{ refl n }}} p )
+| eeqo_neut :
+  `( eval_exp_order B d{{{ p ↦ m1 ↦ m2 ↦ ⇑ c n }}} ->
+     eval_eqrec_order a B BR m1 m2 d{{{ ⇑ c n }}} p )
+
 with eval_sub_order : sub -> env -> Prop :=
 | eso_id :
   `( eval_sub_order {{{ Id }}} p )
@@ -82,21 +109,25 @@ Lemma eval_exp_order_sound : forall m p a,
 with eval_natrec_order_sound : forall A MZ MS m p r,
     {{ rec m ⟦return A | zero -> MZ | succ -> MS end⟧ p ↘ r }} ->
     eval_natrec_order A MZ MS m p
-with eval_app_order_sound: forall m n r,
-  {{ $| m & n |↘ r }} ->
-  eval_app_order m n
-with eval_sub_order_sound: forall σ p p',
-  {{ ⟦ σ ⟧s p ↘ p' }} ->
-  eval_sub_order σ p.
+with eval_app_order_sound : forall m n r,
+    {{ $| m & n |↘ r }} ->
+    eval_app_order m n
+with eval_eqrec_order_sound : forall B BR a m1 m2 n p r,
+    {{ eqrec n as Eq a m1 m2 ⟦return B | refl -> BR end⟧ p ↘ r }} ->
+    eval_eqrec_order a B BR m1 m2 n p
+with eval_sub_order_sound : forall σ p p',
+    {{ ⟦ σ ⟧s p ↘ p' }} ->
+    eval_sub_order σ p.
 Proof with (econstructor; intros; functional_eval_rewrite_clear; eauto).
   - clear eval_exp_order_sound; induction 1...
   - clear eval_natrec_order_sound; induction 1...
   - clear eval_app_order_sound; induction 1...
+  - clear eval_eqrec_order_sound; induction 1...
   - clear eval_sub_order_sound; induction 1...
 Qed.
 
 #[export]
-Hint Resolve eval_exp_order_sound eval_natrec_order_sound eval_app_order_sound eval_sub_order_sound : mctt.
+Hint Resolve eval_exp_order_sound eval_natrec_order_sound eval_app_order_sound eval_eqrec_order_sound eval_sub_order_sound : mctt.
 
 #[local]
 Ltac impl_obl_tac1 :=
@@ -104,6 +135,7 @@ Ltac impl_obl_tac1 :=
   | H : eval_exp_order _ _ |- _ => progressive_invert H
   | H : eval_natrec_order _ _ _ _ _ |- _ => progressive_invert H
   | H : eval_app_order _ _ |- _ => progressive_invert H
+  | H : eval_eqrec_order _ _ _ _ _ _ _ |- _ => progressive_invert H
   | H : eval_sub_order _ _ |- _ => progressive_invert H
   end.
 
@@ -114,25 +146,40 @@ Ltac impl_obl_tac :=
 #[tactic="impl_obl_tac",derive(equations=no,eliminator=no)]
 Equations eval_exp_impl m p (H : eval_exp_order m p) : { d | eval_exp m p d } by struct H :=
 | {{{ Type@i }}}, p, H => exist _ d{{{ 𝕌@i }}} _
-| {{{ #x }}}    , p, H => exist _ (p x) _
-| {{{ ℕ }}}     , p, H => exist _ d{{{ ℕ }}} _
-| {{{ zero }}}  , p, H => exist _ d{{{ zero }}} _
-| {{{ succ m }}}, p, H =>
-    let (r , Hr) := eval_exp_impl m p _ in
+| {{{ #x }}}, p, H => exist _ (p x) _
+| {{{ ℕ }}}                                         , p, H => exist _ d{{{ ℕ }}} _
+| {{{ zero }}}                                      , p, H => exist _ d{{{ zero }}} _
+| {{{ succ m }}}                                    , p, H =>
+    let (r, Hr) := eval_exp_impl m p _ in
     exist _ d{{{ succ r }}} _
 | {{{ rec M return A | zero -> MZ | succ -> MS end }}}, p, H =>
-    let (m , Hm) := eval_exp_impl M p _ in
+    let (m, Hm) := eval_exp_impl M p _ in
     let (r, Hr)  := eval_natrec_impl A MZ MS m p _ in
     exist _ r _
-| {{{ Π A B }}} , p, H =>
-    let (r , Hr) := eval_exp_impl A p _ in
+| {{{ Π A B }}}, p, H =>
+    let (r, Hr) := eval_exp_impl A p _ in
     exist _ d{{{ Π r p B }}} _
-| {{{ λ A M }}} , p, H => exist _ d{{{ λ p M }}} _
-| {{{ M N }}}   , p, H =>
-    let (m , Hm) := eval_exp_impl M p _ in
-    let (n , Hn) := eval_exp_impl N p _ in
+| {{{ λ A M }}}, p, H => exist _ d{{{ λ p M }}} _
+| {{{ M N }}}  , p, H =>
+    let (m, Hm) := eval_exp_impl M p _ in
+    let (n, Hn) := eval_exp_impl N p _ in
     let (a, Ha) := eval_app_impl m n _ in
     exist _ a _
+| {{{ Eq A M1 M2 }}}                                    , p, H =>
+    let (a, Ha) := eval_exp_impl A p _ in
+    let (m1, Hm1) := eval_exp_impl M1 p _ in
+    let (m2, Hm2) := eval_exp_impl M2 p _ in
+    exist _ d{{{ Eq a m1 m2 }}} _
+| {{{ refl A M }}}                                      , p, H => 
+    let (m, Hm) := eval_exp_impl M p _ in
+    exist _ d{{{ refl m }}} _
+| {{{ eqrec N as Eq A M1 M2 return B | refl -> BR end }}}, p, H =>
+    let (a, Ha) := eval_exp_impl A p _ in
+    let (m1, Hm1) := eval_exp_impl M1 p _ in
+    let (m2, Hm2) := eval_exp_impl M2 p _ in
+    let (n, Hn) := eval_exp_impl N p _ in
+    let (r, Hr) := eval_eqrec_impl a B BR m1 m2 n p _ in
+    exist _ r _
 | {{{ M[σ] }}}  , p, H =>
     let (p', Hp') := eval_sub_impl σ p _ in
     let (m, Hm) := eval_exp_impl M p' _ in
@@ -159,6 +206,14 @@ with eval_app_impl m n (H : eval_app_order m n) : { d | eval_app m n d } by stru
     let (b, Hb) := eval_exp_impl B d{{{ p ↦ n }}} _ in
     exist _ d{{{ ⇑ b (m (⇓ a n)) }}} _
 
+with eval_eqrec_impl a B BR m1 m2 n p (H : eval_eqrec_order a B BR m1 m2 n p) : { d | eval_eqrec a B BR m1 m2 n p d } by struct H :=
+| a, B, BR, m1, m2, d{{{ refl n }}}, p, H =>
+    let (r, Hr) := eval_exp_impl BR d{{{ p ↦ n }}} _ in
+    exist _ r _
+| a, B, BR, m1, m2, d{{{ ⇑ c n }}} , p, H =>
+    let (b, Hb) := eval_exp_impl B d{{{ p ↦ m1 ↦ m2 ↦ ⇑ c n }}} _ in
+    exist _ d{{{ ⇑ b (eqrec n under p as Eq a m1 m2 return B | refl -> BR end) }}} _
+
 with eval_sub_impl s p (H : eval_sub_order s p) : { p' | eval_sub s p p' } by struct H :=
 | {{{ Id }}}, p, H => exist _ p _
 | {{{ Wk }}}, p, H => exist _ d{{{ p↯ }}} _
@@ -174,6 +229,7 @@ with eval_sub_impl s p (H : eval_sub_order s p) : { p' | eval_sub s p p' } by st
 Extraction Inline eval_exp_impl_functional
   eval_natrec_impl_functional
   eval_app_impl_functional
+  eval_eqrec_impl_functional
   eval_sub_impl_functional.
 
 (** The definitions of [eval_*_impl] already come with soundness proofs,

@@ -20,14 +20,14 @@ Generalizable All Variables.
 
 (** *** Helper Bundles *)
 (** Related modulo evaluation *)
-Inductive rel_mod_eval (R : relation domain -> domain -> domain -> Prop) A ρ A' ρ' R' : Prop := mk_rel_mod_eval : forall a a', {{ ⟦ A ⟧ ρ ↘ a }} -> {{ ⟦ A' ⟧ ρ' ↘ a' }} -> {{ DF a ≈ a' ∈ R ↘ R' }} -> rel_mod_eval R A ρ A' ρ' R'.
+Variant rel_mod_eval (R : relation domain -> domain -> domain -> Prop) A ρ A' ρ' R' : Prop := mk_rel_mod_eval : forall a a', {{ ⟦ A ⟧ ρ ↘ a }} -> {{ ⟦ A' ⟧ ρ' ↘ a' }} -> {{ DF a ≈ a' ∈ R ↘ R' }} -> rel_mod_eval R A ρ A' ρ' R'.
 #[global]
 Arguments mk_rel_mod_eval {_ _ _ _ _ _}.
 #[export]
 Hint Constructors rel_mod_eval : mctt.
 
 (** Related modulo application *)
-Inductive rel_mod_app f a f' a' (R : relation domain) : Prop := mk_rel_mod_app : forall fa f'a', {{ $| f & a |↘ fa }} -> {{ $| f' & a' |↘ f'a' }} -> {{ Dom fa ≈ f'a' ∈ R }} -> rel_mod_app f a f' a' R.
+Variant rel_mod_app f a f' a' (R : relation domain) : Prop := mk_rel_mod_app : forall fa f'a', {{ $| f & a |↘ fa }} -> {{ $| f' & a' |↘ f'a' }} -> {{ Dom fa ≈ f'a' ∈ R }} -> rel_mod_app f a f' a' R.
 #[global]
 Arguments mk_rel_mod_app {_ _ _ _ _}.
 #[export]
@@ -35,7 +35,7 @@ Hint Constructors rel_mod_app : mctt.
 
 (** *** (Some Elements of) PER Lattice *)
 
-Definition per_bot : relation domain_ne := fun m n => (forall s, exists L, {{ Rne m in s ↘ L }} /\ {{ Rne n in s ↘ L }}).
+Definition per_bot : relation domain_ne := fun m m' => (forall s, exists L, {{ Rne m in s ↘ L }} /\ {{ Rne m' in s ↘ L }}).
 #[global]
 Arguments per_bot /.
 #[export]
@@ -43,7 +43,7 @@ Hint Transparent per_bot : mctt.
 #[export]
 Hint Unfold per_bot : mctt.
 
-Definition per_top : relation domain_nf := fun m n => (forall s, exists L, {{ Rnf m in s ↘ L }} /\ {{ Rnf n in s ↘ L }}).
+Definition per_top : relation domain_nf := fun m m' => (forall s, exists L, {{ Rnf m in s ↘ L }} /\ {{ Rnf m' in s ↘ L }}).
 #[global]
 Arguments per_top /.
 #[export]
@@ -51,7 +51,7 @@ Hint Transparent per_top : mctt.
 #[export]
 Hint Unfold per_top : mctt.
 
-Definition per_top_typ : relation domain := fun a b => (forall s, exists C, {{ Rtyp a in s ↘ C }} /\ {{ Rtyp b in s ↘ C }}).
+Definition per_top_typ : relation domain := fun a a' => (forall s, exists C, {{ Rtyp a in s ↘ C }} /\ {{ Rtyp a' in s ↘ C }}).
 #[global]
 Arguments per_top_typ /.
 #[export]
@@ -62,16 +62,29 @@ Hint Unfold per_top_typ : mctt.
 Inductive per_nat : relation domain :=
 | per_nat_zero : {{ Dom zero ≈ zero ∈ per_nat }}
 | per_nat_succ :
-  `{ {{ Dom m ≈ n ∈ per_nat }} ->
-     {{ Dom succ m ≈ succ n ∈ per_nat }} }
+  `{ {{ Dom m ≈ m' ∈ per_nat }} ->
+     {{ Dom succ m ≈ succ m' ∈ per_nat }} }
 | per_nat_neut :
-  `{ {{ Dom m ≈ n ∈ per_bot }} ->
-     {{ Dom ⇑ a m ≈ ⇑ b n ∈ per_nat }} }
+  `{ {{ Dom m ≈ m' ∈ per_bot }} ->
+     {{ Dom ⇑ a m ≈ ⇑ a' m' ∈ per_nat }} }
 .
 #[export]
 Hint Constructors per_nat : mctt.
 
-Inductive per_ne : relation domain :=
+Variant per_eq (point_rel : relation domain) m1 m2' : relation domain :=
+| per_eq_refl :
+  `{ {{ Dom m1 ≈ n ∈ point_rel }} ->
+     {{ Dom n ≈ n' ∈ point_rel }} ->
+     {{ Dom n' ≈ m2' ∈ point_rel }} ->
+     {{ Dom refl n ≈ refl n' ∈ per_eq point_rel m1 m2' }} }
+| per_eq_neut :
+  `{ {{ Dom n ≈ n' ∈ per_bot }} ->
+     {{ Dom ⇑ a n ≈ ⇑ a' n' ∈ per_eq point_rel m1 m2' }} }
+.
+#[export]
+Hint Constructors per_eq : mctt.
+
+Variant per_ne : relation domain :=
 | per_ne_neut :
   `{ {{ Dom m ≈ m' ∈ per_bot }} ->
      {{ Dom ⇑ a m ≈ ⇑ a' m' ∈ per_ne }} }
@@ -102,12 +115,21 @@ Section Per_univ_elem_core_def.
     `{ forall (in_rel : relation domain)
          (out_rel : forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), relation domain)
          (elem_rel : relation domain)
-         (equiv_a_a' : {{ DF a ≈ a' ∈ per_univ_elem_core ↘ in_rel}}),
+         (equiv_a_a' : {{ DF a ≈ a' ∈ per_univ_elem_core ↘ in_rel }}),
           PER in_rel ->
           (forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}),
               rel_mod_eval per_univ_elem_core B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (out_rel equiv_c_c')) ->
           (elem_rel <~> fun f f' => forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), rel_mod_app f c f' c' (out_rel equiv_c_c')) ->
           {{ DF Π a ρ B ≈ Π a' ρ' B' ∈ per_univ_elem_core ↘ elem_rel }} }
+  | per_univ_elem_core_eq :
+    `{ forall (point_rel : relation domain)
+         (elem_rel : relation domain),
+          {{ DF a ≈ a' ∈ per_univ_elem_core ↘ point_rel }} ->
+          PER point_rel ->
+          {{ Dom m1 ≈ m1' ∈ point_rel }} ->
+          {{ Dom m2 ≈ m2' ∈ point_rel }} ->
+          (elem_rel <~> per_eq point_rel m1 m2') ->
+          {{ DF Eq a m1 m2 ≈ Eq a' m1' m2' ∈ per_univ_elem_core ↘ elem_rel }} }
   | per_univ_elem_core_neut :
     `{ forall (elem_rel : relation domain),
           {{ Dom b ≈ b' ∈ per_bot }} ->
@@ -135,6 +157,14 @@ Section Per_univ_elem_core_def.
               rel_mod_eval (fun R x y => {{ DF x ≈ y ∈ per_univ_elem_core ↘ R }} /\ motive R x y) B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (out_rel equiv_c_c')) ->
           (elem_rel <~> fun f f' => forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), rel_mod_app f c f' c' (out_rel equiv_c_c')) ->
           motive elem_rel d{{{ Π a ρ B }}} d{{{ Π a' ρ' B' }}})
+      (case_Eq : forall {a m1 m2 a' m1' m2' point_rel elem_rel},
+          {{ DF a ≈ a' ∈ per_univ_elem_core ↘ point_rel }} ->
+          motive point_rel a a' ->
+          PER point_rel ->
+          {{ Dom m1 ≈ m1' ∈ point_rel }} ->
+          {{ Dom m2 ≈ m2' ∈ point_rel }} ->
+          (elem_rel <~> per_eq point_rel m1 m2') ->
+          motive elem_rel d{{{ Eq a m1 m2 }}} d{{{ Eq a' m1' m2' }}})
       (case_ne : forall {a b a' b' elem_rel},
           {{ Dom b ≈ b' ∈ per_bot }} ->
           (elem_rel <~> per_ne) ->
@@ -151,6 +181,7 @@ Section Per_univ_elem_core_def.
                                   mk_rel_mod_eval b b' evb evb' (conj _ (per_univ_elem_core_strong_ind _ _ _ Rel))
                               end)
         HE;
+  | R, a, b, (per_univ_elem_core_eq _ _ HT per HE1 HE2 eq)            => case_Eq HT (per_univ_elem_core_strong_ind _ _ _ HT) per HE1 HE2 eq;
   | R, a, b, (per_univ_elem_core_neut _ equiv_b_b' HE)                => case_ne equiv_b_b' HE.
 
 End Per_univ_elem_core_def.
@@ -206,6 +237,14 @@ Section Per_univ_elem_ind_def.
               rel_mod_eval (fun R x y => {{ DF x ≈ y ∈ per_univ_elem i ↘ R }} /\ motive i R x y) B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (out_rel equiv_c_c')) ->
           (elem_rel <~> fun f f' => forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), rel_mod_app f c f' c' (out_rel equiv_c_c')) ->
           motive i elem_rel d{{{ Π a ρ B }}} d{{{ Π a' ρ' B' }}})
+      (case_Eq : forall i {a m1 m2 a' m1' m2' point_rel elem_rel},
+          {{ DF a ≈ a' ∈ per_univ_elem i ↘ point_rel }} ->
+          motive i point_rel a a' ->
+          PER point_rel ->
+          {{ Dom m1 ≈ m1' ∈ point_rel }} ->
+          {{ Dom m2 ≈ m2' ∈ point_rel }} ->
+          (elem_rel <~> per_eq point_rel m1 m2') ->
+          motive i elem_rel d{{{ Eq a m1 m2 }}} d{{{ Eq a' m1' m2' }}})
       (case_ne : forall i {a b a' b' elem_rel},
           {{ Dom b ≈ b' ∈ per_bot }} ->
           (elem_rel <~> per_ne) ->
@@ -222,6 +261,7 @@ Section Per_univ_elem_ind_def.
         (fun _ _ _ j_lt_i eq HE => case_U i j_lt_i eq HE (fun A B R' H' => per_univ_elem_ind' _ R' A B _))
         (fun _ => case_N i)
         (fun _ _ _ _ _ _ _ out_rel _ _ IHA per _ => case_Pi i out_rel _ IHA per _)
+        (fun _ _ _ _ _ _ _ _ _ IHA per _ _ _ => case_Eq i _ IHA per _ _ _)
         (fun _ _ _ _ _ => case_ne i)
         R a b H.
 
@@ -235,15 +275,12 @@ Reserved Notation "'Sub' a <: b 'at' i" (in custom judg at level 90, a custom do
 (** * Universe Subtyping *)
 
 Inductive per_subtyp : nat -> domain -> domain -> Prop :=
-| per_subtyp_neut :
-  `( {{ Dom b ≈ b' ∈ per_bot }} ->
-     {{ Sub ⇑ a b <: ⇑ a' b' at i }} )
-| per_subtyp_nat :
-  `( {{ Sub ℕ <: ℕ at i }} )
 | per_subtyp_univ :
   `( i <= j ->
      j < k ->
      {{ Sub 𝕌@i <: 𝕌@j at k }} )
+| per_subtyp_nat :
+  `( {{ Sub ℕ <: ℕ at i }} )
 | per_subtyp_pi :
   `( forall (in_rel : relation domain) elem_rel elem_rel',
         {{ DF a ≈ a' ∈ per_univ_elem i ↘ in_rel }} ->
@@ -254,7 +291,14 @@ Inductive per_subtyp : nat -> domain -> domain -> Prop :=
             {{ Sub b <: b' at i }}) ->
         {{ DF Π a ρ B ≈ Π a ρ B ∈ per_univ_elem i ↘ elem_rel }} ->
         {{ DF Π a' ρ' B' ≈ Π a' ρ' B' ∈ per_univ_elem i ↘ elem_rel' }} ->
-        {{ Sub Π a ρ B <: Π a' ρ' B' at i }})
+        {{ Sub Π a ρ B <: Π a' ρ' B' at i }} )
+| per_subtyp_eq :
+  `( forall elem_rel,
+        {{ DF Eq a m1 m2 ≈ Eq a' m1' m2' ∈ per_univ_elem i ↘ elem_rel }} ->
+        {{ Sub Eq a m1 m2 <: Eq a' m1' m2' at i }} )
+| per_subtyp_neut :
+  `( {{ Dom b ≈ b' ∈ per_bot }} ->
+     {{ Sub ⇑ a b <: ⇑ a' b' at i }} )
 where "'Sub' a <: b 'at' i" := (per_subtyp i a b) (in custom judg) : type_scope.
 
 #[export]
@@ -269,6 +313,14 @@ Hint Unfold rel_typ : mctt.
 
 (** * Context/Environment PER *)
 
+Variant cons_per_ctx_env tail_rel (head_rel : forall {ρ ρ'} (equiv_ρ_ρ' : {{ Dom ρ ≈ ρ' ∈ tail_rel }}), relation domain) : relation env :=
+| mk_cons_per_ctx_env :
+  `{ forall (equiv_ρ_drop_ρ'_drop : {{ Dom ρ ↯ ≈ ρ' ↯ ∈ tail_rel }}),
+        {{ Dom ^(ρ 0) ≈ ^(ρ' 0) ∈ head_rel equiv_ρ_drop_ρ'_drop }} ->
+        {{ Dom ρ ≈ ρ' ∈ cons_per_ctx_env tail_rel (@head_rel) }} }.
+#[export]
+Hint Constructors cons_per_ctx_env : mctt.
+
 Inductive per_ctx_env : relation env -> ctx -> ctx -> Prop :=
 | per_ctx_env_nil :
   `{ forall env_rel,
@@ -282,9 +334,7 @@ Inductive per_ctx_env : relation env -> ctx -> ctx -> Prop :=
         PER tail_rel ->
         (forall {ρ ρ'} (equiv_ρ_ρ' : {{ Dom ρ ≈ ρ' ∈ tail_rel }}),
             rel_typ i A ρ A' ρ' (head_rel equiv_ρ_ρ')) ->
-        (env_rel <~> fun ρ ρ' =>
-             exists (equiv_ρ_drop_ρ'_drop : {{ Dom ρ ↯ ≈ ρ' ↯ ∈ tail_rel }}),
-               {{ Dom ^(ρ 0) ≈ ^(ρ' 0) ∈ head_rel equiv_ρ_drop_ρ'_drop }}) ->
+        (env_rel <~> cons_per_ctx_env tail_rel (@head_rel)) ->
         {{ EF Γ, A ≈ Γ', A' ∈ per_ctx_env ↘ env_rel }} }
 .
 #[export]

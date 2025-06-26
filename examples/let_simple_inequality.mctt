@@ -1,0 +1,62 @@
+let ((Nary : forall (p : Type@0) (n : Nat) -> Type@0) :=
+     (
+       fun (p : Type@0)
+           (n : Nat)
+         -> rec n return y . Type@0
+            | zero => p
+            | succ m, r => forall (a : p) -> r
+            end
+     ))
+
+    ((buildNaryZ : forall (p : Type@0) (v : p) -> Nary p 0) :=
+     (
+       fun (p : Type@0) (v : p) -> v
+     ))
+
+    ((buildNaryS : forall (p : Type@0) (n : Nat) (v : forall (arg : p) -> Nary p n) -> Nary p (succ n)) :=
+     (
+       fun (p : Type@0)
+           (n : Nat)
+           (v : forall (arg : p) ->
+                rec n return y . Type@0
+                | zero => p
+                | succ m, r => forall (a : p) -> r
+                end) -> v
+     ))
+
+    ((toP : forall (p : Type@0) (f : Nary p 0) -> p) :=
+     (
+       fun (p : Type@0) (f : p) -> f
+     ))
+
+    ((appNary : forall (p : Type@0) (n : Nat) (f : Nary p (succ n)) (arg : p) -> Nary p n) :=
+     (
+       fun (p : Type@0)
+           (n : Nat)
+           (f : rec succ n return y . Type@0
+                | zero => p
+                | succ m, r => forall (a : p) -> r
+                end)
+           (arg : p)
+         -> f arg
+     ))
+
+    ((subst : forall (eq : 0 =< Nat > 1) (p : forall (n : Nat) -> Type@0) (prf : p 1) -> p 0) :=
+     (
+       fun (eq : 0 =< Nat > 1)
+           (p : forall (n : Nat) -> Type@0) ->
+         rec eq as (0 =< Nat > 1) return x y z . forall (prf : p y) -> p x
+         | refl v => fun (prf : p v) -> prf
+         end
+     ))
+in
+let
+    ((bottom : Type@1) := (forall (p : Type@0) -> p))
+
+    ((inequality : forall (eq : 0 =< Nat > 1) -> bottom) :=
+     (
+       fun (eq : 0 =< Nat > 1) (p : Type@0) ->
+         toP p (subst eq (Nary p) (buildNaryS p 0 (fun (arg : p) -> buildNaryZ p arg)))
+     ))
+in
+inequality : forall (eq : 0 =< Nat > 1) -> forall (p : Type@0) -> p

@@ -44,6 +44,26 @@ with alg_type_infer : ctx -> nf -> exp -> Prop :=
      {{ Γ ⊢a N ⟸ A }} ->
      nbe_ty Γ {{{ B[Id,,N] }}} C ->
      {{ Γ ⊢a M N ⟹ C }} )
+| ati_eq :
+  `( {{ Γ ⊢a A ⟹ Type@i }} ->
+     {{ Γ ⊢a M1 ⟸ A }} ->
+     {{ Γ ⊢a M2 ⟸ A }} ->
+     {{ Γ ⊢a Eq A M1 M2 ⟹ Type@i }} )
+| ati_refl :
+  `( {{ Γ ⊢a A ⟹ Type@i }} ->
+     {{ Γ ⊢a M ⟸ A }} ->
+     nbe_ty Γ A C ->
+     nbe Γ M A N ->
+     {{ Γ ⊢a refl A M ⟹ Eq C N N }} )
+| ati_eqrec :
+  `( {{ Γ ⊢a A ⟹ Type@i }} ->
+     {{ Γ ⊢a M1 ⟸ A }} ->
+     {{ Γ ⊢a M2 ⟸ A }} ->
+     {{ Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊢a B ⟹ Type@j }} ->
+     {{ Γ, A ⊢a BR ⟸ B[Id,,#0,,refl A[Wk] #0] }} ->
+     {{ Γ ⊢a N ⟸ Eq A M1 M2 }} ->
+     nbe_ty Γ {{{ B[Id,,M1,,M2,,N] }}} C ->
+     {{ Γ ⊢a eqrec N as Eq A M1 M2 return B | refl -> BR end ⟹ C }} )
 | ati_vlookup :
   `( {{ #x : A ∈ Γ }} ->
      nbe_ty Γ A B ->

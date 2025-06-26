@@ -7,7 +7,8 @@ From Mctt.Core.Soundness Require Import
   SubstitutionCases
   SubtypingCases
   TermStructureCases
-  UniverseCases.
+  UniverseCases
+  EqualityCases.
 From Mctt.Core.Soundness Require Export LogicalRelation.
 Import Domain_Notations.
 
