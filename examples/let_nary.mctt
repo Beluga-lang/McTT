@@ -6,12 +6,12 @@ let ((Nary : forall (n : Nat) -> Type@0) :=
             | succ m, r => forall (a : Nat) -> r
             end
      ))
-     
+
     ((toNat : forall (f : Nary 0) -> Nat) :=
      (
        fun (f : Nat) -> f
      ))
-     
+
     ((appNary : forall (n : Nat) (f : Nary (succ n)) (arg : Nat) -> Nary n) :=
      (
        fun (n : Nat)
@@ -36,7 +36,6 @@ let ((Nary : forall (n : Nat) -> Type@0) :=
        in
        fun (a : Nat) (b : Nat) (c : Nat) -> add a (add b c)
      ))
-
 in
   ((rec n return y . (forall (g : Nary y) -> Nat)
        | zero => toNat

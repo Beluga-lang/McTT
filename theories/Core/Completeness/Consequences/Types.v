@@ -32,6 +32,7 @@ Inductive is_typ_constr : typ -> Prop :=
 | typ_is_typ_constr : forall i, is_typ_constr {{{ Type@i }}}
 | nat_is_typ_constr : is_typ_constr {{{ ℕ }}}
 | pi_is_typ_constr : forall A B, is_typ_constr {{{ Π A B }}}
+| eq_is_typ_constr : forall A M N, is_typ_constr {{{ Eq A M N }}}
 | var_is_typ_constr : forall x, is_typ_constr {{{ #x }}}
 .
 #[export]

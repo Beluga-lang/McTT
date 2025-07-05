@@ -13,6 +13,7 @@
 ./Core/Completeness/Consequences/Rules.v
 ./Core/Completeness/Consequences/Types.v
 ./Core/Completeness/ContextCases.v
+./Core/Completeness/EqualityCases.v
 ./Core/Completeness/FunctionCases.v
 ./Core/Completeness/FundamentalTheorem.v
 ./Core/Completeness/LogicalRelation.v
@@ -42,6 +43,7 @@
 ./Core/Semantic/Realizability.v
 ./Core/Soundness.v
 ./Core/Soundness/ContextCases.v
+./Core/Soundness/EqualityCases.v
 ./Core/Soundness/FunctionCases.v
 ./Core/Soundness/FundamentalTheorem.v
 ./Core/Soundness/LogicalRelation.v

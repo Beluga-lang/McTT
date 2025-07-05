@@ -5,28 +5,28 @@ Import Domain_Notations.
 
 Ltac eexists_rel_exp :=
   eexists;
-  eexists; [eassumption |];
+  split; [eassumption |];
   eexists.
 
 Ltac eexists_rel_exp_with i :=
   eexists;
-  eexists; [eassumption |];
+  split; [eassumption |];
   exists i.
 
 Ltac eexists_rel_sub :=
   eexists;
-  eexists; [eassumption |];
+  split; [eassumption |];
   eexists;
-  eexists; [eassumption |].
+  split; [eassumption |].
 
 Ltac eexists_subtyp :=
   eexists;
-  eexists; [eassumption |];
+  split; [eassumption |];
   eexists.
 
 Ltac eexists_subtyp_with i :=
   eexists;
-  eexists; [eassumption |];
+  split; [eassumption |];
   exists i.
 
 Ltac invert_rel_typ_body :=

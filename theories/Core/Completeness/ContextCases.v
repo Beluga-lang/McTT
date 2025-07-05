@@ -20,7 +20,7 @@ Lemma rel_ctx_extend : forall {Γ Γ' A A' i},
     {{ Γ ⊨ A ≈ A' : Type@i }} ->
     {{ ⊨ Γ, A ≈ Γ', A' }}.
 Proof with intuition.
-  intros * [env_relΓΓ'] [env_relΓ]%rel_exp_of_typ_inversion.
+  intros * [] [env_relΓ]%rel_exp_of_typ_inversion1.
   pose env_relΓ.
   destruct_conjs.
   handle_per_ctx_env_irrel.
@@ -32,12 +32,12 @@ Proof with intuition.
                           R m m').
     intros.
     (on_all_hyp: destruct_rel_by_assumption env_relΓ).
-    destruct_by_head per_univ.
+    match_by_head per_univ ltac:(fun H => destruct H as [elem_relA]).
     econstructor; eauto.
     apply -> per_univ_elem_morphism_iff; eauto.
     split; intros; destruct_by_head rel_typ; handle_per_univ_elem_irrel...
-    eapply H5.
-    mauto.
+    assert (rel_typ i A ρ A' ρ' elem_relA) by mauto.
+    intuition.
   - apply Equivalence_Reflexive.
 Qed.
 

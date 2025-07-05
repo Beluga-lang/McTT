@@ -21,11 +21,11 @@ Lemma rel_sub_weaken : forall {Γ A},
     {{ Γ, A ⊨s Wk ≈ Wk : Γ }}.
 Proof with mautosolve.
   intros * [env_relΓA].
-  inversion_by_head (per_ctx_env env_relΓA); subst.
+  invert_per_ctx_envs.
   eexists_rel_sub.
   intros.
   apply_relation_equivalence.
-  destruct_conjs...
+  destruct_by_head cons_per_ctx_env...
 Qed.
 
 #[export]
@@ -59,12 +59,10 @@ Proof with mautosolve.
   destruct_conjs.
   pose env_relΓ.
   pose env_relΔ.
-  assert {{ ⊨ Δ, A }} as [env_relΔA] by (eapply rel_ctx_extend; eauto; eexists; mauto).
-  destruct_conjs.
+  assert {{ ⊨ Δ, A }} as [] by (eapply rel_ctx_extend; eauto; eexists; mauto).
   handle_per_ctx_env_irrel.
   eexists_rel_sub.
-  match_by_head (per_ctx_env env_relΔA) invert_per_ctx_env.
-  destruct_conjs.
+  invert_per_ctx_envs.
   handle_per_ctx_env_irrel.
   intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
@@ -139,9 +137,9 @@ Proof with mautosolve.
   pose env_relΓ'.
   pose env_relΓ''.
   handle_per_ctx_env_irrel.
-  assert {{ ⊨ Γ'', A }} as [env_relΓ''A] by (eapply rel_ctx_extend; eauto; eexists; eassumption).
+  assert {{ ⊨ Γ'', A }} as [] by (eapply rel_ctx_extend; eauto; eexists; eassumption).
   eexists_rel_sub.
-  match_by_head (per_ctx_env env_relΓ''A) invert_per_ctx_env.
+  invert_per_ctx_envs.
   handle_per_ctx_env_irrel.
   intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
@@ -184,12 +182,13 @@ Proof with mautosolve.
   intros * [env_relΓ' [? [env_relΓA]]].
   destruct_conjs.
   pose env_relΓ'.
-  inversion_by_head (per_ctx_env env_relΓA); subst.
+  invert_per_ctx_envs_of env_relΓA.
   rename tail_rel into env_relΓ.
   handle_per_ctx_env_irrel.
   eexists_rel_sub.
   intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ').
+  inversion_by_head cons_per_ctx_env; subst.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   econstructor...
 Qed.

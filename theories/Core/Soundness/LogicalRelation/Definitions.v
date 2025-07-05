@@ -104,8 +104,53 @@ Variant pi_glu_exp_pred i
          exists mn, {{ $| m & n |↘ mn }} /\ {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl _ equiv_n }}) ->
      {{ Γ ⊢ M : A ® m ∈ pi_glu_exp_pred i IR IP IEl elem_rel OEl }} }.
 
+Variant eq_glu_typ_pred i m n
+  (P : glu_typ_pred)
+  (El : glu_exp_pred) : glu_typ_pred :=
+  | mk_eq_glu_typ_pred :
+    `{ {{ Γ ⊢ A ≈ Eq B M N : Type@i }} ->
+       {{ Γ ⊢ B : Type@i }} ->
+       {{ Γ ⊢ M : B }} ->
+       {{ Γ ⊢ N : B }} ->
+       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ B[σ] ® P }}) ->
+       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ M[σ] : B[σ] ® m ∈ El }}) ->
+       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ N[σ] : B[σ] ® n ∈ El }}) ->
+       {{ Γ ⊢ A ® eq_glu_typ_pred i m n P El }} }.
+
+Variant glu_eq B M N m n (R : relation domain) (El : glu_exp_pred) : glu_exp_pred :=
+  | glu_eq_refl :
+    `{ {{ Γ ⊢ M' ≈ refl B M'' : A }} ->
+       {{ Γ ⊢ M'' ≈ M : B }} ->
+       {{ Γ ⊢ M'' ≈ N : B }} ->
+       {{ Dom m ≈ m' ∈ R }} ->
+       {{ Dom m' ≈ n ∈ R }} ->
+       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ M''[σ] : B[σ] ® m' ∈ El }}) ->
+       {{ Γ ⊢ M' : A ® refl m' ∈ glu_eq B M N m n R El }} }
+  | glu_eq_neut :
+    `{ {{ Dom v ≈ v ∈ per_bot }} ->
+       (forall Δ σ V, {{ Δ ⊢w σ : Γ }} -> {{ Rne v in length Δ ↘ V }} -> {{ Δ ⊢ M'[σ] ≈ V : A[σ] }}) ->
+       {{ Γ ⊢ M' : A ® ⇑ b v ∈ glu_eq B M N m n R El }} }.
+
+Variant eq_glu_exp_pred i m n R (P : glu_typ_pred) (El : glu_exp_pred) : glu_exp_pred :=
+  | mk_eq_glu_exp_pred :
+    `{ {{ Γ ⊢ M' : A }} ->
+       {{ Γ ⊢ A ≈ Eq B M N : Type@i }} ->
+       {{ Γ ⊢ B : Type@i }} ->
+       {{ Γ ⊢ M : B }} ->
+       {{ Γ ⊢ N : B }} ->
+       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ B[σ] ® P }}) ->
+       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ M[σ] : B[σ] ® m ∈ El }}) ->
+       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ N[σ] : B[σ] ® n ∈ El }}) ->
+       {{ Γ ⊢ M' : A ® m' ∈ glu_eq B M N m n R El }} ->
+       {{ Γ ⊢ M' : A ® m' ∈ eq_glu_exp_pred i m n R P El }} }.
+
 #[export]
-Hint Constructors neut_glu_exp_pred pi_glu_typ_pred pi_glu_exp_pred : mctt.
+  Hint Constructors
+  neut_glu_exp_pred
+  pi_glu_typ_pred
+  pi_glu_exp_pred
+  eq_glu_typ_pred
+  glu_eq eq_glu_exp_pred : mctt.
 
 Definition univ_glu_typ_pred j i : glu_typ_pred := fun Γ A => {{ Γ ⊢ A ≈ Type@j :  Type@i }}.
 Arguments univ_glu_typ_pred j i Γ A/.
@@ -156,6 +201,16 @@ Section Gluing.
           typ_rel <∙> pi_glu_typ_pred i in_rel IP IEl OP ->
           el_rel <∙> pi_glu_exp_pred i in_rel IP IEl elem_rel OEl ->
           {{ DG Π a ρ B ∈ glu_univ_elem_core ↘ typ_rel ↘ el_rel }} }
+
+  | glu_univ_elem_core_eq :
+    `{ forall a m n R P El typ_rel el_rel,
+          {{ DG a ∈ glu_univ_elem_core ↘ P ↘ El }} ->
+          {{ DF a ≈ a ∈ per_univ_elem i ↘ R }} ->
+          {{ Dom m ≈ m ∈ R }} ->
+          {{ Dom n ≈ n ∈ R }} ->
+          typ_rel <∙> eq_glu_typ_pred i m n P El ->
+          el_rel <∙> eq_glu_exp_pred i m n R P El ->
+          {{ DG Eq a m n ∈ glu_univ_elem_core ↘ typ_rel ↘ el_rel }} }
 
   | glu_univ_elem_core_neut :
     `{ forall typ_rel el_rel,
@@ -218,6 +273,17 @@ Section GluingInduction.
           El <∙> pi_glu_exp_pred i in_rel IP IEl elem_rel OEl ->
           motive i P El d{{{ Π a ρ B }}})
 
+      (case_eq :
+        forall i a m n R P El typ_rel el_rel,
+          {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
+          motive i P El a ->
+          {{ DF a ≈ a ∈ per_univ_elem i ↘ R }} ->
+          {{ Dom m ≈ m ∈ R }} ->
+          {{ Dom n ≈ n ∈ R }} ->
+          typ_rel <∙> eq_glu_typ_pred i m n P El ->
+          el_rel <∙> eq_glu_exp_pred i m n R P El ->
+          motive i typ_rel el_rel d{{{ Eq a m n }}})
+
       (case_neut :
         forall i b a
           (P : glu_typ_pred)
@@ -246,11 +312,15 @@ Section GluingInduction.
              HEl')
         (case_nat i)
         _ (* (case_pi i) *)
+        _ (* (case_eq i) *)
         (case_neut i)
         P El a
         _.
   Next Obligation.
     eapply (case_pi i); def_simp; eauto.
+  Qed.
+  Next Obligation.
+    eapply (case_eq i); def_simp; eauto.
   Qed.
 End GluingInduction.
 
@@ -345,6 +415,12 @@ Variant glu_rel_sub_with_sub Δ τ (Sb : glu_sub_pred) σ ρ : Prop :=
 Definition glu_rel_ctx Γ : Prop := exists Sb, {{ EG Γ ∈ glu_ctx_env ↘ Sb }}.
 Arguments glu_rel_ctx Γ/.
 
+Definition glu_rel_exp_resp_sub_env i Sb M A :=
+  forall Δ σ ρ,
+    {{ Δ ⊢s σ ® ρ ∈ Sb }} ->
+    glu_rel_exp_with_sub i Δ M A σ ρ.
+Arguments glu_rel_exp_resp_sub_env i Sb M A/.
+
 Definition glu_rel_exp Γ M A : Prop :=
   exists Sb,
     {{ EG Γ ∈ glu_ctx_env ↘ Sb }} /\
@@ -353,6 +429,13 @@ Definition glu_rel_exp Γ M A : Prop :=
         {{ Δ ⊢s σ ® ρ ∈ Sb }} ->
         glu_rel_exp_with_sub i Δ M A σ ρ.
 Arguments glu_rel_exp Γ M A/.
+
+
+Definition glu_rel_sub_resp_sub_env Sb Sb' τ :=
+  forall Δ σ ρ,
+    {{ Δ ⊢s σ ® ρ ∈ Sb }} ->
+    glu_rel_sub_with_sub Δ τ Sb' σ ρ.
+Arguments glu_rel_sub_resp_sub_env Sb Sb' τ/.
 
 Definition glu_rel_sub Γ τ Γ' : Prop :=
   exists Sb Sb',

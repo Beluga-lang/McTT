@@ -1,8 +1,50 @@
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
 From Mctt.Core Require Export Soundness.
+From Mctt.Core.Semantic Require Import Realizability.
 From Mctt.Core.Completeness.Consequences Require Export Types.
 Import Domain_Notations.
+
+Lemma idempotent_nbe : forall {Γ A M N L},
+    {{ Γ ⊢ M : A }} ->
+    nbe Γ M A N ->
+    nbe Γ N A L ->
+    N = L.
+Proof.
+  intros.
+  assert {{ Γ ⊢ M ≈ N : A }} as [? []]%completeness by mauto 2 using soundness'.
+  functional_nbe_rewrite_clear.
+  reflexivity.
+Qed.
+#[export]
+Hint Resolve idempotent_nbe : mctt.
+
+Lemma idempotent_nbe' : forall {Γ i A A' M N L},
+    {{ Γ ⊢ M : A }} ->
+    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    nbe Γ M A N ->
+    nbe Γ N A' L ->
+    N = L.
+Proof.
+  intros * ? [env_relΓ [? [j]]]%completeness_fundamental_exp_eq **.
+  assert {{ Γ ⊢ M ≈ N : A }} as [? [? [k]]]%completeness_fundamental_exp_eq by mauto 3 using soundness'.
+  handle_per_ctx_env_irrel.
+  destruct_by_head nbe.
+  pose proof (per_ctx_then_per_env_initial_env ltac:(eassumption)); destruct_all.
+  functional_initial_env_rewrite_clear.
+  (on_all_hyp: fun H => directed (pose proof (H _ _ ltac:(eassumption)); destruct_all)).
+  destruct_by_head rel_typ.
+  invert_rel_typ_body_nouip.
+  destruct_by_head rel_exp.
+  destruct_all.
+  functional_eval_rewrite_clear.
+  handle_per_univ_elem_irrel.
+  pose proof (per_elem_then_per_top ltac:(eassumption) ltac:(eassumption) (length Γ)); destruct_all.
+  functional_read_rewrite_clear.
+  reflexivity.
+Qed.
+#[export]
+Hint Resolve idempotent_nbe' : mctt.
 
 Lemma idempotent_nbe_ty : forall {Γ i A B C},
     {{ Γ ⊢ A : Type@i }} ->
@@ -178,7 +220,7 @@ Lemma consistency_ne_helper : forall {i A A'} {W : ne},
     {{ ⋅, Type@i ⊢ A ⊆ A' }} ->
     ~ {{ ⋅, Type@i ⊢ W : A }}.
 Proof with (congruence + mautosolve 3).
-  intros * HA' HA'eq Heq HW. gen A'.
+ intros * HA' HA'eq Heq HW. gen A'.
   dependent induction HW; intros; mauto 3; try directed dependent destruction HA';
     try (destruct W; simpl in *; congruence).
   - destruct W; simpl in *; autoinjections.
@@ -192,6 +234,8 @@ Proof with (congruence + mautosolve 3).
       try (eapply HA'eq; mautosolve 4).
     assert {{ ⋅, Type@i ⊢ Type@i ≈ Π ^_ ^_ : Type@_ }} by mauto 3.
     assert ({{{ Π ^_ ^_ }}} = {{{ Type@i }}}) by mauto 3...
+  - destruct W; simpl in *; autoinjections.
+    eapply IHHW6; [| | | | mauto 4]...
 Qed.
 
 Theorem consistency : forall {i} M,

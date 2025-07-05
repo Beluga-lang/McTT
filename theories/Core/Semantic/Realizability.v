@@ -69,6 +69,17 @@ Proof with (solve [try (try (eexists; split); econstructor); mauto]).
     assert {{ Dom ⇓ b fa ≈ ⇓ b' f'a' ∈ per_top }} by eauto.
     specialize (H2 s) as [? []].
     specialize (H16 (S s)) as [? []]...
+  - intros s.
+    destruct_conjs.
+    assert {{ Dom ⇓ a m1 ≈ ⇓ a' m1' ∈ per_top }} by mauto 3.
+    assert {{ Dom ⇓ a m2 ≈ ⇓ a' m2' ∈ per_top }} by mauto 3.
+    (on_all_hyp: fun H => destruct (H s) as [? []])...
+  - intros s.
+    destruct_conjs.
+    inversion_clear_by_head per_eq.
+    + assert {{ Dom ⇓ a n ≈ ⇓ a' n' ∈ per_top }} by mauto 3.
+      (on_all_hyp: fun H => destruct (H s) as [? []])...
+    + (on_all_hyp: fun H => destruct (H s) as [? []])...
   - intro s.
     (on_all_hyp: fun H => destruct (H s) as [? []])...
   - intro s.

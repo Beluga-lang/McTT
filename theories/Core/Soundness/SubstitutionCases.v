@@ -111,8 +111,8 @@ Proof.
   do 2 eexists; repeat split; mauto.
   - econstructor; mauto 3; try reflexivity.
   - intros.
-    destruct_glu_rel_sub_with_sub.
-    destruct_glu_rel_exp_with_sub.
+    destruct_glu_rel_sub_with_sub_nouip.
+    destruct_glu_rel_exp_with_sub_nouip.
     simplify_evals.
     match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
     apply_predicate_equivalence.

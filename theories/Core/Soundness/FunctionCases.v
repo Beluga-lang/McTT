@@ -54,8 +54,8 @@ Proof.
   unfold univ_glu_exp_pred' in *.
   destruct_conjs.
   rename m into a.
-  assert {{ Γ ⊨ Π A B : Type@i }} as [env_relΓ]%rel_exp_of_typ_inversion by mauto 3 using completeness_fundamental_exp.
-  assert {{ Γ, A ⊨ B : Type@i }} as [env_relΓA]%rel_exp_of_typ_inversion by mauto 3 using completeness_fundamental_exp.
+  assert {{ Γ ⊨ Π A B : Type@i }} as [env_relΓ]%rel_exp_of_typ_inversion1 by mauto 3 using completeness_fundamental_exp.
+  assert {{ Γ, A ⊨ B : Type@i }} as [env_relΓA]%rel_exp_of_typ_inversion1 by mauto 3 using completeness_fundamental_exp.
   destruct_conjs.
   match_by_head1 (per_ctx_env env_relΓA) invert_per_ctx_env.
   pose env_relΓA.
@@ -167,16 +167,16 @@ Proof.
   unfold univ_glu_exp_pred' in *.
   destruct_conjs.
   handle_functional_glu_univ_elem.
-  match goal with
-  | H : {{ DG a ∈ glu_univ_elem ?i ↘ ?P ↘ ?El }} |- _ =>
-      rename P into Pa;
-      rename El into Ela
-  end.
   do 2 eexists; repeat split; mauto.
   intros.
   match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
   handle_per_univ_elem_irrel.
   handle_functional_glu_univ_elem.
+  match goal with
+  | H : {{ DG a ∈ glu_univ_elem ?i ↘ ?P ↘ ?El }} |- _ =>
+      rename P into Pa;
+      rename El into Ela
+  end.
   match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
   apply_relation_equivalence.
   assert {{ Δ, A[σ] ⊢ B[q σ] : Type@i }} by mauto 3.
@@ -327,7 +327,7 @@ Proof.
   handle_functional_glu_univ_elem.
   assert {{ Δ ⊢s σ : Γ }} by mauto 2.
   assert {{ Δ ⊢ N[σ] : A[σ] }} by mauto 2.
-  assert {{ Δ ⊢ B[(Id,,N)][σ] ≈ B[σ,,N[σ]] : Type@i }} as -> by mauto 2.
+  assert {{ Δ ⊢ B[Id,,N][σ] ≈ B[σ,,N[σ]] : Type@i }} as -> by mauto 2.
   assert {{ Δ ⊢ (M N)[σ] ≈ M[σ] N[σ] : B[σ,,N[σ]] }} as -> by mauto 2.
   assert {{ Δ ⊢ M[σ][Id] N[σ] ≈ M[σ] N[σ] : B[σ,,N[σ]] }} as <-.
   {
