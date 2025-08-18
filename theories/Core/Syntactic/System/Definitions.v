@@ -286,7 +286,7 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ⊢ A : Type@i }} ->
      {{ Δ, A ⊢ B : Type@i }} ->
      {{ Δ ⊢ M : Σ A B }} ->
-     {{ Γ ⊢ (fst M)[σ] ≈ fst (M[σ]) : A }} )
+     {{ Γ ⊢ (fst M)[σ] ≈ fst (M[σ]) : A[σ] }} )
 | wf_exp_eq_snd_cong : 
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
@@ -297,7 +297,8 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ⊢ A : Type@i }} ->
      {{ Δ, A ⊢ B : Type@i }} ->
      {{ Δ ⊢ M : Σ A B }} ->
-     {{ Γ ⊢ (snd M)[σ] ≈ snd (M[σ]) : B[Id,,fst M] }} )
+     (* TODO: should we propagate σ into B *)
+     {{ Γ ⊢ (snd M)[σ] ≈ snd (M[σ]) : B[Id,,fst M][σ] }} )
 | wf_exp_eq_fst_beta :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->

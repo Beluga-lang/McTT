@@ -13,6 +13,10 @@ Inductive obj : Set :=
 | pi : string -> obj -> obj -> obj
 | fn : string -> obj -> obj -> obj
 | app : obj -> obj -> obj
+| sigma : string -> obj -> obj -> obj
+| pair : obj -> obj -> obj
+| fst : obj -> obj
+| snd : obj -> obj
 | prop_eq : obj -> obj -> obj -> obj
 | refl : obj -> obj -> obj
 | eqrec : obj ->                 (** A : eq domain type *)
@@ -205,8 +209,8 @@ Module Syntax_Notations.
   Notation "'Σ' A B" := (nf_sigma A B) (in custom nf at level 2, A custom nf at level 1, B custom nf at level 60) : mctt_scope.
   Notation "⟨ M ; N ⟩" := (nf_pair M N) (in custom nf at level 2, M custom nf at level 1, N custom nf at level 60) : mctt_scope.
   Notation "f x .. y" := (ne_app .. (ne_app f x) .. y) (in custom nf at level 40, f custom nf, x custom nf at next level, y custom nf at next level) : mctt_scope.
-  Notation "`fst` M" := (ne_fst M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
-  Notation "`snd` M" := (ne_snd M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
+  Notation "'fst' M" := (ne_fst M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
+  Notation "'snd' M" := (ne_snd M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
   Notation "'Eq' A M N" := (nf_eq A M N) (in custom nf at level 1, A custom nf at level 30, M custom nf at level 35, N custom nf at level 40) : mctt_scope.
   Notation "'refl' A M" := (nf_refl A M) (in custom nf at level 1, A custom nf at level 30, M custom nf at level 40) : mctt_scope.
   Notation "'eqrec' N 'as' 'Eq' A M1 M2 'return' B | 'refl' -> BR 'end'" := (ne_eqrec A B BR M1 M2 N) (in custom nf at level 0, A custom nf at level 30, B custom nf at level 60, BR custom nf at level 60, M1 custom nf at level 35, M2 custom nf at level 40, N custom nf at level 60) : mctt_scope.

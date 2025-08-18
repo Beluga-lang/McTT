@@ -1258,6 +1258,9 @@ Proof.
   - transitivity {{{ Π (A[σ]) (B[q σ]) }}}; [econstructor; mauto |].
     transitivity {{{ Π (A'[σ]) (B'[q σ]) }}}; [ | econstructor; mauto 4].
     eapply wf_subtyp_pi with (i := i); mauto 4.
+  - transitivity {{{ Σ (A[σ]) (B[q σ]) }}}; [econstructor; mauto |].
+    transitivity {{{ Σ (A'[σ]) (B'[q σ]) }}}; [ | econstructor; mauto 4].
+    eapply wf_subtyp_sigma with (i := i); mauto 4.
 Qed.
 
 #[export]
@@ -1423,13 +1426,23 @@ Lemma presup_exp_typ : forall {Γ M A},
     {{ Γ ⊢ M : A }} ->
     exists i, {{ Γ ⊢ A : Type@i }}.
 Proof.
-  induction 1; assert {{ ⊢ Γ }} by mauto 3; destruct_conjs; mauto 3.
+  induction 1; assert {{ ⊢ Γ }} by mauto 3; destruct_all; mauto 3.
 
   - enough {{ Γ ⊢s Id,,M : Γ, ℕ }}; mauto 3.
 
   - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
 
   - enough {{ Γ ⊢s Id,,N : Γ, A }}; mauto 3.
+
+  - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
+  
+  (* TODO: automate *)
+  - eexists.
+    eapply wf_conv with (A := {{{ Type@i[Id,,fst M] }}} ) (A' := {{{ Type@i }}} ) 
+      (i:=max (2 + i) i2); [eapply wf_exp_sub | |]; mauto 4.
+    eapply @lift_exp_ge with (n:=1+i); mauto 3. lia.
+    eapply wf_exp_eq_subtyp; [eapply wf_exp_eq_typ_sub | |]; mauto 4.
+    eapply wf_subtyp_univ; mauto 3. lia.
 
   - enough {{ Γ ⊢s Id,,M1,,M2,,N : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by mauto 3.
     assert {{ Γ, A ⊢s Wk : Γ }} by mauto 3.

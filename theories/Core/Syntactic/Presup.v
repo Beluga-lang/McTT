@@ -1253,8 +1253,13 @@ Proof with mautosolve 4.
   (** presup_exp_eq cases *)
   - eexists; eapply exp_sub_typ; mauto 4 using lift_exp_max_left, lift_exp_max_right.
 
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  
   (** presup_sub_eq cases *)
-
   - econstructor; mauto 3.
     eapply wf_conv...
 

@@ -41,21 +41,21 @@ Module ctxsub_judg.
       intros * HΓΔ; destruct (presup_ctx_sub HΓΔ); mauto 4;
       try (rename B into C); try (rename B' into C'); try (rename A0 into B); try (rename A' into B').
     (** ctxsub_exp_helper & ctxsub_exp_eq_helper recursion cases *)
-    1,8-10: assert {{ ⊢ Δ, ℕ ⊆ Γ, ℕ }} by (econstructor; mautosolve);
+    1,12-14: assert {{ ⊢ Δ, ℕ ⊆ Γ, ℕ }} by (econstructor; mautosolve);
     assert {{ Δ, ℕ ⊢ B : Type@i }} by eauto; econstructor...
     (** ctxsub_exp_helper & ctxsub_exp_eq_helper function cases *)
-    1-3,7-11: assert {{ Δ ⊢ B : Type@i }} by eauto; assert {{ ⊢ Δ, B ⊆ Γ, B }} by mauto;
+    1-3,11-15: assert {{ Δ ⊢ B : Type@i }} by eauto; assert {{ ⊢ Δ, B ⊆ Γ, B }} by mauto;
     try econstructor...
     (** equality type case *)
-    2,4:idtac...
+    6,15:idtac...
 
     (** ctxsub_exp_helper & ctxsub_exp_eq_helper variable cases *)
-    1,5: assert (exists B, {{ #x : B ∈ Δ }} /\ {{ Δ ⊢ B ⊆ A }}); destruct_conjs; mautosolve 4.
+    5,16: assert (exists B, {{ #x : B ∈ Δ }} /\ {{ Δ ⊢ B ⊆ A }}); destruct_conjs; mautosolve 4.
     (** ctxsub_sub_helper & ctxsub_sub_eq_helper weakening cases *)
-    5,6: inversion_clear HΓΔ; econstructor; mautosolve 4.
+    16,17: inversion_clear HΓΔ; econstructor; mautosolve 4.
 
     (** eqrec related cases *)
-    1-3: assert {{ ⊢ Δ, B ⊆ Γ, B }} by mauto;
+    5,12-14: assert {{ ⊢ Δ, B ⊆ Γ, B }} by mauto;
       assert {{ Γ, B ⊢s Wk : Γ }} by mauto 3;
       assert {{ Γ, B ⊢ B[Wk] : Type@i }} by mauto 3;
       assert {{ Γ, B, B[Wk] ⊢s Wk : Γ, B }} by mauto 4;
@@ -71,6 +71,9 @@ Module ctxsub_judg.
       assert {{ Δ, B, B[Wk] ⊢ Eq B[Wk∘Wk] #1 #0 : Type@i }} by (econstructor; mauto 3; eapply wf_conv; mauto 4);
       assert {{ ⊢ Δ, B, B[Wk], Eq B[Wk∘Wk] #1 #0 ⊆ Γ, B, B[Wk], Eq B[Wk∘Wk] #1 #0 }} by mauto 3;
       econstructor; mauto 2.
+    
+      1-4:admit.
+      1-6:admit.
 
     - (** ctxsub_exp_eq_helper variable case *)
       inversion_clear HΓΔ as [|Δ0 ? ? C'].
@@ -79,7 +82,8 @@ Module ctxsub_judg.
       assert {{ ⊢ Δ0, C' }} by mauto.
       assert {{ Δ0, C' ⊢ D[Wk] ⊆ B[Wk] }}...
     - eapply wf_subtyp_pi with (i := i); firstorder mauto 4.
-  Qed.
+    - eapply wf_subtyp_sigma with (i := i); firstorder mauto 4.
+Admitted.
 
   Corollary ctxsub_exp : forall {Γ Δ M A}, {{ ⊢ Δ ⊆ Γ }} -> {{ Γ ⊢ M : A }} -> {{ Δ ⊢ M : A }}.
   Proof.
