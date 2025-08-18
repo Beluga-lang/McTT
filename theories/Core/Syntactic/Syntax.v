@@ -171,9 +171,9 @@ Module Syntax_Notations.
   Notation "'Π' A B" := (a_pi A B) (in custom exp at level 1, A custom exp at level 0, B custom exp at level 60) : mctt_scope.
   Notation "'λ' A e" := (a_fn A e) (in custom exp at level 1, A custom exp at level 0, e custom exp at level 60) : mctt_scope.
   Notation "'Σ' A B" := (a_sigma A B) (in custom exp at level 1, A custom exp at level 0, B custom exp at level 60) : mctt_scope.
-  Notation "⟨ M ,, N ⟩" := (a_pair M N) (in custom exp at level 1, M custom exp at level 0, N custom exp at level 60) : mctt_scope.
-  Notation "`fst` M" := (a_fst M) (in custom exp at level 1, M custom exp at level 0) : mctt_scope.
-  Notation "`snd` M" := (a_snd M) (in custom exp at level 1, M custom exp at level 0) : mctt_scope.
+  Notation "⟨ M ; N ⟩" := (a_pair M N) (in custom exp at level 1, M custom exp at next level, N custom exp at next level) : mctt_scope.
+  Notation "'fst' M" := (a_fst M) (in custom exp at level 1, M custom exp at level 0) : mctt_scope.
+  Notation "'snd' M" := (a_snd M) (in custom exp at level 1, M custom exp at level 0) : mctt_scope.
   Notation "f x .. y" := (a_app .. (a_app f x) .. y) (in custom exp at level 40, f custom exp, x custom exp at next level, y custom exp at next level) : mctt_scope.
   Notation "'Eq' A M N" := (a_eq A M N) (in custom exp at level 1, A custom exp at level 30, M custom exp at level 35, N custom exp at level 40) : mctt_scope.
   Notation "'refl' A M" := (a_refl A M) (in custom exp at level 1, A custom exp at level 30, M custom exp at level 40) : mctt_scope.
@@ -203,7 +203,7 @@ Module Syntax_Notations.
   Notation "'Π' A B" := (nf_pi A B) (in custom nf at level 2, A custom nf at level 1, B custom nf at level 60) : mctt_scope.
   Notation "'λ' A e" := (nf_fn A e) (in custom nf at level 2, A custom nf at level 1, e custom nf at level 60) : mctt_scope.
   Notation "'Σ' A B" := (nf_sigma A B) (in custom nf at level 2, A custom nf at level 1, B custom nf at level 60) : mctt_scope.
-  Notation "⟨ M ,, N ⟩" := (nf_pair M N) (in custom nf at level 2, M custom nf at level 1, N custom nf at level 60) : mctt_scope.
+  Notation "⟨ M ; N ⟩" := (nf_pair M N) (in custom nf at level 2, M custom nf at level 1, N custom nf at level 60) : mctt_scope.
   Notation "f x .. y" := (ne_app .. (ne_app f x) .. y) (in custom nf at level 40, f custom nf, x custom nf at next level, y custom nf at next level) : mctt_scope.
   Notation "`fst` M" := (ne_fst M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
   Notation "`snd` M" := (ne_snd M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.

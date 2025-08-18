@@ -76,6 +76,26 @@ with wf_exp : ctx -> typ -> exp -> Prop :=
      {{ Γ ⊢ N : A }} ->
      {{ Γ ⊢ M N : B[Id,,N] }} )
 
+| wf_sigma :
+    `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ Σ A B : Type@i }} )
+| wf_pair :
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ ⊢ M : A }} ->
+     {{ Γ , A ⊢ N : B }} ->
+     {{ Γ ⊢ ⟨ M ; N ⟩ : Σ A B }} )
+| wf_fst :
+    `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ M : Σ A B }} ->
+     {{ Γ ⊢ fst M : A }} )
+| wf_snd :
+    `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ M : Σ A B }} ->
+     {{ Γ ⊢ snd M : B[Id,,fst M] }} )
+
 | wf_vlookup :
   `( {{ ⊢ Γ }} ->
      {{ #x : A ∈ Γ }} ->
@@ -234,6 +254,67 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ M : Π A B }} ->
      {{ Γ ⊢ M ≈ λ A (M[Wk] #0) : Π A B }} )
+
+| wf_exp_eq_sigma_sub :
+  `( {{ Γ ⊢s σ : Δ }} ->
+     {{ Δ ⊢ A : Type@i }} ->
+     {{ Δ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ (Σ A B)[σ] ≈ Σ A[σ] B[q σ] : Type@i }} )
+| wf_exp_eq_sigma_cong : 
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ ⊢ A ≈ A' : Type@i }} ->
+     {{ Γ, A ⊢ B ≈ B' : Type@i }} ->
+     {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@i }} )
+| wf_exp_eq_pair_cong : 
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ ⊢ M ≈ M' : A }} ->
+     {{ Γ, A ⊢ N ≈ N' : B }} ->
+     {{ Γ ⊢ ⟨ M ; N ⟩ ≈ ⟨ M' ; N' ⟩ : Σ A B }} )
+| wf_exp_eq_pair_sub :
+  `( {{ Γ ⊢s σ : Δ }} ->
+     {{ Δ ⊢ A : Type@i }} ->
+     {{ Δ ⊢ M : A }} ->
+     {{ Δ, A ⊢ N : B }} ->
+     {{ Γ ⊢ ⟨ M ; N ⟩[σ] ≈ ⟨ M[σ] ; N[q σ] ⟩ : (Σ A B)[σ] }} )
+| wf_exp_eq_fst_cong : 
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ M ≈ M' : Σ A B }} ->
+     {{ Γ ⊢ fst M ≈ fst M' : A }} )
+| wf_exp_eq_fst_sub :
+  `( {{ Γ ⊢s σ : Δ }} ->
+     {{ Δ ⊢ A : Type@i }} ->
+     {{ Δ, A ⊢ B : Type@i }} ->
+     {{ Δ ⊢ M : Σ A B }} ->
+     {{ Γ ⊢ (fst M)[σ] ≈ fst (M[σ]) : A }} )
+| wf_exp_eq_snd_cong : 
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ M ≈ M' : Σ A B }} ->
+     {{ Γ ⊢ snd M ≈ snd M' : B[Id,,fst M] }} )
+| wf_exp_eq_snd_sub :
+  `( {{ Γ ⊢s σ : Δ }} ->
+     {{ Δ ⊢ A : Type@i }} ->
+     {{ Δ, A ⊢ B : Type@i }} ->
+     {{ Δ ⊢ M : Σ A B }} ->
+     {{ Γ ⊢ (snd M)[σ] ≈ snd (M[σ]) : B[Id,,fst M] }} )
+| wf_exp_eq_fst_beta :
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ M : A }} ->
+     {{ Γ , A ⊢ N : B }} ->
+     {{ Γ ⊢ fst (⟨ M ; N ⟩) ≈ M : A }} )
+| wf_exp_eq_snd_beta :
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ M : A }} ->
+     {{ Γ , A ⊢ N : B }} ->
+     {{ Γ ⊢ snd ⟨ M ; N ⟩ ≈ N : B[Id,,M] }} )
+| wf_exp_eq_pair_eta :
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ ⊢ M : Σ A B }} ->
+     {{ Γ ⊢ M ≈ ⟨ fst M ; snd M ⟩ : Σ A B }} )
 
 | wf_exp_eq_eq_sub :
   `( {{ Γ ⊢s σ : Δ }} ->
@@ -424,6 +505,14 @@ with wf_subtyp : ctx -> typ -> typ -> Prop :=
      {{ Γ, A' ⊢ B' : Type@i }} ->
      {{ Γ, A' ⊢ B ⊆ B' }} ->
      {{ Γ ⊢ Π A B ⊆ Π A' B' }} )
+| wf_subtyp_sigma : 
+  `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ ⊢ A' : Type@i }} ->
+     {{ Γ ⊢ A ≈ A' : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
+     {{ Γ, A' ⊢ B' : Type@i }} ->
+     {{ Γ, A' ⊢ B ⊆ B' }} ->
+     {{ Γ ⊢ Σ A B ⊆ Σ A' B' }} )  
 where "Γ ⊢ A ⊆ A'" := (wf_subtyp Γ A A') (in custom judg) : type_scope.
 
 Scheme wf_ctx_mut_ind := Induction for wf_ctx Sort Prop
