@@ -1435,14 +1435,6 @@ Proof.
   - enough {{ Γ ⊢s Id,,N : Γ, A }}; mauto 3.
 
   - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
-  
-  (* TODO: automate *)
-  - eexists.
-    eapply wf_conv with (A := {{{ Type@i[Id,,fst M] }}} ) (A' := {{{ Type@i }}} ) 
-      (i:=max (2 + i) i2); [eapply wf_exp_sub | |]; mauto 4.
-    eapply @lift_exp_ge with (n:=1+i); mauto 3. lia.
-    eapply wf_exp_eq_subtyp; [eapply wf_exp_eq_typ_sub | |]; mauto 4.
-    eapply wf_subtyp_univ; mauto 3. lia.
 
   - enough {{ Γ ⊢s Id,,M1,,M2,,N : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by mauto 3.
     assert {{ Γ, A ⊢s Wk : Γ }} by mauto 3.
