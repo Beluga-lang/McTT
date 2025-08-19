@@ -72,8 +72,12 @@ Module ctxsub_judg.
       assert {{ ⊢ Δ, B, B[Wk], Eq B[Wk∘Wk] #1 #0 ⊆ Γ, B, B[Wk], Eq B[Wk∘Wk] #1 #0 }} by mauto 3;
       econstructor; mauto 2.
     
-      1-4:admit.
-      1-6:admit.
+    (* sigma type case *)
+    1-10: 
+      match goal with 
+      | _ : context [ {{{ ^?Γ , ^?A }}} ] , _ : {{ ⊢ ^?Δ ⊆ ^?Γ }} |- _ => 
+        assert {{ ⊢ Δ, A ⊆ Γ, A }} by (econstructor; mautosolve 3)
+      end; econstructor; mauto 3.
 
     - (** ctxsub_exp_eq_helper variable case *)
       inversion_clear HΓΔ as [|Δ0 ? ? C'].
@@ -83,7 +87,7 @@ Module ctxsub_judg.
       assert {{ Δ0, C' ⊢ D[Wk] ⊆ B[Wk] }}...
     - eapply wf_subtyp_pi with (i := i); firstorder mauto 4.
     - eapply wf_subtyp_sigma with (i := i); firstorder mauto 4.
-Admitted.
+  Qed.
 
   Corollary ctxsub_exp : forall {Γ Δ M A}, {{ ⊢ Δ ⊆ Γ }} -> {{ Γ ⊢ M : A }} -> {{ Δ ⊢ M : A }}.
   Proof.
