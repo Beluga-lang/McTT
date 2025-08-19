@@ -268,12 +268,14 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@i }} )
 | wf_exp_eq_pair_cong : 
   `( {{ Γ ⊢ A : Type@i }} ->
+     {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ M ≈ M' : A }} ->
      {{ Γ ⊢ N ≈ N' : B[Id,,M] }} ->
      {{ Γ ⊢ ⟨ M ; N ⟩ ≈ ⟨ M' ; N' ⟩ : Σ A B }} )
 | wf_exp_eq_pair_sub :
   `( {{ Γ ⊢s σ : Δ }} ->
      {{ Δ ⊢ A : Type@i }} ->
+     {{ Δ, A ⊢ B : Type@i }} ->
      {{ Δ ⊢ M : A }} ->
      {{ Δ ⊢ N : B[Id,,M] }} ->
      {{ Γ ⊢ ⟨ M ; N ⟩[σ] ≈ ⟨ M[σ] ; N[q σ] ⟩ : (Σ A B)[σ] }} )

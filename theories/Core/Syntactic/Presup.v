@@ -1260,10 +1260,6 @@ Proof with mautosolve 4.
   - admit.
   - admit.
   - admit.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
 
   (** presup_sub_eq cases *)
   - econstructor; mauto 3.
