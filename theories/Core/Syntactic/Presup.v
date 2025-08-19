@@ -314,6 +314,35 @@ Qed.
 #[local]
 Hint Resolve presup_exp_eq_pi_eta_right : mctt.
 
+
+Lemma presup_exp_eq_pair_sub_right : forall {Γ σ Δ i A j B M N},
+    {{ ⊢ Γ }} ->
+    {{ ⊢ Δ }} ->
+    {{ Γ ⊢s σ : Δ }} ->
+    {{ Δ ⊢ A : Type@i }} ->
+    {{ ⊢ Δ, A }} ->
+    {{ Δ, A ⊢ B : Type@j }} ->
+    {{ Δ ⊢ M : A }} ->
+    {{ Δ ⊢ N : B[Id,,M] }} ->
+    {{ Γ ⊢ ⟨ M[σ] ; N[σ] ⟩ : (Σ A B)[σ] }}.
+Proof.
+  intros.
+  assert {{ Δ ⊢ A : Type@(max i j) }} by mauto 2 using lift_exp_max_left.
+  assert {{ Δ, A ⊢ B : Type@(max i j) }} by mauto 2 using lift_exp_max_right.
+  assert {{ Γ ⊢ A[σ] : Type@(max i j) }} by mauto 2.
+  assert {{ Γ, A[σ] ⊢ B[q σ] : Type@(max i j) }} by mauto 3.
+  assert {{ Γ ⊢ Σ A[σ] B[q σ] : Type@(max i j) }} by mauto 2.
+  assert {{ Γ ⊢ Σ A[σ] B[q σ] ≈ Σ A[σ] B[q σ] : Type@(max i j) }} by mauto 2.
+  (* assert {{ Γ, A[σ] ⊢ M[q σ] : B[q σ] }} by mauto 3. *)
+  (* assert {{ Γ ⊢ λ A[σ] M[q σ] : Π A[σ] B[q σ] }} by mauto 3. *)
+  eapply wf_conv; mauto 3.
+  eapply wf_pair; mauto 3.
+Admitted.
+
+#[local]
+Hint Resolve presup_exp_eq_pair_sub_right : mctt.
+
+
 Lemma presup_exp_eq_prop_eq_var0 : forall {Γ i A},
     {{ Γ ⊢ A : Type@i }} ->
     {{ Γ, A, A[Wk] ⊢ #0 : A[Wk∘Wk] }}.
@@ -1253,9 +1282,8 @@ Proof with mautosolve 4.
   (** presup_exp_eq cases *)
   - eexists; eapply exp_sub_typ; mauto 4 using lift_exp_max_left, lift_exp_max_right.
 
-  - admit.
-  - admit.
-  - admit.
+  - eapply wf_pair; mauto 3. admit. admit.
+  - eapply wf_fst; mauto 3. admit. admit. 
   - admit.
   - admit.
   - admit.
