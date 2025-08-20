@@ -122,6 +122,8 @@ Proof.
     mauto 2.
   - autorewrite with mctt.
     eapply wf_subtyp_pi'; mauto.
+  - autorewrite with mctt.
+    eapply wf_subtyp_sigma'; mauto.
 Qed.
 
 Lemma wf_subtyp_subst : forall Δ A B,

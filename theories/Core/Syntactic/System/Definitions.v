@@ -514,6 +514,9 @@ with wf_subtyp : ctx -> typ -> typ -> Prop :=
      {{ Γ ⊢ A ≈ A' : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ, A' ⊢ B' : Type@i }} ->
+     (* Although A and A' are equal, it may be more natural to
+        use Γ, A ⊢ B ⊆ B'. but Γ, A' ⊢ B ⊆ B', on the other hand,
+        can reuse some properties proved for the Π case *)
      {{ Γ, A' ⊢ B ⊆ B' }} ->
      {{ Γ ⊢ Σ A B ⊆ Σ A' B' }} )  
 where "Γ ⊢ A ⊆ A'" := (wf_subtyp Γ A A') (in custom judg) : type_scope.
@@ -713,7 +716,7 @@ Hint Rewrite -> wf_sub_eq_id_compose_right wf_sub_eq_id_compose_left
                   wf_sub_eq_p_extend using mauto 4 : mctt.
 
 #[export]
-Hint Rewrite -> wf_exp_eq_sub_id wf_exp_eq_pi_sub using mauto 4 : mctt.
+Hint Rewrite -> wf_exp_eq_sub_id wf_exp_eq_pi_sub wf_exp_eq_sigma_sub using mauto 4 : mctt.
 
 #[export]
 Instance wf_exp_eq_per_elem Γ T : PERElem _ (wf_exp Γ T) (wf_exp_eq Γ T).
