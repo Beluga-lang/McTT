@@ -382,6 +382,116 @@ Qed.
 #[local]
 Hint Resolve presup_exp_eq_pair_cong_right : mctt.
 
+Lemma presup_exp_eq_fst_sub_right : forall {Γ σ Δ i A j B M},
+  {{ Γ ⊢s σ : Δ }} ->
+  {{ Δ ⊢ A : Type@i }} ->
+  {{ Δ, A ⊢ B : Type@j }} ->
+  {{ Δ ⊢ M : Σ A B }} ->
+  {{ Γ ⊢ fst (M[σ]) : A[σ] }}.
+Proof.
+  intros.
+  assert {{ Δ ⊢ A : Type@(max i j) }} by mauto 2 using lift_exp_max_left.
+  assert {{ Δ, A ⊢ B : Type@(max i j) }} by mauto 2 using lift_exp_max_right.
+  assert {{ Γ ⊢ A[σ] : Type@(max i j) }} by mauto 2.
+  assert {{ Γ, A[σ] ⊢s q σ : Δ, A }} by mauto 3.
+  assert {{ Γ ⊢ (Σ A B)[σ] ≈ Σ A[σ] B[q σ] : Type@(max i j) }} by mauto 3.
+  eapply wf_fst with (B:={{{ B[q σ]}}}); mauto 3.
+  eapply wf_conv; mauto 3.
+Qed.
+
+#[local]
+Hint Resolve presup_exp_eq_fst_sub_right : mctt.
+
+Lemma presup_exp_eq_snd_cong_right : forall {Γ i A j B M M'},
+  {{ Γ ⊢ A : Type@i }} ->
+  {{ Γ, A ⊢ B : Type@j }} ->
+  {{ Γ ⊢ M : Σ A B }} ->
+  {{ Γ ⊢ M' : Σ A B }} ->
+  {{ Γ ⊢ M ≈ M' : Σ A B }} ->
+  {{ Γ ⊢ snd M' : B[Id,,fst M] }}.
+Proof.
+  intros.
+  (* assert {{ Γ ⊢s Id,, M : Γ, A }} by mauto 3. *)
+  assert {{ Γ ⊢ A : Type@(max i j) }} by mauto 2 using lift_exp_max_left.
+  assert {{ Γ, A ⊢ B : Type@(max i j) }} by mauto 2 using lift_exp_max_right.
+  assert {{ Γ ⊢ fst M : A }} by mauto 3.
+  assert {{ Γ ⊢ fst M' : A }} by mauto 3.
+  assert {{ Γ ⊢ fst M ≈ fst M' : A }} by mauto 3.
+  assert {{ Γ ⊢s Id,, fst M : Γ, A }} by mauto 3.
+  assert {{ Γ ⊢s Id,, fst M' : Γ, A }} by mauto 3.
+  assert {{ Γ ⊢s Id,,fst M ≈ Id,,fst M' : Γ , A }} by mauto 3.
+  assert {{ Γ ⊢ B[Id,,fst M] ≈ B[Id,,fst M'] : Type@(max i j) }}. {
+    eapply wf_exp_eq_conv with (A:={{{Type@(Nat.max i j)[Id,,fst M]}}}) (i:=1 + (max i j)); mauto 3.
+  }
+  eapply wf_conv; [eapply wf_snd | |]; mauto 3.
+Qed.
+
+#[local]
+Hint Resolve presup_exp_eq_snd_cong_right : mctt.
+
+Lemma presub_exp_eq_snd_sub_left : forall {Γ σ Δ i A j B M},
+  {{ Γ ⊢s σ : Δ }} ->
+  {{ Δ ⊢ A : Type@i }} ->
+  {{ Δ, A ⊢ B : Type@j }} ->
+  {{ Δ ⊢ M : Σ A B }} ->
+  {{ Γ ⊢ (snd M)[σ] : B[σ,,fst (M[σ])] }}.
+Proof.
+  intros.
+  assert {{ Δ ⊢ A : Type@(max i j) }} by mauto 2 using lift_exp_max_left.
+  assert {{ Δ, A ⊢ B : Type@(max i j) }} by mauto 2 using lift_exp_max_right.
+  assert {{ Γ ⊢ A[σ] : Type@(max i j) }} by mauto 2.
+  assert {{ Γ, A[σ] ⊢s q σ : Δ, A }} by mauto 3.
+  assert {{ Γ ⊢s (Id,,fst M)∘σ : Δ , A }} by mauto 4.
+  assert {{ Γ ⊢ (fst M)[σ]: A[σ] }} by mauto 3.
+  assert {{ Γ ⊢ (fst M[σ]): A[σ] }} by mauto 3.
+  assert {{ Γ ⊢ (fst M)[σ] ≈ (fst M[σ]) : A[σ] }} by mauto 3. 
+  assert {{ Γ ⊢s (Id,,fst M)∘σ ≈ Id∘σ,,(fst M)[σ] : Δ, A }} by (eapply wf_sub_eq_extend_compose; mauto 3).
+  assert {{ Γ ⊢s (Id,,fst M)∘σ ≈ σ,,(fst M)[σ] : Δ, A }} by mauto 3.
+  assert {{ Γ ⊢s σ,,(fst M)[σ] ≈ σ,,(fst M[σ]) : Δ, A  }} by mauto 3.
+  assert {{ Γ ⊢s (Id,,fst M)∘σ ≈ σ,,(fst M[σ]) : Δ, A }} by mauto 3.
+  assert {{ Γ ⊢ B[(Id,,fst M)][σ] ≈ B[(Id,,fst M)∘σ] : Type@(max i j) }} by mauto 4.
+  assert {{ Γ ⊢ B[(Id,,fst M)][σ] ≈ B[σ,,(fst M[σ])] : Type@(max i j) }} by mauto 4.
+  eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+Qed.
+
+#[local]
+Hint Resolve presub_exp_eq_snd_sub_left : mctt.
+
+Lemma presub_exp_eq_snd_sub_right : forall {Γ σ Δ i A j B M},
+  {{ Γ ⊢s σ : Δ }} ->
+  {{ Δ ⊢ A : Type@i }} ->
+  {{ Δ, A ⊢ B : Type@j }} ->
+  {{ Δ ⊢ M : Σ A B }} ->
+  {{ Γ ⊢ snd (M[σ]) : B[σ,,fst (M[σ])] }}.
+Proof.
+  intros.
+  assert {{ Δ ⊢ A : Type@(max i j) }} by mauto 2 using lift_exp_max_left.
+  assert {{ Δ, A ⊢ B : Type@(max i j) }} by mauto 2 using lift_exp_max_right.
+  assert {{ Γ ⊢ A[σ] : Type@(max i j) }} by mauto 2.
+  assert {{ Γ, A[σ] ⊢s q σ : Δ, A }} by mauto 3.
+  assert {{ Γ ⊢s (Id,,fst M)∘σ : Δ , A }} by mauto 4.
+  assert {{ Γ ⊢s q σ∘(Id,,fst M[σ]) : Δ , A }} by mauto 4.
+  assert {{ Γ ⊢s q σ∘(Id,,fst M[σ]) ≈ σ,,fst M[σ] : Δ, A }} by mauto 3.
+  assert {{ Γ ⊢ B[q σ][Id,,fst M[σ]] ≈ B[σ,,fst M[σ]] : Type@(max i j) }}. {
+    eapply wf_exp_eq_conv; mauto 3.
+    etransitivity.
+    eapply wf_exp_eq_conv; [symmetry; eapply wf_exp_eq_sub_compose | |]; mauto 3.
+    eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+    etransitivity; [| symmetry]; eapply wf_exp_eq_typ_sub; mauto 3.
+    eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
+    eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+    etransitivity; [| symmetry]; eapply wf_exp_eq_typ_sub; mauto 3.
+  }
+  - eapply wf_conv; [eapply wf_snd | |]; mauto 3.
+    eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+    eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+    eapply wf_exp_eq_conv; [eapply wf_exp_eq_typ_sub with (i:=(max i j)) | |]; mauto 3.
+    apply exp_eq_refl; mauto 3.
+Qed.
+
+#[local]
+Hint Resolve presub_exp_eq_snd_sub_right : mctt.
+
 Lemma presup_exp_eq_snd_beta_left : forall {Γ i A j B M N},
     {{ Γ ⊢ A : Type@i }} ->
     {{ Γ, A ⊢ B : Type@j }} ->
@@ -1344,14 +1454,6 @@ Proof with mautosolve 4.
   (** presup_exp_eq cases *)
   - eexists; eapply exp_sub_typ; mauto 4 using lift_exp_max_left, lift_exp_max_right.
 
-  - eapply wf_fst with (B:={{{ B[q σ]}}}); mauto 3. admit. admit. 
-  - admit.
-  - admit.
-  - eexists. 
-    eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
-    eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
-    admit.
-
   (** presup_sub_eq cases *)
   - econstructor; mauto 3.
     eapply wf_conv...
@@ -1361,7 +1463,7 @@ Proof with mautosolve 4.
 
   (** presup_subtyp cases *)
   - exists (max (S i) (S j)); split; mauto 3 using lift_exp_max_left, lift_exp_max_right.
-Admitted.
+Qed.
 
 Ltac gen_presup H := gen_presup_IH @presup_exp_eq @presup_sub_eq @presup_subtyp H + gen_core_presup H.
 
