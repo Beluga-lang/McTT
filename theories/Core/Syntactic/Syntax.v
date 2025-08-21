@@ -1,4 +1,4 @@
-From Coq Require Import List String.
+From Coq Require Import List.
 
 From Mctt.Core Require Import Base.
 
