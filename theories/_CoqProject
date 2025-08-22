@@ -2,6 +2,7 @@
 
 -arg -w -arg -cast-in-pattern,-notation-overridden
 
+./Algorithmic/IR.v
 ./Algorithmic/Subtyping.v
 ./Algorithmic/Subtyping/Definitions.v
 ./Algorithmic/Subtyping/Lemmas.v
