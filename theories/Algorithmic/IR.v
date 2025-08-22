@@ -1,4 +1,6 @@
+From Mctt Require Import LibTactics.
 From Mctt.Core.Syntactic Require Import Syntax.
+From Mctt.Frontend Require Import Elaborator.
 
 (** * Intermediate Representation (IR) *)
 
@@ -27,6 +29,8 @@ Inductive ir : Set :=
 (** Annotation *)
 | ir_ann : ir -> ir -> ir.
 
+Hint Constructors ir : mctt.
+
 #[global] Declare Custom Entry ir.
 #[global] Bind Scope mctt_scope with ir.
 
@@ -50,27 +54,37 @@ Module IR_Notations.
   Notation "'eqrec' N 'as' 'Eq' A M1 M2 'return' B | 'refl' -> BR 'end'" := (ir_eqrec A B BR M1 M2 N) (in custom ir at level 0, A custom ir at level 30, B custom ir at level 60, BR custom ir at level 60, M1 custom ir at level 35, M2 custom ir at level 40, N custom ir at level 60) : mctt_scope.
 
   Notation "'#' n" := (ir_var n) (in custom ir at level 0, n constr at level 0, format "'#' n") : mctt_scope.
-  Notation "M : A" := (ir_ann A M) (in custom ir at level 60, M custom ir, A custom ir at level 0) : mctt_scope.
+  Notation "M : A" := (ir_ann A M) (in custom ir at level 1, M custom ir, A custom ir at level 1) : mctt_scope.
 End IR_Notations.
 
 Import Syntax_Notations.
 Import IR_Notations.
 
-(** ** Erasure *)
-Fixpoint ir_to_exp m : exp :=
+(** ** Erasure
+
+    Note: the variable names in this definition are in lowercase
+    as this one will be extracted. *)
+Fixpoint erase m : exp :=
   match m with
   | i{{{ Type@i }}} => {{{ Type@i }}}
   | i{{{ ℕ }}} => {{{ ℕ }}}
   | i{{{ zero }}} => {{{ zero }}}
-  | i{{{ succ m }}} => {{{ succ ^(ir_to_exp m) }}}
-  | i{{{ rec n return a | zero -> mz | succ -> ms end }}} => {{{ rec ^(ir_to_exp n) return ^(ir_to_exp a) | zero -> ^(ir_to_exp mz) | succ -> ^(ir_to_exp ms) end }}}
-  | i{{{ Π a b }}} => {{{ Π ^(ir_to_exp a) ^(ir_to_exp b) }}}
-  | i{{{ λ a m }}} => {{{ λ ^(ir_to_exp a) ^(ir_to_exp m) }}}
-  | i{{{ m n }}} => {{{ ^(ir_to_exp m) ^(ir_to_exp n) }}}
-  | i{{{ Eq a m0 m1 }}} => {{{ Eq ^(ir_to_exp a) ^(ir_to_exp m0) ^(ir_to_exp m1) }}}
-  | i{{{ refl a m }}} => {{{ refl ^(ir_to_exp a) ^(ir_to_exp m) }}}
-  | i{{{ eqrec n as Eq a m1 m2 return b | refl -> r end }}} => {{{ eqrec ^(ir_to_exp n) as Eq ^(ir_to_exp a) ^(ir_to_exp m1) ^(ir_to_exp m2) return ^(ir_to_exp b) | refl -> ^(ir_to_exp r) end }}}
+  | i{{{ succ m }}} => {{{ succ ^(erase m) }}}
+  | i{{{ rec n return a | zero -> mz | succ -> ms end }}} => {{{ rec ^(erase n) return ^(erase a) | zero -> ^(erase mz) | succ -> ^(erase ms) end }}}
+  | i{{{ Π a b }}} => {{{ Π ^(erase a) ^(erase b) }}}
+  | i{{{ λ a m }}} => {{{ λ ^(erase a) ^(erase m) }}}
+  | i{{{ m n }}} => {{{ ^(erase m) ^(erase n) }}}
+  | i{{{ Eq a m0 m1 }}} => {{{ Eq ^(erase a) ^(erase m0) ^(erase m1) }}}
+  | i{{{ refl a m }}} => {{{ refl ^(erase a) ^(erase m) }}}
+  | i{{{ eqrec n as Eq a m1 m2 return b | refl -> r end }}} => {{{ eqrec ^(erase n) as Eq ^(erase a) ^(erase m1) ^(erase m2) return ^(erase b) | refl -> ^(erase r) end }}}
 
   | i{{{ # x }}} => {{{ # x }}}
-  | i{{{ m : a }}} => ir_to_exp m
+  | i{{{ m : a }}} => erase m
   end.
+
+Coercion erase : ir >-> exp.
+
+Fact erasure_gives_user_exp : forall M, user_exp (erase M).
+Proof.
+  induction M; mauto.
+Qed.
