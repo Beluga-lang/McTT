@@ -33,6 +33,11 @@ Inductive eval_exp : exp -> env -> domain -> Prop :=
      {{ ⟦ Π A B ⟧ ρ ↘ Π a ρ B }} )
 | eval_exp_fn :
   `( {{ ⟦ λ A M ⟧ ρ ↘ λ ρ M }} )
+| eval_exp_app :
+  `( {{ ⟦ M ⟧ ρ ↘ m }} ->
+     {{ ⟦ N ⟧ ρ ↘ n }} ->
+     {{ $| m & n |↘ r }} ->
+     {{ ⟦ M N ⟧ ρ ↘ r }} )
 | eval_exp_sigma :
   `( {{ ⟦ A ⟧ ρ ↘ a }} ->
      {{ ⟦ Σ A B ⟧ ρ ↘ Σ a ρ B }} )
@@ -40,11 +45,14 @@ Inductive eval_exp : exp -> env -> domain -> Prop :=
   `( {{ ⟦ M ⟧ ρ ↘ a }} ->
      {{ ⟦ N ⟧ ρ ↘ b }} ->
      {{ ⟦ ⟨ M ; N : B ⟩ ⟧ ρ ↘ ⟨ a ; b ⟩ }} )
-| eval_exp_app :
+| eval_exp_fst :
   `( {{ ⟦ M ⟧ ρ ↘ m }} ->
-     {{ ⟦ N ⟧ ρ ↘ n }} ->
-     {{ $| m & n |↘ r }} ->
-     {{ ⟦ M N ⟧ ρ ↘ r }} )
+     {{ π₁ m ↘ r }}  -> 
+     {{ ⟦ fst M ⟧ ρ ↘ r }} )
+| eval_exp_snd :
+  `( {{ ⟦ M ⟧ ρ ↘ m }} ->
+     {{ π₂ m ↘ r }}  -> 
+     {{ ⟦ snd M ⟧ ρ ↘ r }} )
 | eval_exp_eq :
   `( {{ ⟦ A ⟧ ρ ↘ a }} ->
      {{ ⟦ M1 ⟧ ρ ↘ m1 }} ->
