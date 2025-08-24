@@ -12,6 +12,13 @@ Reserved Notation "'⟦' σ '⟧s' ρ '↘' ρσ" (in custom judg at level 80, �
 
 Generalizable All Variables.
 
+Inductive fst_app : domain -> domain -> Prop :=
+| fst_app_pair :
+  `( {{ π₁ ⟨ a ; b ⟩ ↘ a }} )
+| fst_app_neut : 
+  `( {{ π₁ ⇑ (Σ a ρ B) m ↘ ⇑ a (fst m) }} )
+where "'π₁' n '↘' r" := (fst_app n r) (in custom judg).
+
 Inductive eval_exp : exp -> env -> domain -> Prop :=
 | eval_exp_typ :
   `( {{ ⟦ Type@i ⟧ ρ ↘ 𝕌@i }} )
@@ -94,12 +101,6 @@ with eval_app : domain -> domain -> domain -> Prop :=
   `( {{ ⟦ B ⟧ ρ ↦ n ↘ b }} ->
      {{ $| ⇑ (Π a ρ B) m & n |↘ ⇑ b (m (⇓ a n)) }} )
 where "'$|' m '&' n '|↘' r" := (eval_app m n r) (in custom judg)
-with fst_app : domain -> domain -> Prop :=
-| fst_app_pair :
-  `( {{ π₁ ⟨ a ; b ⟩ ↘ a }} )
-| fst_app_neut : 
-  `( {{ π₁ ⇑ (Σ a ρ B) m ↘ ⇑ a (fst m) }} )
-where "'π₁' n '↘' r" := (fst_app n r) (in custom judg)
 with snd_app : domain -> domain -> Prop :=
 | snd_app_pair :
   `( {{ π₂ ⟨ a ; b ⟩ ↘ b }} )
@@ -148,4 +149,4 @@ Combined Scheme eval_mut_ind from
   eval_sub_mut_ind.
 
 #[export]
-Hint Constructors eval_exp eval_natrec eval_app eval_eqrec eval_sub : mctt.
+Hint Constructors eval_exp eval_natrec eval_app fst_app snd_app eval_eqrec eval_sub : mctt.
