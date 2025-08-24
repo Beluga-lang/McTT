@@ -314,7 +314,6 @@ Qed.
 #[local]
 Hint Resolve presup_exp_eq_pi_eta_right : mctt.
 
-
 Lemma presup_exp_eq_pair_sub_right : forall {Γ σ Δ i A j B M N},
     {{ ⊢ Γ }} ->
     {{ ⊢ Δ }} ->
@@ -324,7 +323,7 @@ Lemma presup_exp_eq_pair_sub_right : forall {Γ σ Δ i A j B M N},
     {{ Δ, A ⊢ B : Type@j }} ->
     {{ Δ ⊢ M : A }} ->
     {{ Δ ⊢ N : B[Id,,M] }} ->
-    {{ Γ ⊢ ⟨ M[σ] ; N[σ] ⟩ : (Σ A B)[σ] }}.
+    {{ Γ ⊢ ⟨ M[σ] ; N[σ] : B[q σ] ⟩ : (Σ A B)[σ] }}.
 Proof.
   intros.
   assert {{ Δ ⊢ A : Type@(max i j) }} by mauto 2 using lift_exp_max_left.
@@ -357,26 +356,35 @@ Qed.
 #[local]
 Hint Resolve presup_exp_eq_pair_sub_right : mctt.
 
-Lemma presup_exp_eq_pair_cong_right : forall {Γ i A j B M M' N'},
+Lemma presup_exp_eq_pair_cong_right : forall {Γ i A j B B' M M' N'},
   {{ ⊢ Γ }} ->
   {{ Γ ⊢ A : Type@i }} ->
   {{ Γ, A ⊢ B : Type@j }} ->
+  {{ Γ, A ⊢ B' : Type@j }} ->
+  {{ Γ, A ⊢ B ≈ B' : Type@j }} ->
   {{ Γ ⊢ M : A }} ->
   {{ Γ ⊢ M' : A }} ->
   {{ Γ ⊢ M ≈ M' : A }} ->
   {{ Γ ⊢ N' : B[Id,,M] }} ->
-  {{ Γ ⊢ ⟨ M' ; N' ⟩ : Σ A B }}.
+  {{ Γ ⊢ ⟨ M' ; N' : B' ⟩ : Σ A B }}.
 Proof.
   intros.
   assert {{ Γ ⊢s Id,, M : Γ, A }} by mauto 3.
   assert {{ Γ ⊢ A : Type@(max i j) }} by mauto 2 using lift_exp_max_left.
   assert {{ Γ, A ⊢ B : Type@(max i j) }} by mauto 2 using lift_exp_max_right.
+  assert {{ Γ, A ⊢ B' : Type@(max i j) }} by mauto 2 using lift_exp_max_right.
   assert {{ Γ ⊢s Id,,M ≈ Id,,M' : Γ , A }} by mauto 2.
   assert {{ Γ ⊢ Type@(Nat.max i j)[Id,,M] ≈ Type@(Nat.max i j) : Type@(1 + (max i j)) }} by mauto 2.
   assert {{ Γ ⊢ B[Id,,M] ≈ B[Id,,M'] : Type@(max i j) }}. {
     eapply wf_exp_eq_conv with (A:={{{Type@(Nat.max i j)[Id,,M]}}}) (i:=1 + (max i j)); mauto 3.
   }
-  eapply wf_pair with (i:=max i j); mauto 4.
+  assert {{ Γ ⊢ B[Id,,M'] ≈ B'[Id,,M'] : Type@(max i j) }}. {
+    eapply wf_exp_eq_conv with (A:={{{Type@(Nat.max i j)[Id,,M']}}}) (i:=1 + (max i j)); mauto 4 using lift_exp_eq_max_right.
+    eapply wf_exp_eq_sub_cong; mauto 3 using lift_exp_eq_max_right.
+  }
+  eapply wf_conv with (i:=max i j); [eapply wf_pair | |]; mauto 4.
+  eapply wf_conv; mauto 3.
+  apply wf_exp_eq_sigma_cong; mauto 3 using lift_exp_eq_max_right.
 Qed.
 
 #[local]
@@ -497,18 +505,18 @@ Lemma presup_exp_eq_snd_beta_left : forall {Γ i A j B M N},
     {{ Γ, A ⊢ B : Type@j }} ->
     {{ Γ ⊢ M : A }} ->
     {{ Γ ⊢ N : B[Id,,M] }} ->
-    {{ Γ ⊢ snd ⟨ M ; N ⟩ : B[Id,,M] }}.
+    {{ Γ ⊢ snd ⟨ M ; N : B ⟩ : B[Id,,M] }}.
 Proof.
   intros.
   assert {{ Γ ⊢s Id,, M : Γ, A }} by mauto 3.
-  assert {{ Γ ⊢ fst (⟨ M; N ⟩) : A }}. {
+  assert {{ Γ ⊢ fst (⟨ M; N : B ⟩) : A }}. {
     eapply wf_fst with (i:=max i j); mauto 3 using lift_exp_max_left, lift_exp_max_right.
     eapply wf_pair with (i:=max i j); mauto 3 using lift_exp_max_left, lift_exp_max_right.
   }
-  assert {{ Γ ⊢s Id,,fst (⟨ M; N ⟩) : Γ, A }} by mauto 3.
+  assert {{ Γ ⊢s Id,,fst (⟨ M; N : B ⟩) : Γ, A }} by mauto 3.
   assert {{ Γ ⊢ A : Type@(max i j) }} by mauto 2 using lift_exp_max_left.
   assert {{ Γ, A ⊢ B : Type@(max i j) }} by mauto 2 using lift_exp_max_right.
-  assert {{ Γ ⊢s Id,,fst (⟨ M; N ⟩) ≈ Id,,M : Γ , A }} by mauto 3.
+  assert {{ Γ ⊢s Id,,fst (⟨ M; N : B ⟩) ≈ Id,,M : Γ , A }} by mauto 3.
   eapply wf_conv; [eapply wf_snd | |]; mauto 3.
 Qed.
 
