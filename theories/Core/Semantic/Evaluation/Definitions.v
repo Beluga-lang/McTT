@@ -5,6 +5,8 @@ Import Domain_Notations.
 Reserved Notation "'⟦' M '⟧' ρ '↘' r" (in custom judg at level 80, M custom exp at level 99, ρ custom domain at level 99, r custom domain at level 99).
 Reserved Notation "'rec' m '⟦return' A | 'zero' -> MZ | 'succ' -> MS 'end⟧' ρ '↘' r" (in custom judg at level 80, m custom domain at level 99, A custom exp at level 99, MZ custom exp at level 99, MS custom exp at level 99, ρ custom domain at level 99, r custom domain at level 99).
 Reserved Notation "'$|' m '&' n '|↘' r" (in custom judg at level 80, m custom domain at level 99, n custom domain at level 99, r custom domain at level 99).
+Reserved Notation "'π₁' n ↘ r" (in custom judg at level 80, n custom domain at level 99, r custom domain at level 99).
+Reserved Notation "'π₂' n ↘ r" (in custom judg at level 80, n custom domain at level 99, r custom domain at level 99).
 Reserved Notation "'eqrec' n 'as' 'Eq' a m1 m2 '⟦return' B | 'refl' -> BR 'end⟧' ρ '↘' r" (in custom judg at level 80, n custom domain at level 99, a custom domain at level 30, m1 custom domain at level 35, m2 custom domain at level 40, B custom exp at level 99, BR custom exp at level 99, ρ custom domain at level 99, r custom domain at level 99).
 Reserved Notation "'⟦' σ '⟧s' ρ '↘' ρσ" (in custom judg at level 80, σ custom exp at level 99, ρ custom domain at level 99, ρσ custom domain at level 99).
 
@@ -31,6 +33,13 @@ Inductive eval_exp : exp -> env -> domain -> Prop :=
      {{ ⟦ Π A B ⟧ ρ ↘ Π a ρ B }} )
 | eval_exp_fn :
   `( {{ ⟦ λ A M ⟧ ρ ↘ λ ρ M }} )
+| eval_exp_sigma :
+  `( {{ ⟦ A ⟧ ρ ↘ a }} ->
+     {{ ⟦ Σ A B ⟧ ρ ↘ Σ a ρ B }} )
+| eval_exp_pair :
+  `( {{ ⟦ M ⟧ ρ ↘ a }} ->
+     {{ ⟦ N ⟧ ρ ↘ b }} ->
+     {{ ⟦ ⟨ M ; N : B ⟩ ⟧ ρ ↘ ⟨ a ; b ⟩ }} )
 | eval_exp_app :
   `( {{ ⟦ M ⟧ ρ ↘ m }} ->
      {{ ⟦ N ⟧ ρ ↘ n }} ->
@@ -77,6 +86,19 @@ with eval_app : domain -> domain -> domain -> Prop :=
   `( {{ ⟦ B ⟧ ρ ↦ n ↘ b }} ->
      {{ $| ⇑ (Π a ρ B) m & n |↘ ⇑ b (m (⇓ a n)) }} )
 where "'$|' m '&' n '|↘' r" := (eval_app m n r) (in custom judg)
+with fst_app : domain -> domain -> Prop :=
+| fst_app_pair :
+  `( {{ π₁ ⟨ a ; b ⟩ ↘ a }} )
+| fst_app_neut : 
+  `( {{ π₁ ⇑ (Σ a ρ B) m ↘ ⇑ a (fst m) }} )
+where "'π₁' n '↘' r" := (fst_app n r) (in custom judg)
+with snd_app : domain -> domain -> Prop :=
+| snd_app_pair :
+  `( {{ π₂ ⟨ a ; b ⟩ ↘ b }} )
+| snd_app_neut : 
+  `( {{ ⟦ B ⟧ ρ ↦ ⇑ a (fst m) ↘ b }} ->
+     {{ π₂ ⇑ (Σ a ρ B) m ↘ ⇑ b (snd m) }} )
+where "'π₂' n '↘' r" := (snd_app n r) (in custom judg)
 with eval_eqrec : domain -> exp -> exp -> domain -> domain -> domain -> env -> domain -> Prop :=
 | eval_eqrec_refl :
   `( {{ ⟦ BR ⟧ ρ ↦ n ↘ br }} ->
