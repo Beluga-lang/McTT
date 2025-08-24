@@ -30,12 +30,13 @@ Inductive read_nf : nat -> domain_nf -> nf -> Prop :=
      {{ Rnf ⇓ b m' in S s ↘ M }} ->
      {{ Rnf ⇓ (Π a ρ B) m in s ↘ λ A M }} )
 | read_nf_sigma : 
-  `( (** Normal form of snd type *)
+  `( (** Normal form of snd type, 
+         should be abstract over the first element *)
      {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↘ b }} ->
      {{ π₁ m ↘ m' }} ->
      {{ π₂ m ↘ n }} ->
      {{ Rnf ⇓ a m' in s ↘ M }} ->
-     {{ Rnf ⇓ a n in s ↘ M }} ->
+     {{ Rnf ⇓ a n in s ↘ N }} ->
      {{ Rtyp b in S s ↘ B' }} ->
      {{ Rnf ⇓ (Σ a ρ B) m in s ↘ ⟨M ; N : B'⟩}} )
 | read_nf_refl :
@@ -56,42 +57,40 @@ with read_ne : nat -> domain_ne -> ne -> Prop :=
   `( (** Normal form of motive *)
      {{ ⟦ B ⟧ ρ ↦ ⇑! ℕ s ↘ b }} ->
      {{ Rtyp b in S s ↘ B' }} ->
-
      (** Normal form of mz *)
      {{ ⟦ B ⟧ ρ ↦ zero ↘ bz }} ->
      {{ Rnf ⇓ bz mz in s ↘ MZ }} ->
-
      (** Normal form of MS *)
      {{ ⟦ B ⟧ ρ ↦ succ (⇑! ℕ s) ↘ bs }} ->
      {{ ⟦ MS ⟧ ρ ↦ ⇑! ℕ s ↦ ⇑! b (S s) ↘ ms }} ->
      {{ Rnf ⇓ bs ms in S (S s) ↘ MS' }} ->
-
      (** Neutral form of m *)
      {{ Rne m in s ↘ M }} ->
-
      {{ Rne rec m under ρ return B | zero -> mz | succ -> MS end in s ↘ rec M return B' | zero -> MZ | succ -> MS' end }} )
 | read_ne_app :
   `( {{ Rne m in s ↘ M }} ->
      {{ Rnf n in s ↘ N }} ->
      {{ Rne m n in s ↘ M N }} )
+| read_ne_fst :
+  `( {{ Rne m in s ↘ M }} ->
+     {{ Rne (fst m) in s ↘ fst M }} ) 
+| read_ne_snd :
+  `( {{ Rne m in s ↘ M }} ->
+     {{ Rne (snd m) in s ↘ snd M }} ) 
 | read_ne_eqrec :
   `( (** Normal form of type annotation *)
      {{ Rtyp a in s ↘ A }} ->
      {{ Rnf ⇓ a m1 in s ↘ M1 }} ->
      {{ Rnf ⇓ a m2 in s ↘ M2 }} ->
-
      (** Normal form of motive *)
      {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↦ ⇑! a (S s) ↦ ⇑! (Eq a (⇑! a s) (⇑! a (S s))) (S (S s)) ↘ b }} ->
      {{ Rtyp b in S (S (S s)) ↘ B' }} ->
-
      (** Normal form of BR *)
      {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↦ ⇑! a s ↦ refl (⇑! a s) ↘ bbr }} ->
      {{ ⟦ BR ⟧ ρ ↦ ⇑! a s ↘ br }} ->
      {{ Rnf ⇓ bbr br in S s ↘ BR' }} ->
-
      (** Neutral form of m *)
      {{ Rne n in s ↘ N }} ->
-
      {{ Rne eqrec n under ρ as Eq a m1 m2 return B | refl -> BR end in s ↘ eqrec N as Eq A M1 M2 return B' | refl -> BR' end }} )
 where "'Rne' m 'in' s ↘ M" := (read_ne s m M) (in custom judg) : type_scope
 with read_typ : nat -> domain -> nf -> Prop :=
@@ -102,22 +101,23 @@ with read_typ : nat -> domain -> nf -> Prop :=
 | read_typ_pi :
   `( (** Normal form of arg type *)
      {{ Rtyp a in s ↘ A }} ->
-
      (** Normal form of ret type *)
      {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↘ b }} ->
      {{ Rtyp b in S s ↘ B' }} ->
-
      {{ Rtyp Π a ρ B in s ↘ Π A B' }})
+| read_typ_sigma :
+  `( (** Normal form of fst type *)
+     {{ Rtyp a in s ↘ A }} ->
+     {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↘ b }} ->
+     {{ Rtyp b in S s ↘ B' }} ->
+     {{ Rtyp Σ a ρ B in s ↘ Σ A B' }})
 | read_typ_eq :
   `( (** Normal form of equality type *)
      {{ Rtyp a in s ↘ A }} ->
-
      (** Normal form of LHS *)
      {{ Rnf ⇓ a m1 in s ↘ M1 }} ->
-
      (** Normal form of RHS *)
      {{ Rnf ⇓ a m2 in s ↘ M2 }} ->
-
      {{ Rtyp Eq a m1 m2 in s ↘ Eq A M1 M2 }})
 | read_typ_neut :
   `( {{ Rne b in s ↘ B }} ->
