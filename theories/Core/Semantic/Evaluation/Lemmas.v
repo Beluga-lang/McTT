@@ -34,7 +34,8 @@ Section functional_eval.
             ρσ1 = ρσ2).
   Proof with ((on_all_hyp: fun H => erewrite H in *; eauto); solve [eauto]) using.
     apply eval_mut_ind; intros;
-      progressive_inversion; do 2 f_equal; try reflexivity...
+      try progressive_inversion;
+       try do 2 f_equal; try reflexivity.
   Qed.
 
   Corollary functional_eval_exp : forall M ρ m1 m2,

@@ -134,12 +134,16 @@ where "'⟦' σ '⟧s' ρ '↘' ρσ" := (eval_sub σ ρ ρσ) (in custom judg)
 Scheme eval_exp_mut_ind := Induction for eval_exp Sort Prop
 with eval_natrec_mut_ind := Induction for eval_natrec Sort Prop
 with eval_app_mut_ind := Induction for eval_app Sort Prop
+with snd_app_mut_ind := Induction for snd_app Sort Prop
 with eval_eqrec_mut_ind := Induction for eval_eqrec Sort Prop
-with eval_sub_mut_ind := Induction for eval_sub Sort Prop.
+with eval_sub_mut_ind := Induction for eval_sub Sort Prop
+.
+
 Combined Scheme eval_mut_ind from
   eval_exp_mut_ind,
   eval_natrec_mut_ind,
   eval_app_mut_ind,
+  snd_app_mut_ind,
   eval_eqrec_mut_ind,
   eval_sub_mut_ind.
 
