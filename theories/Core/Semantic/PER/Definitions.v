@@ -33,6 +33,16 @@ Arguments mk_rel_mod_app {_ _ _ _ _}.
 #[export]
 Hint Constructors rel_mod_app : mctt.
 
+(** Related modulo projection *)
+Variant rel_mod_proj a a' (R : relation domain) (R' : forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ R }}), relation domain) : Prop := mk_rel_mod_proj : 
+forall b b' c c'
+  (fst_a : {{ π₁ a ↘ b }}) (fst_a' : {{ π₁ a' ↘ b' }}) (snd_a : {{ π₂ a ↘ c }}) (snd_a' : {{ π₂ a' ↘ c' }}) 
+  (equiv_b_b' : {{ Dom b ≈ b' ∈ R }} ), {{ Dom c ≈ c' ∈ (R' b b' equiv_b_b' ) }} -> rel_mod_proj a a' R R'.
+#[global]
+Arguments mk_rel_mod_proj {_ _ _ _ }.
+#[export]
+Hint Constructors rel_mod_proj : mctt.
+
 (** *** (Some Elements of) PER Lattice *)
 
 Definition per_bot : relation domain_ne := fun m m' => (forall s, exists L, {{ Rne m in s ↘ L }} /\ {{ Rne m' in s ↘ L }}).
@@ -121,6 +131,16 @@ Section Per_univ_elem_core_def.
               rel_mod_eval per_univ_elem_core B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (out_rel equiv_c_c')) ->
           (elem_rel <~> fun f f' => forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), rel_mod_app f c f' c' (out_rel equiv_c_c')) ->
           {{ DF Π a ρ B ≈ Π a' ρ' B' ∈ per_univ_elem_core ↘ elem_rel }} }
+  | per_univ_elem_core_sigma :
+     `{ forall (fst_rel : relation domain)
+          (snd_rel : forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}), relation domain)
+          (elem_rel : relation domain)
+          (equiv_a_a' : {{ DF a ≈ a' ∈ per_univ_elem_core ↘ fst_rel }}),
+          PER fst_rel ->
+          (forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}),
+              rel_mod_eval per_univ_elem_core B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (snd_rel equiv_c_c')) ->
+          (elem_rel <~> fun b b' => rel_mod_proj b b' fst_rel (fun c c' => snd_rel) ) ->
+          {{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem_core ↘ elem_rel }} } 
   | per_univ_elem_core_eq :
     `{ forall (point_rel : relation domain)
          (elem_rel : relation domain),
@@ -157,6 +177,18 @@ Section Per_univ_elem_core_def.
               rel_mod_eval (fun R x y => {{ DF x ≈ y ∈ per_univ_elem_core ↘ R }} /\ motive R x y) B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (out_rel equiv_c_c')) ->
           (elem_rel <~> fun f f' => forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), rel_mod_app f c f' c' (out_rel equiv_c_c')) ->
           motive elem_rel d{{{ Π a ρ B }}} d{{{ Π a' ρ' B' }}})
+      (case_Sigma :
+          forall {a ρ B a' ρ' B' fst_rel}
+           (snd_rel : forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}), relation domain)
+           {elem_rel},
+          {{ DF a ≈ a' ∈ per_univ_elem_core ↘ fst_rel }} ->
+          motive fst_rel a a' ->
+          PER fst_rel ->
+          (forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}),
+              rel_mod_eval (fun R x y => {{ DF x ≈ y ∈ per_univ_elem_core ↘ R }} /\ motive R x y) B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (snd_rel equiv_c_c')) ->
+          (elem_rel <~> fun b b' => rel_mod_proj b b' fst_rel (fun c c' => snd_rel) ) ->
+          motive elem_rel d{{{ Σ a ρ B }}} d{{{ Σ a' ρ' B' }}}
+      )
       (case_Eq : forall {a m1 m2 a' m1' m2' point_rel elem_rel},
           {{ DF a ≈ a' ∈ per_univ_elem_core ↘ point_rel }} ->
           motive point_rel a a' ->
@@ -180,6 +212,13 @@ Section Per_univ_elem_core_def.
                               | mk_rel_mod_eval b b' evb evb' Rel =>
                                   mk_rel_mod_eval b b' evb evb' (conj _ (per_univ_elem_core_strong_ind _ _ _ Rel))
                               end)
+        HE;
+  | R, a, b, (per_univ_elem_core_sigma _ snd_rel _ equiv_a_a' per HT HE) =>
+      case_Sigma snd_rel equiv_a_a' (per_univ_elem_core_strong_ind _ _ _ equiv_a_a') per 
+        (fun _ _ equiv_c_c' => match HT _ _ equiv_c_c' with
+                        | mk_rel_mod_eval b b' evb evb' Rel =>
+                            mk_rel_mod_eval b b' evb evb' (conj _ (per_univ_elem_core_strong_ind _ _ _ Rel))
+                        end) 
         HE;
   | R, a, b, (per_univ_elem_core_eq _ _ HT per HE1 HE2 eq)            => case_Eq HT (per_univ_elem_core_strong_ind _ _ _ HT) per HE1 HE2 eq;
   | R, a, b, (per_univ_elem_core_neut _ equiv_b_b' HE)                => case_ne equiv_b_b' HE.
@@ -237,6 +276,18 @@ Section Per_univ_elem_ind_def.
               rel_mod_eval (fun R x y => {{ DF x ≈ y ∈ per_univ_elem i ↘ R }} /\ motive i R x y) B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (out_rel equiv_c_c')) ->
           (elem_rel <~> fun f f' => forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), rel_mod_app f c f' c' (out_rel equiv_c_c')) ->
           motive i elem_rel d{{{ Π a ρ B }}} d{{{ Π a' ρ' B' }}})
+      (case_Sigma :
+        forall i {a ρ B a' ρ' B' fst_rel}
+           (snd_rel : forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}), relation domain)
+           {elem_rel},
+          {{ DF a ≈ a' ∈ per_univ_elem i ↘ fst_rel }} ->
+          motive i fst_rel a a' ->
+          PER fst_rel ->
+          (forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}),
+              rel_mod_eval (fun R x y => {{ DF x ≈ y ∈ per_univ_elem i ↘ R }} /\ motive i R x y) B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (snd_rel equiv_c_c')) ->
+          (elem_rel <~> fun b b' => rel_mod_proj b b' fst_rel (fun c c' => snd_rel) ) ->
+          motive i elem_rel d{{{ Σ a ρ B }}} d{{{ Σ a' ρ' B' }}}
+      )
       (case_Eq : forall i {a m1 m2 a' m1' m2' point_rel elem_rel},
           {{ DF a ≈ a' ∈ per_univ_elem i ↘ point_rel }} ->
           motive i point_rel a a' ->
@@ -261,6 +312,7 @@ Section Per_univ_elem_ind_def.
         (fun _ _ _ j_lt_i eq HE => case_U i j_lt_i eq HE (fun A B R' H' => per_univ_elem_ind' _ R' A B _))
         (fun _ => case_N i)
         (fun _ _ _ _ _ _ _ out_rel _ _ IHA per _ => case_Pi i out_rel _ IHA per _)
+        (fun _ _ _ _ _ _ _ snd_rel _ _ IHA per _ => case_Sigma i snd_rel _ IHA per _)
         (fun _ _ _ _ _ _ _ _ _ IHA per _ _ _ => case_Eq i _ IHA per _ _ _)
         (fun _ _ _ _ _ => case_ne i)
         R a b H.
@@ -292,6 +344,17 @@ Inductive per_subtyp : nat -> domain -> domain -> Prop :=
         {{ DF Π a ρ B ≈ Π a ρ B ∈ per_univ_elem i ↘ elem_rel }} ->
         {{ DF Π a' ρ' B' ≈ Π a' ρ' B' ∈ per_univ_elem i ↘ elem_rel' }} ->
         {{ Sub Π a ρ B <: Π a' ρ' B' at i }} )
+| per_subtyp_sigma :
+  `( forall (fst_rel : relation domain) elem_rel elem_rel',
+        {{ DF a ≈ a' ∈ per_univ_elem i ↘ fst_rel }} ->
+        (forall c c' b b',
+            {{ Dom c ≈ c' ∈ fst_rel }} ->
+            {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
+            {{ ⟦ B' ⟧ ρ' ↦ c' ↘ b' }} ->
+            {{ Sub b <: b' at i }}) ->
+        {{ DF Σ a ρ B ≈ Σ a ρ B' ∈ per_univ_elem i ↘ elem_rel }} ->
+        {{ DF Σ a' ρ' B' ≈ Σ a' ρ' B' ∈ per_univ_elem i ↘ elem_rel' }} ->
+        {{ Sub Σ a ρ B <: Σ a' ρ' B' at i }} )
 | per_subtyp_eq :
   `( forall elem_rel,
         {{ DF Eq a m1 m2 ≈ Eq a' m1' m2' ∈ per_univ_elem i ↘ elem_rel }} ->
