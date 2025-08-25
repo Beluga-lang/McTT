@@ -385,6 +385,24 @@ Proof with (destruct_rel_mod_eval; destruct_rel_mod_app; functional_eval_rewrite
   - rename equiv_c_c' into equiv0_c_c'.
     assert (equiv_c_c' : in_rel c c') by firstorder...
   - assert (equiv0_c_c' : in_rel0 c c') by firstorder...
+  - split. 
+    + intros.
+      dependent destruction H2.
+      assert (fst_rel <~> fst_rel0) by mauto 3.
+      assert (equiv0_b_b' : fst_rel0 b b') by firstorder.
+      destruct_rel_mod_eval.
+      specialize (H4 _ _ equiv0_b_b'). dependent destruction H4.
+      functional_eval_rewrite_clear.
+      econstructor; mauto 3.
+      eapply H14; mauto 3.  
+    + intros. dependent destruction H2.
+      assert (fst_rel <~> fst_rel0) by mauto 3.
+      assert (equiv0_b_b' : fst_rel b b') by firstorder.
+      destruct_rel_mod_eval.
+      specialize (H4 _ _ equiv_b_b'). dependent destruction H4.
+      functional_eval_rewrite_clear.
+      econstructor; mauto 3.
+      eapply H14; mauto 3.  
   - assert (point_rel <~> point_rel0) by mauto 3.
     etransitivity; [apply per_eq_morphism_relation_equivalence3 | apply per_eq_morphism_relation_equivalence1]; eauto.
     etransitivity; [symmetry |]; intuition.
@@ -446,11 +464,17 @@ Proof with mautosolve.
       per_univ_elem_right_irrel_assert.
       intuition.
   - destruct_conjs.
+    split.
+    + basic_per_univ_elem_econstructor; eauto.
+      intros.
+      admit.
+    + admit.
+  - destruct_conjs.
     split; [basic_per_univ_elem_econstructor | apply_relation_equivalence]; mauto 3.
     apply_relation_equivalence.
     etransitivity; [apply per_eq_morphism_relation_equivalence2 | apply per_eq_morphism_relation_equivalence3]; mauto 3.
   - split; [econstructor | intros; apply_relation_equivalence]...
-Qed.
+Admitted.
 
 Corollary per_univ_sym : forall i R a b,
     {{ DF a ≈ b ∈ per_univ_elem i ↘ R }} ->
@@ -579,6 +603,8 @@ Proof with (basic_per_univ_elem_econstructor; mautosolve 4).
     handle_per_univ_elem_irrel.
     econstructor; eauto.
     intuition.
+  - admit.
+  - admit.
   - (* eq case *)
     destruct_conjs.
     handle_per_univ_elem_irrel.
@@ -587,7 +613,7 @@ Proof with (basic_per_univ_elem_econstructor; mautosolve 4).
     reflexivity.
   - (* neut case *)
     idtac...
-Qed.
+Admitted.
 
 Corollary per_univ_trans : forall i j R a1 a2 a3,
     per_univ_elem i R a1 a2 ->
@@ -732,9 +758,14 @@ Proof with solve [eauto].
   simpl.
   induction 1 using per_univ_elem_ind; subst;
     per_univ_elem_econstructor; eauto.
-  intros.
-  destruct_rel_mod_eval.
-  econstructor...
+  (* Pi case *)
+  - intros.
+    destruct_rel_mod_eval.
+    econstructor...
+  (* Sigma case *)
+  - intros.
+    destruct_rel_mod_eval.
+    econstructor...
 Qed.
 
 #[export]
@@ -806,7 +837,8 @@ Proof.
     simplify_evals.
     econstructor; eauto.
     intuition.
-Qed.
+  - admit.
+Admitted.
 
 Lemma per_elem_subtyping_gen : forall a b i a' b' R R' m n,
     {{ Sub a <: b at i }} ->
@@ -835,7 +867,8 @@ Proof.
       destruct_rel_mod_eval;
       functional_eval_rewrite_clear;
       trivial.
-Qed.
+    admit.
+Admitted.
 
 #[export]
 Hint Resolve per_subtyp_refl1 : mctt.
@@ -859,7 +892,8 @@ Lemma per_subtyp_trans : forall a1 a2 i,
       {{ Sub a1 <: a3 at i }}.
 Proof.
   induction 1; intros ? Hsub; simpl in *.
-  1,2,5: progressive_inversion; mauto.
+  (* Universe, nat and neutral cases *)
+  1,2,6: progressive_inversion; mauto.
   - econstructor; lia.
   - inversion Hsub; subst.
     handle_per_univ_elem_irrel.
@@ -874,10 +908,11 @@ Proof.
       saturate_refl_for in_rel1.
       destruct_rel_mod_eval.
       intuition.
+  - admit.
   - dependent destruction Hsub.
     handle_per_univ_elem_irrel.
     econstructor; etransitivity; eauto.
-Qed.
+Admitted.
 
 #[export]
 Hint Resolve per_subtyp_trans : mctt.

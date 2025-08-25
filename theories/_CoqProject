@@ -36,7 +36,7 @@
 # ./Core/Semantic/PER.v
 ./Core/Semantic/PER/CoreTactics.v
 ./Core/Semantic/PER/Definitions.v
-# ./Core/Semantic/PER/Lemmas.v
+./Core/Semantic/PER/Lemmas.v
 ./Core/Semantic/Readback.v
 ./Core/Semantic/Readback/Definitions.v
 ./Core/Semantic/Readback/Lemmas.v
