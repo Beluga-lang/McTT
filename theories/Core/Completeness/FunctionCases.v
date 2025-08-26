@@ -60,7 +60,6 @@ Qed.
 Ltac eexists_rel_exp_of_pi :=
   unshelve eapply (rel_exp_of_pi _); shelve_unifiable; [eassumption |].
 
-#[local]
 Ltac extract_output_info_with ρ c ρ' c' env_rel :=
   let Hequiv := fresh "equiv" in
   (assert (Hequiv : {{ Dom ρ ↦ c ≈ ρ' ↦ c' ∈ env_rel }}) by (apply_relation_equivalence; mauto 4);

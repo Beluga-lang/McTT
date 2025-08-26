@@ -184,7 +184,15 @@ Proof.
     intros.
     per_univ_elem_econstructor; [| | solve_refl].
     - etransitivity; [| symmetry]; mauto using per_univ_elem_cumu_max_left.
-    - admit.
+    - (* rel_exp_pi_core also works for sigma *)
+      eapply rel_exp_pi_core; [| reflexivity].
+      intros.
+      assert {{ Dom ρ ↦ c ≈ ρ' ↦ c' ∈ cons_per_ctx_env env_relΓ head_relA' }} as equiv_ρc_ρ'c' by (apply HΓA'; intuition).
+      simpl in *.
+      (on_all_hyp: fun H => destruct (H _ _ equiv_ρc_ρ'c')).
+      destruct_conjs.
+      destruct_by_head rel_mod_eval.
+      econstructor; mauto using per_univ_elem_cumu_max_right.
   }
   exvar (relation domain)
     ltac:(fun R => assert ({{ DF Σ a0 ρ B' ≈ Σ a ρ' B' ∈ per_univ_elem (Nat.max i k) ↘ R }})).
@@ -192,7 +200,15 @@ Proof.
     intros.
     per_univ_elem_econstructor; [| | solve_refl].
     - etransitivity; [symmetry |]; mauto using per_univ_elem_cumu_max_left.
-    - admit.
+    - (* rel_exp_pi_core also works for sigma *)
+      eapply rel_exp_pi_core; [| reflexivity].
+      intros.
+      assert {{ Dom ρ ↦ c ≈ ρ' ↦ c' ∈ cons_per_ctx_env env_relΓ head_relA' }} as equiv_ρc_ρ'c' by (apply HΓA'; intuition).
+      simpl in *.
+      (on_all_hyp: fun H => destruct (H _ _ equiv_ρc_ρ'c')).
+      destruct_conjs.
+      destruct_by_head rel_mod_eval.
+      econstructor; mauto using per_univ_elem_cumu_max_right.
   }
 
   do 2 eexists.
@@ -207,7 +223,7 @@ Proof.
     destruct_by_head rel_exp.
     simplify_evals.
     mauto 2 using per_subtyp_cumu_right.
-Admitted.
+Qed.
 
 #[export]
 Hint Resolve subtyp_refl subtyp_trans subtyp_univ subtyp_pi subtyp_sigma : mctt.
