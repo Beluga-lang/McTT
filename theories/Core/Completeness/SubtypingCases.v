@@ -2,7 +2,7 @@ From Coq Require Import Morphisms_Relations RelationClasses.
 
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
-From Mctt.Core.Completeness Require Import LogicalRelation FunctionCases.
+From Mctt.Core.Completeness Require Import LogicalRelation FunctionCases PairCases.
 Import Domain_Notations.
 
 Lemma subtyp_refl : forall Γ M M' i,
@@ -146,5 +146,68 @@ Proof.
     mauto 2 using per_subtyp_cumu_right.
 Qed.
 
+Lemma subtyp_sigma : forall Γ A A' B B' i,
+  {{ Γ ⊨ A ≈ A' : Type@i }} ->
+  {{ Γ , A' ⊨ B ⊆ B' }} ->
+  {{ Γ ⊨ Σ A B ⊆ Σ A' B' }}.
+Proof.
+  intros * [env_relΓ] [? [? [k]]].
+  destruct_conjs.
+  invert_per_ctx_envs.
+  match goal with
+  | _: _ <~> cons_per_ctx_env env_relΓ ?x |- _ =>
+      rename x into head_relA'
+  end.
+  handle_per_ctx_env_irrel.
+  eexists_subtyp.
+  intros.
+  saturate_refl.
+  (on_all_hyp: destruct_rel_by_assumption env_relΓ).
+  destruct_by_head rel_typ.
+  invert_rel_typ_body_nouip.
+  destruct_by_head rel_exp.
+  destruct_conjs.
+  handle_per_univ_elem_irrel.
+  match goal with
+  | _: env_relΓ ρ ?ρ0 |- _ =>
+      assert_fails (unify ρ ρ0);
+      rename ρ0 into ρ'
+  end.
+
+  assert (forall c c', head_relA' ρ ρ' equiv_ρ_ρ' c c' -> cons_per_ctx_env env_relΓ head_relA' d{{{ ρ ↦ c }}} d{{{ ρ' ↦ c' }}}) as HΓA'
+      by (intros; unshelve econstructor; eassumption).
+
+  (** The proofs for the next two assertions are basically the same *)
+  exvar (relation domain)
+    ltac:(fun R => assert ({{ DF Σ m0 ρ B ≈ Σ m1 ρ' B ∈ per_univ_elem (Nat.max i k) ↘ R }})).
+  {
+    intros.
+    per_univ_elem_econstructor; [| | solve_refl].
+    - etransitivity; [| symmetry]; mauto using per_univ_elem_cumu_max_left.
+    - admit.
+  }
+  exvar (relation domain)
+    ltac:(fun R => assert ({{ DF Σ a0 ρ B' ≈ Σ a ρ' B' ∈ per_univ_elem (Nat.max i k) ↘ R }})).
+  {
+    intros.
+    per_univ_elem_econstructor; [| | solve_refl].
+    - etransitivity; [symmetry |]; mauto using per_univ_elem_cumu_max_left.
+    - admit.
+  }
+
+  do 2 eexists.
+  repeat split; econstructor; mauto 2.
+  econstructor; only 3-4: try (saturate_refl; mautosolve 2).
+  - eauto using per_univ_elem_cumu_max_left.
+  - intros.
+    assert (cons_per_ctx_env env_relΓ head_relA' d{{{ ρ ↦ c }}} d{{{ ρ' ↦ c' }}}) as equiv_ρc_ρ'c' by (apply HΓA'; intuition).
+    simpl in *.
+    (on_all_hyp: fun H => destruct (H _ _ equiv_ρc_ρ'c')).
+    destruct_conjs.
+    destruct_by_head rel_exp.
+    simplify_evals.
+    mauto 2 using per_subtyp_cumu_right.
+Admitted.
+
 #[export]
-Hint Resolve subtyp_refl subtyp_trans subtyp_univ subtyp_pi : mctt.
+Hint Resolve subtyp_refl subtyp_trans subtyp_univ subtyp_pi subtyp_sigma : mctt.

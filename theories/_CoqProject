@@ -12,20 +12,21 @@
 # ./Core/Completeness.v
 # ./Core/Completeness/Consequences/Rules.v
 # ./Core/Completeness/Consequences/Types.v
-# ./Core/Completeness/ContextCases.v
-# ./Core/Completeness/EqualityCases.v
-# ./Core/Completeness/FunctionCases.v
+./Core/Completeness/ContextCases.v
+./Core/Completeness/EqualityCases.v
+./Core/Completeness/FunctionCases.v
+./Core/Completeness/PairCases.v
 # ./Core/Completeness/FundamentalTheorem.v
-# ./Core/Completeness/LogicalRelation.v
-# ./Core/Completeness/LogicalRelation/Definitions.v
-# ./Core/Completeness/LogicalRelation/Lemmas.v
-# ./Core/Completeness/LogicalRelation/Tactics.v
-# ./Core/Completeness/NatCases.v
-# ./Core/Completeness/SubstitutionCases.v
-# ./Core/Completeness/SubtypingCases.v
-# ./Core/Completeness/TermStructureCases.v
-# ./Core/Completeness/UniverseCases.v
-# ./Core/Completeness/VariableCases.v
+./Core/Completeness/LogicalRelation.v
+./Core/Completeness/LogicalRelation/Definitions.v
+./Core/Completeness/LogicalRelation/Lemmas.v
+./Core/Completeness/LogicalRelation/Tactics.v
+./Core/Completeness/NatCases.v
+./Core/Completeness/SubstitutionCases.v
+./Core/Completeness/SubtypingCases.v
+./Core/Completeness/TermStructureCases.v
+./Core/Completeness/UniverseCases.v
+./Core/Completeness/VariableCases.v
 # ./Core/Semantic/Consequences.v
 ./Core/Semantic/Domain.v
 ./Core/Semantic/Evaluation.v
