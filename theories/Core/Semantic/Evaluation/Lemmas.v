@@ -6,7 +6,7 @@ From Mctt.Core.Semantic.Evaluation Require Import Definitions.
 Import Domain_Notations.
 
 Section functional_eval.
-  Lemma functional_fst_app : 
+  Lemma functional_eval_fst : 
     (forall a r1,
       {{ π₁ a ↘ r1 }} ->
         forall r2,
@@ -14,7 +14,7 @@ Section functional_eval.
         r1 = r2).
   Proof.
     intros. 
-    inversion_by_head fst_app; subst; 
+    inversion_by_head eval_fst; subst; 
     progressive_inversion; reflexivity.
   Qed.
 
@@ -49,7 +49,7 @@ Section functional_eval.
           forall ρσ2,
             {{ ⟦ σ ⟧s ρ ↘ ρσ2 }} ->
             ρσ1 = ρσ2).
-  Proof with ((on_all_hyp: fun H => erewrite H in *; eauto); solve [eauto using functional_fst_app]) using.
+  Proof with ((on_all_hyp: fun H => erewrite H in *; eauto); solve [eauto using functional_eval_fst]) using.
     apply eval_mut_ind; intros;
        progressive_inversion; 
        try do 2 f_equal; try reflexivity...
@@ -79,7 +79,7 @@ Section functional_eval.
     pose proof functional_eval; intuition.
   Qed.
 
-  Corollary functional_snd_app : forall m r1 r2,
+  Corollary functional_eval_snd : forall m r1 r2,
       {{ π₂ m ↘ r1 }} ->
       {{ π₂ m ↘ r2 }} ->
       r1 = r2.
@@ -105,7 +105,7 @@ Section functional_eval.
 End functional_eval.
 
 #[export]
-Hint Resolve functional_eval_exp functional_eval_natrec functional_eval_app functional_fst_app functional_snd_app functional_eval_eqrec functional_eval_sub : mctt.
+Hint Resolve functional_eval_exp functional_eval_natrec functional_eval_app functional_eval_fst functional_eval_snd functional_eval_eqrec functional_eval_sub : mctt.
 
 Ltac functional_eval_rewrite_clear1 :=
   let tactic_error o1 o2 := fail 3 "functional_eval equality between" o1 "and" o2 "cannot be solved by mauto" in

@@ -391,18 +391,16 @@ Proof with (destruct_rel_mod_eval; destruct_rel_mod_app; functional_eval_rewrite
       assert (fst_rel <~> fst_rel0) by mauto 3.
       assert (equiv0_b_b' : fst_rel0 b b') by firstorder.
       destruct_rel_mod_eval.
-      specialize (H4 _ _ equiv0_b_b'). dependent destruction H4.
       functional_eval_rewrite_clear.
       econstructor; mauto 3.
-      eapply H14; mauto 3.  
+      intuition.
     + intros. dependent destruction H2.
       assert (fst_rel <~> fst_rel0) by mauto 3.
       assert (equiv0_b_b' : fst_rel b b') by firstorder.
       destruct_rel_mod_eval.
-      specialize (H4 _ _ equiv_b_b'). dependent destruction H4.
       functional_eval_rewrite_clear.
-      econstructor; mauto 3.
-      eapply H14; mauto 3.  
+      econstructor; mauto 3. eauto. 
+      intuition.
   - assert (point_rel <~> point_rel0) by mauto 3.
     etransitivity; [apply per_eq_morphism_relation_equivalence3 | apply per_eq_morphism_relation_equivalence1]; eauto.
     etransitivity; [symmetry |]; intuition.
@@ -467,14 +465,32 @@ Proof with mautosolve.
     split.
     + basic_per_univ_elem_econstructor; eauto.
       intros.
-      admit.
-    + admit.
+      assert (fst_rel c' c) by eauto.
+      assert (fst_rel c c) by (etransitivity; eassumption).
+      destruct_all.
+      destruct_rel_mod_eval.
+      functional_eval_rewrite_clear.
+      econstructor; eauto.
+      per_univ_elem_right_irrel_assert.
+      apply_relation_equivalence.
+      eassumption.
+    + apply_relation_equivalence.
+      intros.
+      dependent destruction H2.
+      assert (fst_rel b' b) by eauto.
+      assert (fst_rel b b) by (etransitivity; eassumption).
+      destruct_rel_mod_eval.
+      destruct_all.
+      functional_eval_rewrite_clear.
+      per_univ_elem_right_irrel_assert.
+      econstructor; eauto.
+      intuition.
   - destruct_conjs.
     split; [basic_per_univ_elem_econstructor | apply_relation_equivalence]; mauto 3.
     apply_relation_equivalence.
     etransitivity; [apply per_eq_morphism_relation_equivalence2 | apply per_eq_morphism_relation_equivalence3]; mauto 3.
   - split; [econstructor | intros; apply_relation_equivalence]...
-Admitted.
+Qed.
 
 Corollary per_univ_sym : forall i R a b,
     {{ DF a ≈ b ∈ per_univ_elem i ↘ R }} ->

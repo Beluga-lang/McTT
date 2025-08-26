@@ -12,12 +12,12 @@ Reserved Notation "'⟦' σ '⟧s' ρ '↘' ρσ" (in custom judg at level 80, �
 
 Generalizable All Variables.
 
-Inductive fst_app : domain -> domain -> Prop :=
-| fst_app_pair :
+Variant eval_fst : domain -> domain -> Prop :=
+| eval_fst_pair :
   `( {{ π₁ ⟨ a ; b ⟩ ↘ a }} )
-| fst_app_neut : 
+| eval_fst_neut : 
   `( {{ π₁ ⇑ (Σ a ρ B) m ↘ ⇑ a (fst m) }} )
-where "'π₁' n '↘' r" := (fst_app n r) (in custom judg).
+where "'π₁' n '↘' r" := (eval_fst n r) (in custom judg).
 
 Inductive eval_exp : exp -> env -> domain -> Prop :=
 | eval_exp_typ :
@@ -101,13 +101,13 @@ with eval_app : domain -> domain -> domain -> Prop :=
   `( {{ ⟦ B ⟧ ρ ↦ n ↘ b }} ->
      {{ $| ⇑ (Π a ρ B) m & n |↘ ⇑ b (m (⇓ a n)) }} )
 where "'$|' m '&' n '|↘' r" := (eval_app m n r) (in custom judg)
-with snd_app : domain -> domain -> Prop :=
-| snd_app_pair :
+with eval_snd : domain -> domain -> Prop :=
+| eval_snd_pair :
   `( {{ π₂ ⟨ a ; b ⟩ ↘ b }} )
-| snd_app_neut : 
+| eval_snd_neut : 
   `( {{ ⟦ B ⟧ ρ ↦ ⇑ a (fst m) ↘ b }} ->
      {{ π₂ ⇑ (Σ a ρ B) m ↘ ⇑ b (snd m) }} )
-where "'π₂' n '↘' r" := (snd_app n r) (in custom judg)
+where "'π₂' n '↘' r" := (eval_snd n r) (in custom judg)
 with eval_eqrec : domain -> exp -> exp -> domain -> domain -> domain -> env -> domain -> Prop :=
 | eval_eqrec_refl :
   `( {{ ⟦ BR ⟧ ρ ↦ n ↘ br }} ->
@@ -135,7 +135,7 @@ where "'⟦' σ '⟧s' ρ '↘' ρσ" := (eval_sub σ ρ ρσ) (in custom judg)
 Scheme eval_exp_mut_ind := Induction for eval_exp Sort Prop
 with eval_natrec_mut_ind := Induction for eval_natrec Sort Prop
 with eval_app_mut_ind := Induction for eval_app Sort Prop
-with snd_app_mut_ind := Induction for snd_app Sort Prop
+with eval_snd_mut_ind := Induction for eval_snd Sort Prop
 with eval_eqrec_mut_ind := Induction for eval_eqrec Sort Prop
 with eval_sub_mut_ind := Induction for eval_sub Sort Prop
 .
@@ -144,9 +144,9 @@ Combined Scheme eval_mut_ind from
   eval_exp_mut_ind,
   eval_natrec_mut_ind,
   eval_app_mut_ind,
-  snd_app_mut_ind,
+  eval_snd_mut_ind,
   eval_eqrec_mut_ind,
   eval_sub_mut_ind.
 
 #[export]
-Hint Constructors eval_exp eval_natrec eval_app fst_app snd_app eval_eqrec eval_sub : mctt.
+Hint Constructors eval_exp eval_natrec eval_app eval_fst eval_snd eval_eqrec eval_sub : mctt.
