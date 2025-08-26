@@ -352,7 +352,7 @@ Inductive per_subtyp : nat -> domain -> domain -> Prop :=
             {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
             {{ ⟦ B' ⟧ ρ' ↦ c' ↘ b' }} ->
             {{ Sub b <: b' at i }}) ->
-        {{ DF Σ a ρ B ≈ Σ a ρ B' ∈ per_univ_elem i ↘ elem_rel }} ->
+        {{ DF Σ a ρ B ≈ Σ a ρ B ∈ per_univ_elem i ↘ elem_rel }} ->
         {{ DF Σ a' ρ' B' ≈ Σ a' ρ' B' ∈ per_univ_elem i ↘ elem_rel' }} ->
         {{ Sub Σ a ρ B <: Σ a' ρ' B' at i }} )
 | per_subtyp_eq :

@@ -33,11 +33,13 @@ Inductive read_nf : nat -> domain_nf -> nf -> Prop :=
   `( (** Normal form of snd type, 
          should be abstract over the first element *)
      {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↘ b }} ->
+     {{ Rtyp b in S s ↘ B' }} ->
      {{ π₁ m ↘ m' }} ->
      {{ π₂ m ↘ n }} ->
+     {{ ⟦ B ⟧ ρ ↦ m' ↘ b' }} ->
      {{ Rnf ⇓ a m' in s ↘ M }} ->
-     {{ Rnf ⇓ a n in s ↘ N }} ->
-     {{ Rtyp b in S s ↘ B' }} ->
+     (* should we use b or b', under (S s) or s ? *)
+     {{ Rnf ⇓ b' n in (S s) ↘ N }} ->
      {{ Rnf ⇓ (Σ a ρ B) m in s ↘ ⟨M ; N : B'⟩}} )
 | read_nf_refl :
   `( {{ Rtyp a in s ↘ A }} ->

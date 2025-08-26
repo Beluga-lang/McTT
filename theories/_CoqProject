@@ -32,15 +32,15 @@
 ./Core/Semantic/Evaluation/Definitions.v
 ./Core/Semantic/Evaluation/Lemmas.v
 ./Core/Semantic/Evaluation/Tactics.v
-# ./Core/Semantic/NbE.v
-# ./Core/Semantic/PER.v
+./Core/Semantic/NbE.v
+./Core/Semantic/PER.v
 ./Core/Semantic/PER/CoreTactics.v
 ./Core/Semantic/PER/Definitions.v
 ./Core/Semantic/PER/Lemmas.v
 ./Core/Semantic/Readback.v
 ./Core/Semantic/Readback/Definitions.v
 ./Core/Semantic/Readback/Lemmas.v
-# ./Core/Semantic/Realizability.v
+./Core/Semantic/Realizability.v
 # ./Core/Soundness.v
 # ./Core/Soundness/ContextCases.v
 # ./Core/Soundness/EqualityCases.v

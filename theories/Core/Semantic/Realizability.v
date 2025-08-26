@@ -69,6 +69,27 @@ Proof with (solve [try (try (eexists; split); econstructor); mauto]).
     assert {{ Dom ⇓ b fa ≈ ⇓ b' f'a' ∈ per_top }} by eauto.
     specialize (H2 s) as [? []].
     specialize (H16 (S s)) as [? []]...
+  - destruct IHHunivelem as [? []].
+    intro s.
+    assert {{ Dom ⇑! a s ≈ ⇑! a' s ∈ fst_rel }} by eauto using var_per_bot.
+    destruct_rel_mod_eval.
+    specialize (H9 (S s)) as [? []].
+    specialize (H2 s) as [? []]...
+  - destruct_conjs.
+    assert {{ Dom ⇑ a (fst c) ≈ ⇑ a' (fst c') ∈ fst_rel }} by mauto 3.
+    destruct_rel_mod_eval.
+    econstructor; mauto 3.
+  - destruct_by_head rel_mod_proj.
+    destruct_conjs.
+    intro s.
+    assert {{ Dom ⇑! a s ≈ ⇑! a' s ∈ fst_rel }} by eauto using var_per_bot.
+    destruct_rel_mod_eval.
+    (* TODO : automate this *)
+    specialize (H5 _ _ equiv_b_b' s).
+    specialize (H10 (S s)).
+    specialize (H18 _ _ H2 (S s)).
+    destruct_all.
+    eexists. split; mauto 3. 
   - intros s.
     destruct_conjs.
     assert {{ Dom ⇓ a m1 ≈ ⇓ a' m1' ∈ per_top }} by mauto 3.
