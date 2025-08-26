@@ -396,6 +396,22 @@ Hint Resolve wf_subtyp_pi' : mctt.
 #[export]
 Remove Hints wf_subtyp_pi : mctt.
 
+Lemma wf_subtyp_sigma' : forall Γ A A' B B' i,
+    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    {{ Γ, A' ⊢ B ⊆ B' }} ->
+    {{ Γ ⊢ Σ A B ⊆ Σ A' B' }}.
+Proof.
+  intros. gen_presups.
+  eapply wf_subtyp_sigma with (i := max i i0);
+    mauto 3 using lift_exp_max_left, lift_exp_max_right, lift_exp_eq_max_left.
+  eapply ctxeq_exp; [ | mauto 3 using lift_exp_max_right].
+  mauto 4.
+Qed.
+
+#[export]
+Hint Resolve wf_subtyp_sigma' : mctt.
+#[export]
+Remove Hints wf_subtyp_sigma : mctt.
 
 Lemma wf_exp_eq_refl_sub' : forall Γ Δ σ A M,
     {{ Γ ⊢s σ : Δ }} ->

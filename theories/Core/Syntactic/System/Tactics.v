@@ -14,7 +14,7 @@ Ltac pi_univ_level_tac :=
   end.
 
 #[export]
-Hint Rewrite -> wf_exp_eq_pi_sub using pi_univ_level_tac : mctt.
+Hint Rewrite -> wf_exp_eq_pi_sub wf_exp_eq_sigma_sub using pi_univ_level_tac : mctt.
 
 #[local]
 Ltac invert_wf_ctx1 H :=

@@ -122,6 +122,8 @@ Proof.
     mauto 2.
   - autorewrite with mctt.
     eapply wf_subtyp_pi'; mauto.
+  - autorewrite with mctt.
+    eapply wf_subtyp_sigma'; mauto.
 Qed.
 
 Lemma wf_subtyp_subst : forall Δ A B,
@@ -438,6 +440,7 @@ Proof.
   intros.
   mauto 4.
 Qed.
+
 #[export]
 Hint Resolve exp_pi_sub_lhs : mctt.
 
@@ -450,6 +453,7 @@ Proof.
   intros.
   econstructor; mauto 3.
 Qed.
+
 #[export]
 Hint Resolve exp_pi_sub_rhs : mctt.
 
@@ -478,8 +482,35 @@ Proof.
     autorewrite with mctt.
     mauto 3.
 Qed.
+
 #[export]
 Hint Resolve exp_pi_eta_rhs_body : mctt.
+
+Lemma exp_sigma_sub_lhs : forall {Γ σ Δ A B i},
+    {{ Γ ⊢s σ : Δ }} ->
+    {{ Δ ⊢ A : Type@i }} ->
+    {{ Δ, A ⊢ B : Type@i }} ->
+    {{ Γ ⊢ (Σ A B)[σ] : Type@i }}.
+Proof.
+  intros.
+  mauto 4.
+Qed.
+
+#[export]
+Hint Resolve exp_sigma_sub_lhs : mctt.
+
+Lemma exp_sigma_sub_rhs : forall {Γ σ Δ A B i},
+    {{ Γ ⊢s σ : Δ }} ->
+    {{ Δ ⊢ A : Type@i }} ->
+    {{ Δ, A ⊢ B : Type@i }} ->
+    {{ Γ ⊢ Σ A[σ] B[q σ] : Type@i }}.
+Proof.
+  intros.
+  econstructor; mauto 3.
+Qed.
+
+#[export]
+Hint Resolve exp_sigma_sub_rhs : mctt.
 
 (** This works for both var_0 and var_S cases *)
 Lemma exp_eq_var_sub_rhs_typ_gen : forall {Γ σ Δ i A M},
