@@ -130,8 +130,9 @@ Lemma rel_exp_pair_cong : forall {i Γ A A' B B' M N M' N'},
     {{ Γ ⊨ N ≈ N' : B[Id,,M] }} ->
     {{ Γ ⊨ ⟨ M ; N : B ⟩ ≈ ⟨ M' ; N' : B' ⟩ : Σ A B }}.
 Proof with mautosolve.
-  intros * HAA' HB HM HN.
-  assert {{ Γ ⊨ A : Type@i }} as HA by admit.
+  intros * HAA' HBB' HM HN.
+  assert {{ Γ ⊨ A : Type@i }} as HA by mauto.
+  assert {{ Γ , A ⊨ B : Type@i }} as HB by mauto.
   invert_rel_exp_of_typ HA.
   destruct_all. rename x into env_relΓ.
   (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relA]; shelve_unifiable; [eassumption |]).
@@ -139,35 +140,27 @@ Proof with mautosolve.
   assert {{ EF Γ, A ≈ Γ, A ∈ per_ctx_env ↘ env_relΓA }} by (econstructor; mauto 3; try reflexivity; typeclasses eauto).
   invert_rel_exp_of_typ HAA'.
   invert_rel_exp_of_typ HB.
+  invert_rel_exp_of_typ HBB'.
   invert_rel_exp HM.
   invert_rel_exp HN.
   eexists_rel_exp_of_sigma.
-  intros.
+  gen elem_relA. intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
-  simplify_evals.
   destruct_rel_typ.
-  simplify_evals.
-  rename ρ0 into ρ'.
-  rename a0 into a. rename a'0 into a'. rename m' into a''.
-  rename m2 into m'. rename m into b. rename m1 into b'.
-  rename m0 into m.
-  handle_per_univ_elem_irrel.
   destruct_by_head rel_exp.
-  destruct_by_head rel_mod_proj.
+  destruct_by_head per_univ.
   simplify_evals.
   handle_per_univ_elem_irrel.
-  assert {{ Dom ρ ↦ m ≈ ρ' ↦ m'0 ∈ env_relΓA }}. { unfold env_relΓA. econstructor; simpl; eauto.  }
-  (on_all_hyp: destruct_rel_by_assumption env_relΓA).
-  simplify_evals.
-  (* cannot exists this, we need to construct a real function 
-     1. given, construct (H: Dom ρ ↦ c ≈ ρ' ↦ c' ∈ env_relΓA)
-     2. apply H3 to H
-     3. destruct rel_exp to get the relation we want *)
-  eexists (elem_relA ρ ρ' equiv_ρ_ρ'). exists (fun c c' _ => elem_rel).
-  repeat split; only 1,3: econstructor; mauto.
-  intros. econstructor.
-  apply_relation_equivalence. eauto.
-Admitted.
+  intros.
+  do 2 eexists. repeat split; [econstructor | | econstructor]; mauto 2.
+  - eapply rel_exp_pi_core; try reflexivity. intros.
+    extract_output_info_with ρ c ρ0 c' (cons_per_ctx_env env_relΓ elem_relA).
+    econstructor; eauto.
+  - econstructor; mauto 3.
+    intros.
+    destruct_rel_typ. simplify_evals.
+    handle_per_univ_elem_irrel; auto.
+Qed.
 
 #[export]
 Hint Resolve rel_exp_pair_cong : mctt.
@@ -189,7 +182,34 @@ Proof.
   invert_rel_exp_of_typ HB.
   invert_rel_exp HM.
   invert_rel_exp HN.
-Admitted.
+  eexists_rel_exp. intros.
+  intros.
+  (on_all_hyp: destruct_rel_by_assumption env_relΓ).
+  (on_all_hyp: destruct_rel_by_assumption env_relΔ).
+  destruct_rel_typ.
+  destruct_by_head rel_exp.
+  simplify_evals.
+  eexists.
+  split; econstructor; mauto 4.
+  - per_univ_elem_econstructor; [apply per_univ_elem_cumu_max_right | | apply Equivalence_Reflexive]; eauto.
+    intros.
+    eapply rel_exp_pi_core; eauto; try reflexivity.
+    clear dependent c.
+    clear dependent c'.
+    intros.
+    extract_output_info_with ρ1 c ρ0 c' (cons_per_ctx_env env_relΔ elem_relA).
+    econstructor; eauto.
+    unfold per_univ in *. destruct_all.
+    eexists.
+    eapply per_univ_elem_cumu_max_left; eauto.
+  - econstructor; mauto 3.
+    handle_per_univ_elem_irrel. auto.
+    intros.
+    destruct_rel_typ.
+    simplify_evals.
+    handle_per_univ_elem_irrel.
+    auto.
+Qed.
 
 #[export]
 Hint Resolve rel_exp_pair_sub : mctt.
@@ -257,8 +277,7 @@ Proof with mautosolve.
   simplify_evals.
   destruct_by_head per_univ.
   handle_per_univ_elem_irrel.
-  econstructor; mauto.
-  eexists.
+  econstructor; mauto. split.
   - econstructor; mauto 3.
   - handle_per_univ_elem_irrel.
      econstructor; mauto 3.
@@ -273,17 +292,18 @@ Lemma rel_exp_snd_cong : forall {i Γ A B M M'},
     {{ Γ ⊨ M ≈ M' : Σ A B }} ->
     {{ Γ ⊨ snd M ≈ snd M' : B[Id,,fst M] }}.
 Proof with mautosolve.
-  intros * HA HB [env_relΓ]%rel_exp_of_sigma_inversion.
-  destruct_all.
-  invert_rel_exp_of_typ HA.
+  intros * [env_relΓ]%rel_exp_of_typ_inversion1 HB HMM'.
+  assert (HM: {{ Γ ⊨ M : Σ A B }}) by mauto.
+  destruct_conjs.
+  (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relA]; shelve_unifiable; [eassumption |]).
+  pose (env_relΓA := cons_per_ctx_env env_relΓ elem_relA).
+  assert {{ EF Γ, A ≈ Γ, A ∈ per_ctx_env ↘ env_relΓA }} by (econstructor; mauto 3; try reflexivity; typeclasses eauto).
   invert_rel_exp_of_typ HB.
   destruct_all.
-  invert_per_ctx_envs.
-  match goal with
-  | _: _ <~> cons_per_ctx_env env_relΓ ?x |- _ =>
-      rename x into elem_relA
-  end.
-  destruct_all. 
+  apply rel_exp_of_sigma_inversion in HMM'.
+  apply rel_exp_of_sigma_inversion in HM.
+  destruct_all.
+  handle_per_ctx_env_irrel.
   eexists_rel_exp.
   intros.
   saturate_refl_for env_relΓ.
@@ -298,8 +318,23 @@ Proof with mautosolve.
   destruct_by_head rel_mod_proj.
   simplify_evals.
   handle_per_univ_elem_irrel.
-  admit.
-Admitted.
+  (* TODO : use match goal *)
+  assert {{ Dom ρ ↦ b3 ≈ ρ' ↦ b4 ∈ env_relΓA }}. {
+    unfold env_relΓA. 
+    econstructor; simpl; eauto.
+    (* TODO : automate this *)
+    apply H48. apply H56. auto.
+  }
+  (on_all_hyp: destruct_rel_by_assumption env_relΓA).
+  specialize (H40 _ _ equiv_b_b').
+  destruct_rel_typ.
+  simplify_evals.
+  handle_per_univ_elem_irrel.
+  eexists;  
+  split; econstructor; mauto 4.
+  (* TODO : automate this *)
+  eapply H72. eauto.
+Qed.
 
 #[export]
 Hint Resolve rel_exp_snd_cong : mctt.
@@ -311,7 +346,46 @@ Lemma rel_exp_snd_sub : forall {i Γ σ Δ A B M},
     {{ Δ ⊨ M : Σ A B }} ->
     {{ Γ ⊨ (snd M)[σ] ≈ snd (M[σ]) : B[σ,,fst (M[σ])] }}.
 Proof with mautosolve.
-Admitted.
+    intros * [env_relΓ] [env_relΔ]%rel_exp_of_typ_inversion1 []%rel_exp_of_typ_inversion1 HM.
+    destruct_conjs.
+    pose env_relΔ.
+    invert_per_ctx_envs.
+    match goal with
+    | _: _ <~> cons_per_ctx_env env_relΔ ?x |- _ =>
+        rename x into elem_relA
+    end.
+    handle_per_ctx_env_irrel.
+    apply rel_exp_of_sigma_inversion in HM. 
+    destruct_all.
+    eexists_rel_exp.
+    intros.
+    (on_all_hyp: destruct_rel_by_assumption env_relΓ).
+    handle_per_ctx_env_irrel.
+    assert {{ Dom ρ'σ' ≈ ρ'σ' ∈ env_relΔ }} by (etransitivity; [symmetry |]; eassumption).
+    (on_all_hyp: destruct_rel_by_assumption env_relΔ).
+    destruct_rel_typ.
+    simplify_evals.
+    simplify_evals.
+    destruct_by_head rel_exp.
+    destruct_by_head rel_mod_proj.
+    simplify_evals.
+    handle_per_univ_elem_irrel.
+    specialize (H24 _ _ equiv_b_b').
+    destruct_rel_typ. simplify_evals.
+    destruct_by_head per_univ.
+    handle_per_univ_elem_irrel.
+    econstructor; mauto. split.
+    (* TODO : improve *)
+    - assert {{ ⟦ B[σ,,fst M[σ]] ⟧ ρ ↘ a1 }}. {
+        econstructor; mauto 3.
+        econstructor; mauto 3.
+      }
+      econstructor; mauto 3.
+      econstructor; mauto 3.
+      econstructor; mauto 3.
+  - econstructor; mauto 3.
+    intuition.
+Qed.
 
 #[export]
 Hint Resolve rel_exp_snd_sub : mctt.
