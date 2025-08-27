@@ -188,6 +188,8 @@ Hint Constructors
   neut_glu_exp_pred
   pi_glu_typ_pred
   pi_glu_exp_pred
+  sigma_glu_typ_pred
+  sigma_glu_exp_pred
   eq_glu_typ_pred
   glu_eq eq_glu_exp_pred : mctt.
 

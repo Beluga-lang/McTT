@@ -147,6 +147,7 @@ Proof.
   - firstorder.
   - econstructor; mauto 3.
   - econstructor; mauto 3.
+  - econstructor; mauto 3.
     destruct_glu_eq; econstructor; mauto 3.
     intros.
     assert {{ Δ ⊢ A[σ] ≈ A'[σ] : Type@i }}; mauto 3.
@@ -279,7 +280,9 @@ Proof.
     reflexivity.
   - match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
     mauto.
-Qed.
+  - match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+    admit.
+Admitted.
 
 #[export]
 Hint Resolve glu_univ_elem_per_univ : mctt.
@@ -304,10 +307,11 @@ Proof.
     functional_eval_rewrite_clear.
     do_per_univ_elem_irrel_assert.
     econstructor; firstorder eauto.
+  - admit.
   - handle_per_univ_elem_irrel.
     pose proof (PER_refl1 _ R).
     destruct_glu_eq; saturate_refl_for R; econstructor; mauto.
-Qed.
+Admitted.
 
 Lemma glu_univ_elem_trm_typ : forall i P El a,
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
@@ -320,12 +324,13 @@ Proof.
     simpl_glu_rel;
     mauto 4.
 
-  econstructor; eauto.
-  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
-  intros ? ? N n ? ? equiv_n.
-  destruct_rel_mod_eval.
-  enough (exists mn : domain, {{ $| m & n |↘ mn }} /\  {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl n equiv_n }}) as [? []]; eauto 3.
-Qed.
+  - econstructor; eauto.
+    match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+    intros ? ? N n ? ? equiv_n.
+    destruct_rel_mod_eval.
+    enough (exists mn : domain, {{ $| m & n |↘ mn }} /\  {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl n equiv_n }}) as [? []]; eauto 3.
+  - admit.
+Admitted.
 
 Lemma glu_univ_elem_trm_univ_lvl : forall i P El a,
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
@@ -366,13 +371,14 @@ Proof.
     eapply wf_exp_eq_app_cong with (N := N) (N' := N) in Hty; try pi_univ_level_tac; [|mauto 2].
     autorewrite with mctt in Hty.
     eassumption.
+  - admit.
   - econstructor; eauto.
     destruct_glu_eq; econstructor; mauto 3.
     intros.
     enough {{ Δ ⊢ M'0[σ] ≈ M'[σ] : A[σ] }}; mauto 4.
   - intros.
     enough {{ Δ ⊢ M[σ] ≈ M'[σ] : A[σ] }}; mauto 4.
-Qed.
+Admitted.
 
 Add Parametric Morphism i P El a (H : glu_univ_elem i P El a) Γ T : (El Γ T)
     with signature wf_exp_eq Γ T ==> eq ==> iff as glu_univ_elem_trm_morphism_iff3.
@@ -565,6 +571,7 @@ Proof.
         destruct_conjs;
         assert ((OP n equiv_n <∙> OP0 n equiv0_n) /\ (OEl n equiv_n <∙> OEl0 n equiv0_n)) as [] by mauto 3;
         eexists; split; intuition.
+  - admit.
   - assert ((P <∙> P0) /\ (El <∙> El0)) as [] by mauto.
     apply_predicate_equivalence.
     handle_per_univ_elem_irrel.
@@ -573,7 +580,7 @@ Proof.
     + split; intros []; econstructor; intuition;
         destruct_glu_eq;
         econstructor; intros; apply_equiv_right; mauto 4.
-Qed.
+Admitted.
 
 Ltac apply_functional_glu_univ_elem1 :=
   let tactic_error o1 o2 := fail 2 "functional_glu_univ_elem biconditional between" o1 "and" o2 "cannot be solved" in
@@ -696,6 +703,9 @@ Proof.
     intros []; econstructor; mauto.
 Qed.
 
+(* TODO : add glu_univ_elem_pi_clean_inversion and 
+   update invert_glu_univ_elem and invert_glu_univ_elem_nouip *)
+
 Ltac invert_glu_univ_elem H :=
   (unshelve eapply (glu_univ_elem_pi_clean_inversion2 _ _) in H; shelve_unifiable; [eassumption | eassumption |];
    deex_in H; destruct H as [? [? []]])
@@ -809,6 +819,11 @@ Proof.
       simplify_evals.
       eauto.
   - resp_per_IH.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
   - pose proof (PER_refl2 _ R). mauto.
   - pose proof (PER_refl2 _ R). mauto.
   - split; intros []; econstructor; intuition.
@@ -846,7 +861,7 @@ Proof.
     destruct_all.
     functional_read_rewrite_clear.
     mauto.
-Qed.
+Admitted.
 
 Lemma glu_univ_elem_resp_per_univ : forall i a a' P El,
     {{ Dom a ≈ a' ∈ per_univ i }} ->
@@ -939,13 +954,14 @@ Proof.
       intros.
       (on_all_hyp: destruct_rel_by_assumption in_rel).
       econstructor; mauto.
+  - admit.
   - destruct_conjs.
     saturate_refl.
     do 2 eexists.
     glu_univ_elem_econstructor; eauto; reflexivity.
   - do 2 eexists.
     glu_univ_elem_econstructor; try reflexivity; mauto.
-Qed.
+Admitted.
 
 #[export]
 Hint Resolve per_univ_glu_univ_elem : mctt.
@@ -1051,6 +1067,8 @@ Proof.
       edestruct H11 with (n := n) as [? []];
         simplify_evals; [| | eassumption];
         mauto.
+  - admit.
+  - admit.
 
   - simpl_glu_rel.
     econstructor; intros; only 1: bulky_rewrite; mauto 3;

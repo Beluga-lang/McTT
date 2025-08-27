@@ -50,8 +50,8 @@
 # ./Core/Soundness/LogicalRelation.v
 # ./Core/Soundness/LogicalRelation/Core.v
 # ./Core/Soundness/LogicalRelation/CoreLemmas.v
-# ./Core/Soundness/LogicalRelation/CoreTactics.v
-# ./Core/Soundness/LogicalRelation/Definitions.v
+./Core/Soundness/LogicalRelation/CoreTactics.v
+./Core/Soundness/LogicalRelation/Definitions.v
 # ./Core/Soundness/LogicalRelation/Lemmas.v
 # ./Core/Soundness/NatCases.v
 # ./Core/Soundness/Realizability.v
