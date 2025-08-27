@@ -281,8 +281,8 @@ Proof.
   - match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
     mauto.
   - match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
-    admit.
-Admitted.
+    per_univ_elem_econstructor; mauto.
+Qed.
 
 #[export]
 Hint Resolve glu_univ_elem_per_univ : mctt.
@@ -307,11 +307,17 @@ Proof.
     functional_eval_rewrite_clear.
     do_per_univ_elem_irrel_assert.
     econstructor; firstorder eauto.
-  - admit.
+  - destruct_by_head rel_mod_proj.
+    destruct_rel_mod_eval_nouip.
+    simplify_evals.
+    functional_eval_rewrite_clear.
+    do_per_univ_elem_irrel_assert.  
+    econstructor; firstorder eauto.
+    intuition.
   - handle_per_univ_elem_irrel.
     pose proof (PER_refl1 _ R).
     destruct_glu_eq; saturate_refl_for R; econstructor; mauto.
-Admitted.
+Qed.
 
 Lemma glu_univ_elem_trm_typ : forall i P El a,
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
@@ -329,8 +335,15 @@ Proof.
     intros ? ? N n ? ? equiv_n.
     destruct_rel_mod_eval.
     enough (exists mn : domain, {{ $| m & n |↘ mn }} /\  {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl n equiv_n }}) as [? []]; eauto 3.
-  - admit.
-Admitted.
+  - invert_per_univ_elem H3.
+    rewrite H15 in H7. destruct_by_head rel_mod_proj.
+    simplify_evals.
+    eapply mk_sigma_glu_typ_pred with (m:=b) (equiv_m:=equiv_m); mauto 3.
+    intros.
+    apply H14 in H8. destruct_all. simplify_evals. 
+    split; auto.
+    destruct_rel_mod_eval; simplify_evals; eauto.
+Qed.
 
 Lemma glu_univ_elem_trm_univ_lvl : forall i P El a,
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
