@@ -104,6 +104,44 @@ Variant pi_glu_exp_pred i
          exists mn, {{ $| m & n |↘ mn }} /\ {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl _ equiv_n }}) ->
      {{ Γ ⊢ M : A ® m ∈ pi_glu_exp_pred i IR IP IEl elem_rel OEl }} }.
 
+Variant sigma_glu_typ_pred i
+  (FR : relation domain)
+  (IP : glu_typ_pred)
+  (FEl : glu_exp_pred)
+  (SP : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_typ_pred) : glu_typ_pred :=
+| mk_sigma_glu_typ_pred :
+  `{ {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
+     {{ Γ ⊢ FT : Type@i }} ->
+     {{ Γ , FT ⊢ ST : Type@i }} ->
+     (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ IT[σ] ® IP }}) ->
+     (forall Δ σ M m,
+         {{ Δ ⊢w σ : Γ }} ->
+         {{ Δ ⊢ M : FT[σ] ® m ∈ FEl }} ->
+         forall (equiv_m : {{ Dom m ≈ m ∈ FR }}),
+           {{ Δ ⊢ OT[σ,,M] ® SP _ equiv_m }}) ->
+     {{ Γ ⊢ A ® sigma_glu_typ_pred i FR IP FEl SP }} }.
+
+Variant sigma_glu_exp_pred i
+  (FR : relation domain)
+  (FP : glu_typ_pred)
+  (FEl : glu_exp_pred)
+  (elem_rel : relation domain)
+  (SEl : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_exp_pred): glu_exp_pred :=
+| mk_sigma_glu_exp_pred :
+  `{ {{ Γ ⊢ M : A }} ->
+     {{ Dom m ≈ m ∈ elem_rel }} ->
+     {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
+     {{ Γ ⊢ FT : Type@i }} ->
+     {{ Γ , FT ⊢ ST : Type@i }} ->
+     (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
+     (forall Δ σ,
+         {{ Δ ⊢w σ : Γ }} ->
+         exists m1 m2 (equiv_n : {{ Dom m1 ≈ m1 ∈ FR }}),
+          {{ π₁ m ↘ m1 }} /\ {{ π₂ m ↘ m2 }} /\ 
+          {{ Δ ⊢ fst M[σ] : FT[σ] ® m1 ∈ FEl }} /\
+          {{ Δ ⊢ snd M[σ] : ST[σ,,fst M[σ]] ® m2 ∈ SEl _ equiv_n}} ) ->
+     {{ Γ ⊢ M : A ® m ∈ sigma_glu_exp_pred i FR FP FEl elem_rel SEl }} }.
+
 Variant eq_glu_typ_pred i m n
   (P : glu_typ_pred)
   (El : glu_exp_pred) : glu_typ_pred :=

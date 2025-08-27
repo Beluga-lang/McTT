@@ -59,8 +59,8 @@
 # ./Core/Soundness/SubtypingCases.v
 # ./Core/Soundness/TermStructureCases.v
 # ./Core/Soundness/UniverseCases.v
-# ./Core/Soundness/Weakening/Definitions.v
-# ./Core/Soundness/Weakening/Lemmas.v
+./Core/Soundness/Weakening/Definitions.v
+./Core/Soundness/Weakening/Lemmas.v
 ./Core/Syntactic/CoreInversions.v
 ./Core/Syntactic/Corollaries.v
 ./Core/Syntactic/CtxEq.v
