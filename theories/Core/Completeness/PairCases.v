@@ -202,12 +202,10 @@ Proof.
     unfold per_univ in *. destruct_all.
     eexists.
     eapply per_univ_elem_cumu_max_left; eauto.
-  - econstructor; mauto 3.
-    handle_per_univ_elem_irrel. auto.
+  - handle_per_univ_elem_irrel. econstructor; mauto 3.
     intros.
     destruct_rel_typ.
-    simplify_evals.
-    handle_per_univ_elem_irrel.
+    simplify_evals. handle_per_univ_elem_irrel.
     auto.
 Qed.
 
@@ -226,7 +224,6 @@ Proof with mautosolve.
   destruct_all. 
   eexists_rel_exp.
   intros.
-  saturate_refl_for env_relΓ.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   simplify_evals.
   destruct_rel_typ.
@@ -239,7 +236,6 @@ Proof with mautosolve.
   simplify_evals.
   handle_per_univ_elem_irrel.
   eexists; split; econstructor; mauto 4.
-  apply_relation_equivalence. auto.
 Qed.
 
 #[export]
@@ -306,7 +302,6 @@ Proof with mautosolve.
   handle_per_ctx_env_irrel.
   eexists_rel_exp.
   intros.
-  saturate_refl_for env_relΓ.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   simplify_evals.
   destruct_rel_typ.
@@ -318,22 +313,20 @@ Proof with mautosolve.
   destruct_by_head rel_mod_proj.
   simplify_evals.
   handle_per_univ_elem_irrel.
-  (* TODO : use match goal *)
-  assert {{ Dom ρ ↦ b3 ≈ ρ' ↦ b4 ∈ env_relΓA }}. {
-    unfold env_relΓA. 
-    econstructor; simpl; eauto.
-    (* TODO : automate this *)
-    apply H48. apply H56. auto.
-  }
+  match goal with
+  | _ : {{ ⟦ M ⟧ ρ ↘ ^?m }}, 
+      _ : {{ π₁ ^?m ↘ ^?m1 }}, 
+        _ : {{ ⟦ M ⟧ ρ' ↘ ^?m' }}, 
+          _ : {{ π₁ ^?m' ↘ ^?m'1 }} |- _ => 
+    assert {{ Dom ρ ↦ m1 ≈ ρ' ↦ m'1 ∈ env_relΓA }} by (
+    unfold env_relΓA; econstructor; simpl; intuition)
+  end.
   (on_all_hyp: destruct_rel_by_assumption env_relΓA).
-  specialize (H40 _ _ equiv_b_b').
   destruct_rel_typ.
   simplify_evals.
   handle_per_univ_elem_irrel.
   eexists;  
   split; econstructor; mauto 4.
-  (* TODO : automate this *)
-  eapply H72. eauto.
 Qed.
 
 #[export]
@@ -370,21 +363,16 @@ Proof with mautosolve.
     destruct_by_head rel_mod_proj.
     simplify_evals.
     handle_per_univ_elem_irrel.
-    specialize (H24 _ _ equiv_b_b').
     destruct_rel_typ. simplify_evals.
     destruct_by_head per_univ.
     handle_per_univ_elem_irrel.
     econstructor; mauto. split.
     (* TODO : improve *)
-    - assert {{ ⟦ B[σ,,fst M[σ]] ⟧ ρ ↘ a1 }}. {
-        econstructor; mauto 3.
-        econstructor; mauto 3.
-      }
+    - assert {{ ⟦ B[σ,,fst M[σ]] ⟧ ρ ↘ a1 }} by mauto 5.
+      assert {{ ⟦ B[σ,,fst M[σ]] ⟧ ρ' ↘ a' }} by mauto 5.
       econstructor; mauto 3.
-      econstructor; mauto 3.
-      econstructor; mauto 3.
-  - econstructor; mauto 3.
-    intuition.
+    - econstructor; mauto 3.
+      intuition.
 Qed.
 
 #[export]
@@ -403,7 +391,6 @@ Proof with mautosolve.
   invert_rel_exp HN.
   eexists_rel_exp.
   intros.
-  saturate_refl_for env_relΓ.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   destruct_rel_typ.
   simplify_evals.
@@ -429,7 +416,6 @@ Proof with mautosolve.
   invert_rel_exp HN.
   eexists_rel_exp.
   intros.
-  saturate_refl_for env_relΓ.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   destruct_rel_typ.
   simplify_evals.
@@ -455,7 +441,6 @@ Proof with mautosolve.
   destruct_all.
   eexists_rel_exp_of_sigma.
   intros.
-  saturate_refl_for env_relΓ.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   destruct_rel_typ.
   simplify_evals.
@@ -463,9 +448,8 @@ Proof with mautosolve.
   destruct_by_head rel_mod_proj.
   simplify_evals.
   handle_per_univ_elem_irrel.
-  exists fst_rel1, snd_rel1.
+  exists fst_rel, snd_rel.
   repeat split; only 1,3: econstructor; mauto.
-  apply_relation_equivalence. eauto.
 Qed.
 
 #[export]
