@@ -335,11 +335,13 @@ Proof.
     intros ? ? N n ? ? equiv_n.
     destruct_rel_mod_eval.
     enough (exists mn : domain, {{ $| m & n |↘ mn }} /\  {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl n equiv_n }}) as [? []]; eauto 3.
-  - invert_per_univ_elem H3.
+  - (* TODO : improve  *)
+    invert_per_univ_elem H3.
     rewrite H15 in H7. destruct_by_head rel_mod_proj.
     simplify_evals.
     eapply mk_sigma_glu_typ_pred with (m:=b) (equiv_m:=equiv_m); mauto 3.
     intros.
+    (* TODO : improve *)
     apply H14 in H8. destruct_all. simplify_evals. 
     split; auto.
     destruct_rel_mod_eval; simplify_evals; eauto.
@@ -384,14 +386,39 @@ Proof.
     eapply wf_exp_eq_app_cong with (N := N) (N' := N) in Hty; try pi_univ_level_tac; [|mauto 2].
     autorewrite with mctt in Hty.
     eassumption.
-  - admit.
+  - eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_m); eauto.
+    match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+    intros.
+    apply H15 in H16 as H'. destruct_all.
+    destruct_rel_mod_eval. simplify_evals.
+    assert {{ Δ ⊢s Id∘σ : Γ }} by mauto 4.
+    assert {{ Δ ⊢s σ,,(fst M)[σ] : Γ , FT }}. {
+      econstructor; mauto 4.
+      eapply wf_exp_sub; mauto 3.
+    }
+    assert {{ Δ ⊢ (fst M)[σ] ≈ (fst M')[σ] : FT[σ] }} by (eapply wf_exp_eq_sub_cong; mauto 3).
+    assert {{ Δ ⊢ ST[σ,,(fst M)[σ]] ≈ ST[σ,,(fst M')[σ]] : Type@i }} by (eapply wf_exp_eq_conv'; [eapply wf_exp_eq_sub_cong |]; mauto 4).
+    assert {{ Δ ⊢ (snd M)[σ] ≈ (snd M')[σ] : ST[σ,,(fst M)[σ]] }}. {
+      eapply wf_exp_eq_conv'; [eapply wf_exp_eq_sub_cong |]; mauto 3.
+      symmetry.
+      eapply exp_eq_compose_typ_twice; mauto 3. econstructor; mauto 3.
+      eapply wf_conv; [eapply wf_fst with (A:=FT) | |]; mauto 3.
+      symmetry; etransitivity; [eapply wf_sub_eq_extend_compose|]; mauto 3.
+      eapply sub_id_typ; mauto 3.
+      eapply wf_sub_eq_extend_cong; mauto 3.
+      eapply wf_exp_eq_conv with (A:={{{ FT[σ] }}}); [eapply wf_exp_eq_sub_cong | | ]; mauto 4.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | | ]; mauto 4.
+    }
+    split. 
+    + eapply IHglu_univ_elem; mauto 3.
+    + eapply glu_univ_elem_trm_resp_typ_exp_eq; eauto.
   - econstructor; eauto.
     destruct_glu_eq; econstructor; mauto 3.
     intros.
     enough {{ Δ ⊢ M'0[σ] ≈ M'[σ] : A[σ] }}; mauto 4.
   - intros.
     enough {{ Δ ⊢ M[σ] ≈ M'[σ] : A[σ] }}; mauto 4.
-Admitted.
+Qed.
 
 Add Parametric Morphism i P El a (H : glu_univ_elem i P El a) Γ T : (El Γ T)
     with signature wf_exp_eq Γ T ==> eq ==> iff as glu_univ_elem_trm_morphism_iff3.
@@ -525,7 +552,6 @@ Proof with mautosolve.
   split; intros []; econstructor; intuition.
 Qed.
 
-
 (** *** Morphism instances for [eq_glu_*_pred]s *)
 Add Parametric Morphism i m n : (eq_glu_typ_pred i m n)
     with signature glu_typ_pred_equivalence ==> glu_exp_pred_equivalence ==> eq ==> eq ==> iff as eq_glu_typ_pred_morphism_iff.
@@ -539,7 +565,6 @@ Proof with mautosolve.
   split; intros []; econstructor; intuition.
 Qed.
 
-
 Add Parametric Morphism i m n IR : (eq_glu_exp_pred i m n IR)
     with signature glu_typ_pred_equivalence ==> glu_exp_pred_equivalence ==> eq ==> eq ==> eq ==> eq ==> iff as eq_glu_exp_pred_morphism_iff.
 Proof with mautosolve.
@@ -551,7 +576,6 @@ Add Parametric Morphism i m n IR : (eq_glu_exp_pred i m n IR)
 Proof with mautosolve.
   split; intros []; destruct_glu_eq; repeat (econstructor; intuition).
 Qed.
-
 
 Lemma functional_glu_univ_elem : forall i a P P' El El',
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
@@ -569,22 +593,39 @@ Proof.
     handle_per_univ_elem_irrel.
     split; [intros Γ C | intros Γ M C m].
     + split; intros []; econstructor; intuition;
-        [rename equiv_m into equiv0_m; assert (equiv_m : in_rel m m) by intuition
+        [ rename equiv_m into equiv0_m; assert (equiv_m : in_rel m m) by intuition
         | assert (equiv0_m : in_rel0 m m) by intuition ];
         destruct_rel_mod_eval;
         functional_eval_rewrite_clear;
         assert ((OP m equiv_m <∙> OP0 m equiv0_m) /\ (OEl m equiv_m <∙> OEl0 m equiv0_m)) as [] by mauto 3;
         intuition.
     + split; intros []; econstructor; intuition;
-        [rename equiv_n into equiv0_n; assert (equiv_n : in_rel n n) by intuition
+        [ rename equiv_n into equiv0_n; assert (equiv_n : in_rel n n) by intuition
         | assert (equiv0_n : in_rel0 n n) by intuition];
         destruct_rel_mod_eval;
-        [assert (exists m0n, {{ $| m0 & n |↘ m0n }} /\ {{ Δ ⊢ M0[σ] N : OT[σ,,N] ® m0n ∈ OEl n equiv_n }}) by intuition
+        [ assert (exists m0n, {{ $| m0 & n |↘ m0n }} /\ {{ Δ ⊢ M0[σ] N : OT[σ,,N] ® m0n ∈ OEl n equiv_n }}) by intuition
         | assert (exists m0n, {{ $| m0 & n |↘ m0n }} /\ {{ Δ ⊢ M0[σ] N : OT[σ,,N] ® m0n ∈ OEl0 n equiv0_n }}) by intuition];
         destruct_conjs;
         assert ((OP n equiv_n <∙> OP0 n equiv0_n) /\ (OEl n equiv_n <∙> OEl0 n equiv0_n)) as [] by mauto 3;
         eexists; split; intuition.
-  - admit.
+  - assert ((FP <∙> FP0) /\ (FEl <∙> FEl0)) as [] by mauto.
+    apply_predicate_equivalence.
+    handle_per_univ_elem_irrel.
+    (on_all_hyp: fun H => directed invert_per_univ_elem H).
+     split; [intros Γ C | intros Γ M C m].
+     + split; intros [];
+       [ assert (equiv0_m : fst_rel0 m m) by intuition 
+       | rename equiv_m into equiv0_m; assert (equiv_m : fst_rel m m) by intuition];
+       destruct_rel_mod_eval;
+       functional_eval_rewrite_clear;
+       assert ((SP m equiv_m <∙> SP0 m equiv0_m) /\ (SEl m equiv_m <∙> SEl0 m equiv0_m)) as [] by mauto 3;
+       eexists; intuition.
+     + split; intros [];
+       [ assert (equiv0_m : fst_rel0 m1 m1) by intuition 
+       | rename equiv_m into equiv0_m; assert (equiv_m : fst_rel m1 m1) by intuition];
+       destruct_rel_mod_eval; destruct_conjs;
+       assert ((SP m1 equiv_m <∙> SP0 m1 equiv0_m) /\ (SEl m1 equiv_m <∙> SEl0 m1 equiv0_m)) as [] by mauto 3;
+       eexists; intuition.
   - assert ((P <∙> P0) /\ (El <∙> El0)) as [] by mauto.
     apply_predicate_equivalence.
     handle_per_univ_elem_irrel.
@@ -593,7 +634,7 @@ Proof.
     + split; intros []; econstructor; intuition;
         destruct_glu_eq;
         econstructor; intros; apply_equiv_right; mauto 4.
-Admitted.
+Qed.
 
 Ltac apply_functional_glu_univ_elem1 :=
   let tactic_error o1 o2 := fail 2 "functional_glu_univ_elem biconditional between" o1 "and" o2 "cannot be solved" in
@@ -716,13 +757,119 @@ Proof.
     intros []; econstructor; mauto.
 Qed.
 
-(* TODO : add glu_univ_elem_pi_clean_inversion and 
-   update invert_glu_univ_elem and invert_glu_univ_elem_nouip *)
+Lemma glu_univ_elem_sigma_clean_inversion1 : forall {i a ρ B fst_rel P El},
+  {{ DF a ≈ a ∈ per_univ_elem i ↘ fst_rel }} ->
+  {{ DG Σ a ρ B ∈ glu_univ_elem i ↘ P ↘ El }} ->
+  exists FP FEl (SP : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_typ_pred)
+     (SEl : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_exp_pred) elem_rel,
+      {{ DG a ∈ glu_univ_elem i ↘ FP ↘ FEl }} /\
+        (forall c (equiv_c : {{ Dom c ≈ c ∈ fst_rel }}) b,
+            {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
+            {{ DG b ∈ glu_univ_elem i ↘ SP _ equiv_c ↘ SEl _ equiv_c }}) /\
+        {{ DF Σ a ρ B ≈ Σ a ρ B ∈ per_univ_elem i ↘ elem_rel }} /\
+        (P <∙> sigma_glu_typ_pred i fst_rel FP FEl SP) /\
+        (El <∙> sigma_glu_exp_pred i fst_rel FP FEl elem_rel SEl).
+Proof.
+    intros *.
+  simpl.
+  intros Hinper Hglu.
+  basic_invert_glu_univ_elem Hglu.
+  handle_functional_glu_univ_elem.
+  handle_per_univ_elem_irrel.
+  do 5 eexists.
+  repeat split; eauto.
+  (* How these are come up with? *)
+  1: instantiate (1 := fun c equiv_c Γ A M m => forall (b : domain) Pb Elb,
+                          {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
+                          {{ DG b ∈ glu_univ_elem i ↘ Pb ↘ Elb }} ->
+                          {{ Γ ⊢ M : A ® m ∈ Elb }}).
+  1: instantiate (1 := fun c equiv_c Γ A => forall (b : domain) Pb Elb,
+                          {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
+                          {{ DG b ∈ glu_univ_elem i ↘ Pb ↘ Elb }} ->
+                          {{ Γ ⊢ A ® Pb }}).
+  - intros. assert {{ Dom c ≈ c ∈ fst_rel0 }} as equiv0_c by intuition.
+    assert {{ DG b ∈ glu_univ_elem i ↘ SP c equiv0_c ↘ SEl c equiv0_c }} by mauto 3.
+    apply -> simple_glu_univ_elem_morphism_iff; [| reflexivity | |]; [eauto | |].
+    + intros ? ? ? ?.
+      split; intros; handle_functional_glu_univ_elem; intuition.
+    + intros ? ?.
+      split; [intros; handle_functional_glu_univ_elem |]; intuition.
+  - intros []; econstructor; mauto; intuition.
+    assert {{ Dom m ≈ m ∈ fst_rel0 }} as equiv0_m by intuition.
+    assert {{ DG b ∈ glu_univ_elem i ↘ SP m equiv_m ↘ SEl m equiv_m }} by mauto 3.
+    handle_functional_glu_univ_elem.
+    intuition.
+  - intros.
+    dependent destruction H4.
+    match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+    apply_relation_equivalence.
+    (* not specifying equiv_m generates weird shelved goals *)
+    eapply mk_sigma_glu_typ_pred with (equiv_m:=equiv_m); intuition.
+    intros. gen equiv_m. intros.
+    apply_relation_equivalence.
+    destruct_rel_mod_eval. simplify_evals.
+    intuition.
+  - intros []. 
+     econstructor; mauto 3. apply_relation_equivalence. mauto.
+    intros; split. intuition. intros.
+    assert {{ DG b ∈ glu_univ_elem i ↘ SP m1 equiv_m ↘ SEl m1 equiv_m }} by mauto 3.
+    handle_functional_glu_univ_elem.
+    intuition.
+  - intros []. 
+    apply_relation_equivalence.
+    eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_m); mauto 3.
+    intros.
+    destruct_conjs.
+    match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+    handle_per_univ_elem_irrel.
+    destruct_rel_mod_eval.
+    functional_eval_rewrite_clear.
+    intuition.
+Qed.
+
+Lemma glu_univ_elem_sigma_clean_inversion2 : forall {i a ρ B fst_rel FP FEl P El},
+  {{ DF a ≈ a ∈ per_univ_elem i ↘ fst_rel }} ->
+  {{ DG a ∈ glu_univ_elem i ↘ FP ↘ FEl }} ->
+  {{ DG Σ a ρ B ∈ glu_univ_elem i ↘ P ↘ El }} ->
+  exists (SP : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_typ_pred)
+     (SEl : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_exp_pred) elem_rel,
+      {{ DG a ∈ glu_univ_elem i ↘ FP ↘ FEl }} /\
+        (forall c (equiv_c : {{ Dom c ≈ c ∈ fst_rel }}) b,
+            {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
+            {{ DG b ∈ glu_univ_elem i ↘ SP _ equiv_c ↘ SEl _ equiv_c }}) /\
+        {{ DF Σ a ρ B ≈ Σ a ρ B ∈ per_univ_elem i ↘ elem_rel }} /\
+        (P <∙> sigma_glu_typ_pred i fst_rel FP FEl SP) /\
+        (El <∙> sigma_glu_exp_pred i fst_rel FP FEl elem_rel SEl).
+Proof.
+    intros *.
+  simpl.
+  intros Hinper Hinglu Hglu.
+  unshelve eapply (glu_univ_elem_sigma_clean_inversion1 _) in Hglu; shelve_unifiable; [eassumption |];
+    destruct Hglu as [? [? [? [? [? [? [? [? []]]]]]]]];
+  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+  handle_functional_glu_univ_elem.
+  do 3 eexists.
+  repeat split; try eassumption; handle_functional_glu_univ_elem;
+    auto.
+  - per_univ_elem_econstructor; eauto. 
+  - intros []. econstructor; mauto; 
+    intros; handle_functional_glu_univ_elem; auto.
+  - intros []. econstructor; mauto; 
+    intros; handle_functional_glu_univ_elem; auto.
+  - intros []. econstructor; mauto; 
+    intros; handle_functional_glu_univ_elem; auto.
+  - intros []. econstructor; mauto; 
+    intros; handle_functional_glu_univ_elem; auto.
+Qed.
 
 Ltac invert_glu_univ_elem H :=
   (unshelve eapply (glu_univ_elem_pi_clean_inversion2 _ _) in H; shelve_unifiable; [eassumption | eassumption |];
    deex_in H; destruct H as [? [? []]])
   + (unshelve eapply (glu_univ_elem_pi_clean_inversion1 _) in H; shelve_unifiable; [eassumption |];
+   deex_in H; destruct H as [? [? [? []]]])
+  + (unshelve eapply (glu_univ_elem_sigma_clean_inversion2 _ _) in H; shelve_unifiable; [eassumption | eassumption |];
+   deex_in H; destruct H as [? [? []]])
+  + (unshelve eapply (glu_univ_elem_sigma_clean_inversion1 _) in H; shelve_unifiable; [eassumption |];
    deex_in H; destruct H as [? [? [? []]]])
   + basic_invert_glu_univ_elem H.
 
@@ -731,6 +878,10 @@ Ltac invert_glu_univ_elem_nouip H :=
   (unshelve eapply (glu_univ_elem_pi_clean_inversion2 _ _) in H; shelve_unifiable; [eassumption | eassumption |];
    destruct H as [? [? [? [? [? []]]]]])
   + (unshelve eapply (glu_univ_elem_pi_clean_inversion1 _) in H; shelve_unifiable; [eassumption |];
+   destruct H as [? [? [? [? [? [? [? [? []]]]]]]]])
+  + (unshelve eapply (glu_univ_elem_sigma_clean_inversion2 _ _) in H; shelve_unifiable; [eassumption | eassumption |];
+   destruct H as [? [? [? [? [? []]]]]])
+  + (unshelve eapply (glu_univ_elem_sigma_clean_inversion1 _) in H; shelve_unifiable; [eassumption |];
    destruct H as [? [? [? [? [? [? [? [? []]]]]]]]])
   + basic_invert_glu_univ_elem_nouip H.
 
@@ -782,6 +933,7 @@ Proof.
     saturate_refl_for per_univ_elem;
     invert_glu_univ_elem Horig;
     split;
+    (* for Sigma cases, we don't want to apply constructors to eagerly *)
     try glu_univ_elem_econstructor;
     try eassumption; mauto 3;
     intros;
@@ -833,10 +985,19 @@ Proof.
       eauto.
   - resp_per_IH.
   - admit.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
+  - split; intros.
+     admit. admit.
+  - dependent destruction H13.
+    dependent destruction H19.
+    simplify_evals.
+    apply_relation_equivalence.
+    econstructor; mauto 3.
+    rewrite H3. econstructor; mauto 3.
+
+
+  
+  admit.
+  - resp_per_IH.
   - pose proof (PER_refl2 _ R). mauto.
   - pose proof (PER_refl2 _ R). mauto.
   - split; intros []; econstructor; intuition.
@@ -967,14 +1128,37 @@ Proof.
       intros.
       (on_all_hyp: destruct_rel_by_assumption in_rel).
       econstructor; mauto.
-  - admit.
+  - destruct_conjs.
+    do 2 eexists.
+    glu_univ_elem_econstructor; try (eassumption + reflexivity).
+    + saturate_refl; eassumption.
+    + instantiate (1 := fun (c : domain) (equiv_c : fst_rel c c) Γ A M m =>
+                          forall b P El,
+                            {{ ⟦ B' ⟧ ρ' ↦ c ↘ b }} ->
+                            glu_univ_elem i P El b ->
+                            {{ Γ ⊢ M : A ® m ∈ El }}).
+      instantiate (1 := fun (c : domain) (equiv_c : fst_rel c c) Γ A =>
+                      forall b P El,
+                        {{ ⟦ B' ⟧ ρ' ↦ c ↘ b }} ->
+                        glu_univ_elem i P El b ->
+                        {{ Γ ⊢ A ® P }}).
+      intros.
+      (on_all_hyp: destruct_rel_by_assumption fst_rel).
+      handle_per_univ_elem_irrel.
+      rewrite simple_glu_univ_elem_morphism_iff; try (eassumption + reflexivity);
+        split; intros; handle_functional_glu_univ_elem; intuition.
+    + enough {{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }} by (etransitivity; [symmetry |]; eassumption).
+      per_univ_elem_econstructor; mauto.
+      intros.
+      (on_all_hyp: destruct_rel_by_assumption fst_rel).
+      econstructor; mauto.
   - destruct_conjs.
     saturate_refl.
     do 2 eexists.
     glu_univ_elem_econstructor; eauto; reflexivity.
   - do 2 eexists.
     glu_univ_elem_econstructor; try reflexivity; mauto.
-Admitted.
+Qed.
 
 #[export]
 Hint Resolve per_univ_glu_univ_elem : mctt.
@@ -1080,9 +1264,45 @@ Proof.
       edestruct H11 with (n := n) as [? []];
         simplify_evals; [| | eassumption];
         mauto.
-  - admit.
-  - admit.
-
+  - simpl_glu_rel.
+    apply H10 in H6 as H'. destruct_all.
+    eapply mk_sigma_glu_typ_pred with (m:=m) (equiv_m:=equiv_m); eauto; try solve [bulky_rewrite]; mauto 3.
+    + intros.
+      eapply IHglu_univ_elem; eauto.
+    + intros.
+      saturate_weakening_escape.
+      saturate_glu_info.
+      invert_per_univ_elem H3.
+      destruct_rel_mod_eval.
+      simplify_evals.
+      deepexec H1 ltac:(fun H => pose proof H).
+      (* TODO : improve 
+         autorewrite with mctt in *. does not work well here
+      *)
+      assert {{ Δ0 ⊢w σ∘σ0 : Γ }} by mauto.
+      apply H10 in H21. destruct_conjs; split.
+      * eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
+        eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
+      * eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
+        admit.
+  - simpl_glu_rel.
+    invert_per_univ_elem H3.
+    destruct_rel_mod_eval.
+    apply H13 in H6 as H'. destruct_all.
+    eapply mk_sigma_glu_exp_pred with (m:=m) (equiv_m:=equiv_m); mauto 4;
+      intros;
+      saturate_weakening_escape.
+    + eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
+    + assert {{ Δ0 ⊢w σ∘σ0 : Γ }} by mauto.
+      bulky_rewrite.
+      apply H13 in H23. destruct_conjs; split.
+      * eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
+        eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
+        admit.
+      * eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
+        eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
+        admit.
+        admit.
   - simpl_glu_rel.
     econstructor; intros; only 1: bulky_rewrite; mauto 3;
       solve [eapply IHglu_univ_elem; eauto].
