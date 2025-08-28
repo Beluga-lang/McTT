@@ -931,7 +931,9 @@ Proof.
 
   induction Hper using per_univ_elem_ind; intros; subst;
     saturate_refl_for per_univ_elem;
-    invert_glu_univ_elem Horig;
+    invert_glu_univ_elem Horig.
+
+  1,2,3,5,6:
     split;
     (* for Sigma cases, we don't want to apply constructors to eagerly *)
     try glu_univ_elem_econstructor;
@@ -984,20 +986,6 @@ Proof.
       simplify_evals.
       eauto.
   - resp_per_IH.
-  - admit.
-  - split; intros.
-     admit. admit.
-  - dependent destruction H13.
-    dependent destruction H19.
-    simplify_evals.
-    apply_relation_equivalence.
-    econstructor; mauto 3.
-    rewrite H3. econstructor; mauto 3.
-
-
-  
-  admit.
-  - resp_per_IH.
   - pose proof (PER_refl2 _ R). mauto.
   - pose proof (PER_refl2 _ R). mauto.
   - split; intros []; econstructor; intuition.
@@ -1035,7 +1023,76 @@ Proof.
     destruct_all.
     functional_read_rewrite_clear.
     mauto.
-Admitted.
+  (* Sigma case *)
+  - match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+    mauto. split. 
+
+    + glu_univ_elem_econstructor; mauto 3.
+      specialize (IHHper H0 FEl FP) as IH'. 
+      destruct_all. intuition.
+      intros.
+      * destruct_rel_mod_eval.
+        destruct_all. simplify_evals.
+        specialize (H33 H32 (SEl c equiv_c) (SP c equiv_c)) as IH'.
+        intuition. 
+      * per_univ_elem_econstructor; mauto 3.
+        rewrite H13. split; intros.
+        -- destruct_by_head rel_mod_proj. simplify_evals.
+           destruct_rel_mod_eval.
+           destruct_all. simplify_evals.
+           econstructor; mauto 3.
+           handle_per_univ_elem_irrel. intuition.
+        -- destruct_by_head rel_mod_proj. simplify_evals.
+           destruct_rel_mod_eval.
+           destruct_all. simplify_evals.
+           econstructor; mauto 3.
+           handle_per_univ_elem_irrel. intuition.
+    + intros;
+      handle_per_univ_elem_irrel.
+      handle_functional_glu_univ_elem;
+      simpl in *;
+      destruct_all;
+      mauto 3.
+      destruct_by_head sigma_glu_exp_pred.
+      destruct_by_head rel_mod_proj.
+      simplify_evals.
+
+      rewrite H13 in H12. 
+      destruct_by_head rel_mod_proj. simplify_evals.
+      assert (fst_rel b' b'). {
+        etransitivity; [symmetry | ]; eassumption.
+      }
+      destruct_rel_mod_eval. simplify_evals.
+      handle_per_univ_elem_irrel.
+
+      eapply mk_sigma_glu_exp_pred with (equiv_m:=H16); mauto 3.
+      rewrite H13.
+      eapply mk_rel_mod_proj with (equiv_b_b':=H16); mauto 3.
+      assert (PER (x b b equiv_m)). {
+          eapply per_elem_PER; eauto.
+      }
+      assert (PER (x2 b b' equiv_b_b')). {
+        eapply equiv_rel_PER; eauto. split. eapply H149. eapply H149.
+      }
+      apply H138. apply H149. etransitivity; [symmetry | ]; eassumption.
+      intros.
+      handle_functional_glu_univ_elem. eauto.
+      specialize (H9 _ H16 _ H17) as IH.
+      specialize (H9 _ equiv_m _ H26) as IH2.
+      specialize (H23 _ _ H25) as IH1. destruct_conjs.
+      assert (glu_univ_elem i (SP b equiv_m) (SEl b equiv_m) a'0). {
+        specialize (H78 H77 _ _ IH2). destruct_all. auto.
+      }
+      assert (glu_univ_elem i (SP b' H16) (SEl b' H16) a'0). {
+        specialize (H74 H73 _ _ IH). destruct_all. auto.
+      }
+      handle_functional_glu_univ_elem.
+      split.
+      eapply IHHper; mauto 3.
+      apply H33.
+      eapply H82; mauto 3.
+      apply H150. apply H149. auto.
+Qed.
 
 Lemma glu_univ_elem_resp_per_univ : forall i a a' P El,
     {{ Dom a ≈ a' ∈ per_univ i }} ->
@@ -1296,8 +1353,7 @@ Proof.
     + assert {{ Δ0 ⊢w σ∘σ0 : Γ }} by mauto.
       bulky_rewrite.
       apply H13 in H23. destruct_conjs; split.
-      * eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
-        eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
+      * eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
         admit.
       * eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
         eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
