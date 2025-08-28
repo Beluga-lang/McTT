@@ -1334,14 +1334,21 @@ Proof.
       simplify_evals.
       deepexec H1 ltac:(fun H => pose proof H).
       (* TODO : improve 
-         autorewrite with mctt in *. does not work well here
-      *)
+         autorewrite with mctt in *. does not work well here *)
       assert {{ Δ0 ⊢w σ∘σ0 : Γ }} by mauto.
       apply H10 in H21. destruct_conjs; split.
       * eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
         eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
       * eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
-        admit.
+        etransitivity; [eapply sub_decompose_q_typ |]; mauto 3.
+        eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+        eapply @wf_eq_typ_exp_sub_cong_twice with (Ψ:={{{ Γ , FT }}}) (Δ:={{{Δ , FT[σ]}}}); mauto 3.
+        econstructor; mauto 3.
+        eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+        econstructor; mauto 3.
+        eapply wf_sub_eq_compose_cong; mauto 3.
+        eapply wf_sub_eq_extend_cong; mauto 3.
+        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose | |]; mauto 3.
   - simpl_glu_rel.
     invert_per_univ_elem H3.
     destruct_rel_mod_eval.
@@ -1354,11 +1361,42 @@ Proof.
       bulky_rewrite.
       apply H13 in H23. destruct_conjs; split.
       * eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
-        admit.
-      * eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
+        etransitivity; [eapply exp_eq_compose_exp_twice |]; mauto 3.
+        eapply exp_eq_refl; mauto 3.
+        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
+      * (* TODO : extract the following proof to standalone syntactic lemmas *)
+        assert {{ Δ ⊢ fst M[σ] : FT[σ] }}. {
+          eapply wf_fst with (B:={{{ST[q σ]}}}) (i:=i); mauto 3.
+          eapply wf_conv with (A:={{{A[σ]}}}); mauto 3.
+          etransitivity; [|eapply wf_exp_eq_sigma_sub ]; mauto 3.
+        }
+        assert {{ Δ0 ⊢s σ0,,(fst M[σ])[σ0] : Δ, FT[σ] }}.
+        {
+          econstructor; mauto 2.
+        }
+        assert {{ Δ0 ⊢ (fst M)[σ∘σ0] : FT[σ][σ0] }}. {
+           eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+        }
+        assert {{ Δ0 ⊢ ST[σ∘σ0,,(fst M)[σ∘σ0]] ≈ ST[q σ][σ0,,(fst M[σ])[σ0]] : Type@i }}. {
+          etransitivity; [eapply sub_decompose_q_typ |]; mauto 3.
+          eapply wf_eq_typ_exp_sub_cong_twice; mauto 3.
+          eapply wf_sub_eq_compose_cong; mauto 3.
+          eapply wf_sub_eq_extend_cong; mauto 3.
+          etransitivity; [eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose| | ]|]; mauto 3.
+          eapply wf_exp_eq_sub_cong; mauto 3.
+        }
+        eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
         eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
-        admit.
-        admit.
+        etransitivity.
+        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose | |]; mauto 3. 
+        eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+        etransitivity; mauto 3.
+        symmetry.
+        etransitivity; [|symmetry; eapply exp_eq_elim_sub_lhs_typ_gen]; mauto 3.
+        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
+        eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+        etransitivity; [ |eapply sub_decompose_q_typ]; mauto 3.
+        symmetry. eapply exp_eq_compose_typ_twice; mauto 3.
   - simpl_glu_rel.
     econstructor; intros; only 1: bulky_rewrite; mauto 3;
       solve [eapply IHglu_univ_elem; eauto].

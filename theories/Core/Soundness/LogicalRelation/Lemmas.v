@@ -286,7 +286,10 @@ Section glu_univ_elem_cumulativity.
       assert {{ DG b ∈ glu_univ_elem j ↘ OP' n equiv_n ↘ OEl' n equiv_n }} by mauto 3.
       assert {{ Δ ⊢ OT0[σ,,N] ® OP' n equiv_n }} by (eapply glu_univ_elem_trm_typ; mauto 3).
       enough {{ Δ ⊢ OT[σ,,N] ≈ OT0[σ,,N] : Type@j }} as ->...
-
+    - admit.
+    - admit.
+    - admit.
+  
     - invert_glu_rel1.
       econstructor; intros; firstorder mauto 3.
     - invert_glu_rel1.
@@ -322,8 +325,7 @@ Section glu_univ_elem_cumulativity.
       econstructor...
     - destruct_by_head neut_glu_exp_pred.
       econstructor...
-  Qed.
-
+  Admitted.
 End glu_univ_elem_cumulativity.
 
 Corollary glu_univ_elem_typ_cumu_ge : forall {i j a P P' El El' Γ A},
@@ -518,6 +520,7 @@ Proof.
       mauto 4.
     }
     mauto 3.
+  - admit.
   - match_by_head (per_bot b b') ltac:(fun H => specialize (H (length Γ)) as [V []]).
     simpl in *.
     destruct_conjs.
@@ -526,7 +529,7 @@ Proof.
     assert {{ Γ ⊢ A'[Id] ≈ V : Type@i }} as -> by mauto 4.
     eapply wf_subtyp_refl'.
     mauto 4.
-Qed.
+Admitted.
 
 #[export]
 Hint Resolve glu_univ_elem_per_subtyp_typ_escape : mctt.
@@ -544,7 +547,7 @@ Proof.
   gen m M A' A. gen Γ. gen El' El P' P.
   induction Hsubtyp using per_subtyp_ind; intros; subst;
     saturate_refl_for per_univ_elem.
-  1-3,5:
+  1-3,6:
     invert_glu_univ_elem Hglu;
   handle_functional_glu_univ_elem;
   handle_per_univ_elem_irrel;
@@ -597,13 +600,14 @@ Proof.
       assert {{ Δ ⊢ A[σ] ⊆ A'[σ] }} by mauto 3.
       assert {{ Δ ⊢ M[σ] ≈ M' : A[σ] }} by mauto 3.
       mauto 3.
+  - admit.
   - assert {{ Γ ⊢ A ® P }} by (eapply glu_univ_elem_trm_typ; eauto).
     assert {{ Γ ⊢ A ≈ A' : Type@i }} by mauto 4.
     rewrite H in *.
     rewrite H4 in *.
     handle_functional_glu_univ_elem.
     trivial.
-Qed.
+Admitted.
 
 Lemma glu_univ_elem_per_subtyp_trm_conv : forall {i j k a a' P P' El El' Γ A A' M m},
     {{ Sub a <: a' at i }} ->

@@ -3,6 +3,7 @@ From Mctt.Core Require Import Base.
 From Mctt.Core.Soundness Require Import
   ContextCases
   FunctionCases
+  PairCases
   NatCases
   SubstitutionCases
   SubtypingCases

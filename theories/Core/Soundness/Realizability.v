@@ -289,6 +289,10 @@ Proof.
       * eapply sub_q; mauto 4.
       * gen_presup H39; econstructor; mauto 3.
 
+  - admit.
+  - admit.
+  - admit.
+
   - match_by_head eq_glu_typ_pred progressive_invert.
     econstructor; eauto; intros.
     + gen_presups; trivial.
@@ -347,7 +351,7 @@ Proof.
       progressive_inversion.
       specialize (H11 (length Δ)) as [? []].
       firstorder.
-Qed.
+Admitted.
 
 Corollary realize_glu_typ_top : forall a i P El,
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->

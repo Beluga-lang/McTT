@@ -181,6 +181,7 @@ Lemma exp_succ_sub_rhs : forall {Γ σ Δ M},
 Proof.
   intros; mauto 3.
 Qed.
+
 #[export]
 Hint Resolve exp_succ_sub_rhs : mctt.
 
