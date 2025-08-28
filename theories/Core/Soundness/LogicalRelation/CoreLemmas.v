@@ -337,10 +337,14 @@ Proof.
     enough (exists mn : domain, {{ $| m & n |↘ mn }} /\  {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl n equiv_n }}) as [? []]; eauto 3.
   - (* TODO : improve  *)
     invert_per_univ_elem H3.
+    econstructor; mauto.
+    intros. 
+    destruct_rel_mod_eval.
+    simplify_evals. eapply H2; eauto.
     rewrite H15 in H7. destruct_by_head rel_mod_proj.
     simplify_evals.
-    eapply mk_sigma_glu_typ_pred with (m:=b) (equiv_m:=equiv_m); mauto 3.
-    intros.
+    eapply mk_sigma_glu_typ_pred; mauto 3. intros.
+
     (* TODO : improve *)
     apply H14 in H8. destruct_all. simplify_evals. 
     split; auto.

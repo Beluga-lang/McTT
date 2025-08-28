@@ -289,7 +289,33 @@ Proof.
       * eapply sub_q; mauto 4.
       * gen_presup H39; econstructor; mauto 3.
 
-  - admit.
+  - match_by_head sigma_glu_typ_pred progressive_invert.
+    handle_per_univ_elem_irrel.
+    invert_per_univ_elem H6.
+    econstructor; eauto; intros.
+    + gen_presups. trivial.
+    + saturate_weakening_escape.
+      destruct_rel_mod_eval. simplify_evals.
+      assert {{ Γ ⊢w Id : Γ }} by mauto 4.
+      assert {{ Δ ⊢ FT[σ] ® FP }} by mauto 3.
+      assert (FP Γ {{{ FT[Id] }}}) as HFTId by mauto 3.
+      bulky_rewrite_in HFTId.
+      assert {{ Γ ⊢ FT[Id] ≈ FT : Type@i }} by mauto 3.
+      dir_inversion_clear_by_head read_typ.
+      assert {{ Γ ⊢ FT ® glu_typ_top i a }} as [] by mauto 3.
+      bulky_rewrite.
+      simpl. apply wf_exp_eq_sigma_cong'; [firstorder |].
+      pose proof (var_per_elem (length Δ) H0).
+      destruct_rel_mod_eval. simplify_evals. 
+      (* assert {{ fst_refl (⇑! a (length Δ) )  (⇑! a (length Δ)) }}. *)
+      assert (FEl {{{ Δ, FT[σ] }}} {{{ FT[σ][Wk] }}} {{{ #0 }}} d{{{ ⇑! a (length Δ) }}}) by mauto 3 using var_glu_elem_bot.
+      destruct (H2 _ ltac:(eassumption) _ ltac:(eassumption)) as [? []].
+      (* specialize (H15 _ _ H21). destruct_conjs. *)
+      specialize (H1 _ H30 _ H26).
+      eapply H32 in H1; eauto.
+
+
+
   - admit.
   - admit.
 

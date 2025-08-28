@@ -110,14 +110,18 @@ Variant sigma_glu_typ_pred i
   (FEl : glu_exp_pred)
   (SP : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_typ_pred) : glu_typ_pred :=
 | mk_sigma_glu_typ_pred :
-  `{ forall (equiv_m : {{ Dom m ≈ m ∈ FR }}),
-     {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
+  `{ {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
      {{ Γ ⊢ FT : Type@i }} ->
      {{ Γ , FT ⊢ ST : Type@i }} ->
-     {{ Γ ⊢ M : FT }} ->
      (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
-     (forall Δ σ, {{ Δ ⊢w σ : Γ }} ->
-         {{ Δ ⊢ M[σ] : FT[σ] ® m ∈ FEl }} /\ {{ Δ ⊢ ST[σ,,M[σ]] ® SP _ equiv_m }}) ->
+     (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
+     (forall Δ σ M m,
+         {{ Δ ⊢w σ : Γ }} ->
+         {{ Δ ⊢ M : FT[σ] ® m ∈ FEl }} ->
+         forall (equiv_m : {{ Dom m ≈ m ∈ FR }}),
+           {{ Δ ⊢ ST[σ,,M] ® SP _ equiv_m }}) ->
+     (* (forall Δ σ, {{ Δ ⊢w σ : Γ }} ->
+         {{ Δ ⊢ M[σ] : FT[σ] ® m ∈ FEl }} /\ {{ Δ ⊢ ST[σ,,M[σ]] ® SP _ equiv_m }}) -> *)
      {{ Γ ⊢ A ® sigma_glu_typ_pred i FR FP FEl SP }} }.
 
 Variant sigma_glu_exp_pred i
@@ -125,6 +129,7 @@ Variant sigma_glu_exp_pred i
   (FP : glu_typ_pred)
   (FEl : glu_exp_pred)
   (elem_rel : relation domain)
+  (SP : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_typ_pred)
   (* should SEl be parameterized over equiv_c? *)
   (SEl : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_exp_pred): glu_exp_pred :=
 | mk_sigma_glu_exp_pred :
@@ -137,11 +142,18 @@ Variant sigma_glu_exp_pred i
      {{ Γ ⊢ FT : Type@i }} ->
      {{ Γ , FT ⊢ ST : Type@i }} ->
      (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
+     (* I think we have to introduce SP and this extra condition, 
+        otherwise our `sigma_glu_exp_pred` does not imply `sigma_glu_typ_pred` *)
+     (forall Δ σ M m',
+         {{ Δ ⊢w σ : Γ }} ->
+         {{ Δ ⊢ M : FT[σ] ® m' ∈ FEl }} ->
+         forall (equiv_m' : {{ Dom m' ≈ m' ∈ FR }}),
+           {{ Δ ⊢ OT[σ,,M] ® SP m' equiv_m' }}) ->
      (forall Δ σ,
          {{ Δ ⊢w σ : Γ }} ->          
           {{ Δ ⊢ (fst M)[σ] : FT[σ] ® m1 ∈ FEl }} /\
           {{ Δ ⊢ (snd M)[σ] : ST[σ,,(fst M)[σ]] ® m2 ∈ SEl _ equiv_m }} ) ->
-     {{ Γ ⊢ M : A ® m ∈ sigma_glu_exp_pred i FR FP FEl elem_rel SEl }} }.
+     {{ Γ ⊢ M : A ® m ∈ sigma_glu_exp_pred i FR FP FEl elem_rel SP SEl }} }.
 
 Variant eq_glu_typ_pred i m n
   (P : glu_typ_pred)
@@ -243,7 +255,7 @@ Section Gluing.
           el_rel <∙> pi_glu_exp_pred i in_rel IP IEl elem_rel OEl ->
           {{ DG Π a ρ B ∈ glu_univ_elem_core ↘ typ_rel ↘ el_rel }} }
 
-  | glu_sigma_elem_core_pi :
+  | glu_univ_elem_core_sigma :
     `{ forall (fst_rel : relation domain)
          FP FEl
          (SP : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_typ_pred)
@@ -257,7 +269,7 @@ Section Gluing.
               {{ DG b ∈ glu_univ_elem_core ↘ SP _ equiv_c ↘ SEl _ equiv_c }}) ->
           {{ DF Σ a ρ B ≈ Σ a ρ B ∈ per_univ_elem i ↘ elem_rel }} ->
           typ_rel <∙> sigma_glu_typ_pred i fst_rel FP FEl SP ->
-          el_rel <∙> sigma_glu_exp_pred i fst_rel FP FEl elem_rel SEl ->
+          el_rel <∙> sigma_glu_exp_pred i fst_rel FP FEl elem_rel SP SEl ->
           {{ DG Σ a ρ B ∈ glu_univ_elem_core ↘ typ_rel ↘ el_rel }} }
 
   | glu_univ_elem_core_eq :
@@ -347,7 +359,7 @@ Section GluingInduction.
               motive i (SP c equiv_c) (SEl c equiv_c) b) ->
           {{ DF Σ a ρ B ≈ Σ a ρ B ∈ per_univ_elem i ↘ elem_rel }} ->
           P <∙> sigma_glu_typ_pred i fst_rel FP FEl SP ->
-          El <∙> sigma_glu_exp_pred i fst_rel FP FEl elem_rel SEl ->
+          El <∙> sigma_glu_exp_pred i fst_rel FP FEl elem_rel SP SEl ->
           motive i P El d{{{ Σ a ρ B }}})
 
       (case_eq :

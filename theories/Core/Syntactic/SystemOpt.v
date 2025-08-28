@@ -396,6 +396,33 @@ Hint Resolve wf_subtyp_pi' : mctt.
 #[export]
 Remove Hints wf_subtyp_pi : mctt.
 
+Corollary wf_exp_eq_sigma_cong' : forall {Γ A A' B B' i},
+    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    {{ Γ, A ⊢ B ≈ B' : Type@i }} ->
+    {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@i }}.
+Proof.
+  impl_opt_constructor.
+Qed.
+
+#[export]
+Hint Resolve wf_exp_eq_sigma_cong' : mctt.
+#[export]
+Remove Hints wf_exp_eq_sigma_cong : mctt.
+
+Corollary wf_exp_eq_sigma_cong_max : forall {Γ A A' i B B' j},
+    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    {{ Γ, A ⊢ B ≈ B' : Type@j }} ->
+    {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@(max i j) }}.
+Proof.
+  intros.
+  assert {{ Γ ⊢ A ≈ A' : Type@(max i j) }} by eauto using lift_exp_eq_max_left.
+  assert {{ Γ, A ⊢ B ≈ B' : Type@(max i j) }} by eauto using lift_exp_eq_max_right.
+  mauto.
+Qed.
+
+#[export]
+Hint Resolve wf_exp_eq_pi_cong_max : mctt.
+
 Lemma wf_subtyp_sigma' : forall Γ A A' B B' i,
     {{ Γ ⊢ A ≈ A' : Type@i }} ->
     {{ Γ, A' ⊢ B ⊆ B' }} ->
