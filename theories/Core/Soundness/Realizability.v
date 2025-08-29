@@ -307,16 +307,53 @@ Proof.
       simpl. apply wf_exp_eq_sigma_cong'; [firstorder |].
       pose proof (var_per_elem (length Δ) H0).
       destruct_rel_mod_eval. simplify_evals. 
-      (* assert {{ fst_refl (⇑! a (length Δ) )  (⇑! a (length Δ)) }}. *)
-      assert (FEl {{{ Δ, FT[σ] }}} {{{ FT[σ][Wk] }}} {{{ #0 }}} d{{{ ⇑! a (length Δ) }}}) by mauto 3 using var_glu_elem_bot.
       destruct (H2 _ ltac:(eassumption) _ ltac:(eassumption)) as [? []].
-      (* specialize (H15 _ _ H21). destruct_conjs. *)
-      specialize (H1 _ H30 _ H26).
-      eapply H32 in H1; eauto.
+      assert (FEl {{{ Δ, FT[σ] }}} {{{ FT[σ][Wk] }}} {{{ #0 }}} d{{{ ⇑! a (length Δ) }}}) by mauto 3 using var_glu_elem_bot.
+      autorewrite with mctt in H31.
+      specialize (H15 {{{ Δ, FT[σ] }}} {{{ σ∘Wk }}} _ _ ltac:(mauto) ltac:(eassumption) ltac:(eassumption)).
+      specialize (H8 _ _ _ ltac:(eassumption) ltac:(eassumption)) as [].
+      etransitivity; [| eapply H33]; mauto 3.
+  
+  - handle_functional_glu_univ_elem.
+    apply_equiv_left.
+    invert_glu_rel1.
+    invert_glu_univ_elem H9.
+    invert_per_univ_elem H19.
+    assert (fst_rel d{{{ ⇑ a fst m  }}} d{{{ ⇑ a fst m  }}}) as equiv_fst. {
+      eapply per_bot_then_per_elem; eauto.
+      apply fst_bot_per_bot. auto.
+    }
+    destruct_rel_mod_eval. simplify_evals.
+    eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_fst); mauto 3.
+    + eapply per_bot_then_per_elem; eauto.
+    + intros. split.
+      (* glu_elem_bot i a Δ {{{ FT[σ] }}} {{{ (fst M)[σ] }}} d{{{ fst m }}} is false
+         because for a neutral term x, fst x may not be the eta-long nf.
+         \x : (Σ (y: Π (x: Type@i). N). N). fst x
+         => \x : (Σ (y: Π (x: Type@i). N). N). (\y. (fst x) y)  
+         but other than using H14, I cannot see another way
+      *)
+      eapply H14; mauto 3.
+      econstructor; mauto 3.
+      * admit.
+      * intros. dependent destruction H23.
+        assert {{ Γ ⊢w Id : Γ }} by mauto 4.
+        assert {{ Δ ⊢ FT[σ] ® FP }} by mauto 3.
+        assert (FP Γ {{{ FT[Id] }}}) as HFTId by mauto 3.
+         bulky_rewrite_in HFTId.
+        assert {{ Γ ⊢ FT[Id] ≈ FT : Type@i }} by mauto 3.
+        dir_inversion_clear_by_head read_typ.
+        assert (FEl Γ FT {{{ fst M }}} d{{{ ⇑ a (fst m) }}}). {
+          eapply H14; mauto 3.
+          econstructor; mauto 3.
+          intros. admit.
+        }
+      destruct (H15 _ _ _ _ _ ltac:(eassumption) ltac:(eassumption) ltac:(eassumption) ltac:(eassumption)) as [].
+      assert ({{ Δ0 ⊢w σ∘σ0 : Γ }}) by mauto.
+      specialize (H33 (length Δ0)). destruct_all.
+      admit.
+    *
 
-
-
-  - admit.
   - admit.
 
   - match_by_head eq_glu_typ_pred progressive_invert.
