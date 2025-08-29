@@ -144,11 +144,11 @@ Variant sigma_glu_exp_pred i
      (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
      (* I think we have to introduce SP and this extra condition, 
         otherwise our `sigma_glu_exp_pred` does not imply `sigma_glu_typ_pred` *)
-     (forall Δ σ M m',
+     (forall Δ σ M' m',
          {{ Δ ⊢w σ : Γ }} ->
-         {{ Δ ⊢ M : FT[σ] ® m' ∈ FEl }} ->
+         {{ Δ ⊢ M' : FT[σ] ® m' ∈ FEl }} ->
          forall (equiv_m' : {{ Dom m' ≈ m' ∈ FR }}),
-           {{ Δ ⊢ OT[σ,,M] ® SP m' equiv_m' }}) ->
+           {{ Δ ⊢ ST[σ,,M'] ® SP m' equiv_m' }}) ->
      (forall Δ σ,
          {{ Δ ⊢w σ : Γ }} ->          
           {{ Δ ⊢ (fst M)[σ] : FT[σ] ® m1 ∈ FEl }} /\
