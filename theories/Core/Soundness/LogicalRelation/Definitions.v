@@ -114,7 +114,6 @@ Variant sigma_glu_typ_pred i
      {{ Γ ⊢ FT : Type@i }} ->
      {{ Γ , FT ⊢ ST : Type@i }} ->
      (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
-     (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
      (forall Δ σ M m,
          {{ Δ ⊢w σ : Γ }} ->
          {{ Δ ⊢ M : FT[σ] ® m ∈ FEl }} ->

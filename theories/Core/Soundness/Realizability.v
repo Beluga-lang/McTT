@@ -326,35 +326,73 @@ Proof.
     destruct_rel_mod_eval. simplify_evals.
     eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_fst); mauto 3.
     + eapply per_bot_then_per_elem; eauto.
-    + intros. split.
-      (* glu_elem_bot i a Δ {{{ FT[σ] }}} {{{ (fst M)[σ] }}} d{{{ fst m }}} is false
-         because for a neutral term x, fst x may not be the eta-long nf.
-         \x : (Σ (y: Π (x: Type@i). N). N). fst x
-         => \x : (Σ (y: Π (x: Type@i). N). N). (\y. (fst x) y)  
-         but other than using H14, I cannot see another way
-      *)
-      eapply H14; mauto 3.
-      econstructor; mauto 3.
-      * admit.
-      * intros. dependent destruction H23.
-        assert {{ Γ ⊢w Id : Γ }} by mauto 4.
-        assert {{ Δ ⊢ FT[σ] ® FP }} by mauto 3.
-        assert (FP Γ {{{ FT[Id] }}}) as HFTId by mauto 3.
-         bulky_rewrite_in HFTId.
-        assert {{ Γ ⊢ FT[Id] ≈ FT : Type@i }} by mauto 3.
-        dir_inversion_clear_by_head read_typ.
-        assert (FEl Γ FT {{{ fst M }}} d{{{ ⇑ a (fst m) }}}). {
-          eapply H14; mauto 3.
-          econstructor; mauto 3.
-          intros. admit.
-        }
-      destruct (H15 _ _ _ _ _ ltac:(eassumption) ltac:(eassumption) ltac:(eassumption) ltac:(eassumption)) as [].
-      assert ({{ Δ0 ⊢w σ∘σ0 : Γ }}) by mauto.
-      specialize (H33 (length Δ0)). destruct_all.
+    + intros.
+      assert (FEl Δ {{{ FT[σ] }}} {{{ (fst M)[σ] }}} d{{{ ⇑ a fst m }}}). {
+        eapply H14; mauto 3.
+        econstructor; mauto 3.
+        * eapply wf_exp_sub; mauto 3.
+        * intros.
+          saturate_weakening_escape.
+          dependent destruction H23.
+          assert {{ Δ0 ⊢w σ∘σ0 : Γ  }} by mauto 3.
+          specialize (H16 _ {{{σ∘σ0}}} _ ltac:(eassumption) ltac:(eassumption) ).
+          assert {{ Δ0 ⊢ FT[σ][σ0] ≈ FT[σ∘σ0] : Type@i }} by mauto 3.  
+          assert {{ Δ0 ⊢ (fst M)[σ][σ0] ≈ (fst M)[σ∘σ0] : FT[σ∘σ0] }}. {
+            symmetry; eapply wf_exp_eq_sub_compose; mauto 3.
+          }
+          assert {{ Δ0 ⊢ (fst M[σ∘σ0]) ≈ (fst M)[σ∘σ0] : FT[σ∘σ0] }}. {
+            symmetry; eapply wf_exp_eq_fst_sub; mauto 3.
+          }
+          assert {{ Δ0, FT[σ∘σ0] ⊢ ST[q σ∘σ0] : Type@i }} by admit.
+          eapply wf_exp_eq_conv; mauto 3.
+          rewrite H30. rewrite <- H31. 
+          eapply wf_exp_eq_fst_cong; mauto 3; fold nf_to_exp; fold ne_to_exp.
+          eapply wf_exp_eq_conv'; mauto 3.
+          admit.
+      }
+      split; auto.
+      assert {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }} by 
+        (eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3).
+      eapply H2; mauto 3. econstructor; mauto 3.
+      gen_presups. eapply wf_conv; [eapply wf_exp_sub| | ]; mauto 3.
+      intros.
+      dependent destruction H27.
+      assert {{ Δ0 ⊢w σ∘σ0 : Γ  }} by mauto 3.
+      specialize (H16 _ {{{σ∘σ0}}} _ ltac:(eassumption) ltac:(eassumption) ).
+      assert {{ Δ0 ⊢ ST[σ,,(fst M)[σ]][σ0] ≈ ST[Id,,(fst M)][σ∘σ0] : Type@i }} by admit.
+      assert {{ Δ0 ⊢ (snd M)[σ][σ0] ≈ (snd M)[σ∘σ0] : ST[Id,,(fst M)][σ∘σ0] }} by admit.
+      assert {{ Δ0 ⊢ (snd M[σ∘σ0]) ≈ (snd M)[σ∘σ0] : ST[Id,,(fst M)][σ∘σ0] }} by admit.
+      assert {{ Δ0 ⊢ FT[σ∘σ0] : Type@i }} by admit.
+      assert {{ Δ0, FT[σ∘σ0] ⊢ ST[q σ∘σ0] : Type@i }} by admit.
+      rewrite H29. rewrite H30. rewrite <- H31.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_snd_cong | |]; mauto 3; fold nf_to_exp; fold ne_to_exp.
+      eapply wf_exp_eq_conv'; mauto 3.
       admit.
-    *
+      admit.
+      admit.
 
-  - admit.
+  - handle_functional_glu_univ_elem.
+    handle_per_univ_elem_irrel.
+    pose proof H8.
+    invert_per_univ_elem H8.
+    econstructor; mauto 3.
+    + invert_glu_rel1. trivial.
+    + eapply glu_univ_elem_trm_typ; eauto.
+    + intros.
+      saturate_weakening_escape.
+      invert_glu_rel1. clear_dups.
+      progressive_invert H23.
+
+      assert {{ Γ ⊢w Id : Γ }} by mauto 4.
+      (* pose proof (H15 _ _ H28). *)
+      (* specialize (H15 _ _ H22). *)
+      (* assert {{ Γ ⊢ FT[Id] ≈ FT : Type@i }} by mauto 3. *)
+      destruct (H17 _ σ ltac:(eassumption)) as [].
+      bulky_rewrite_in H31.
+      simplify_evals.
+      eapply H16 with (equiv_m':=equiv_m) in H29 as HSP; eauto.
+      eapply H2 with (equiv_c:=equiv_m) in H26 as IH; eauto. destruct_all.
+      admit.
 
   - match_by_head eq_glu_typ_pred progressive_invert.
     econstructor; eauto; intros.
