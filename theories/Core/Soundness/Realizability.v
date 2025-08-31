@@ -318,7 +318,7 @@ Proof.
     apply_equiv_left.
     invert_glu_rel1.
     invert_glu_univ_elem H9.
-    invert_per_univ_elem H18.
+    invert_per_univ_elem H17.
     assert (fst_rel d{{{ ⇑ a fst m  }}} d{{{ ⇑ a fst m  }}}) as equiv_fst. {
       eapply per_bot_then_per_elem; eauto.
       apply fst_bot_per_bot. auto.
@@ -366,7 +366,7 @@ Proof.
         (eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3).
       eapply H2; mauto 3. 
       eapply H1 with (equiv_c:=equiv_fst) in H21 as Hglu.
-      eapply glu_elem_bot_make; mauto 3.
+      eapply mk_glu_elem_bot; mauto 3.
       gen_presups. eapply wf_conv; [eapply wf_exp_sub| | ]; mauto 3.
       intros.
 

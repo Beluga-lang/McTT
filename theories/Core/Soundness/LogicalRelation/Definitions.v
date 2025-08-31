@@ -417,7 +417,7 @@ Section GluingInduction.
 End GluingInduction.
 
 Variant glu_elem_bot i a Γ A M m : Prop :=
-| glu_elem_bot_make : forall P El,
+| mk_glu_elem_bot : forall P El,
     {{ Γ ⊢ M : A }} ->
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
     {{ Γ ⊢ A ® P }} ->
@@ -428,7 +428,7 @@ Variant glu_elem_bot i a Γ A M m : Prop :=
 Hint Constructors glu_elem_bot : mctt.
 
 Variant glu_elem_top i a Γ A M m : Prop :=
-| glu_elem_top_make : forall P El,
+| mk_glu_elem_top : forall P El,
     {{ Γ ⊢ M : A }} ->
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
     {{ Γ ⊢ A ® P }} ->
@@ -439,7 +439,7 @@ Variant glu_elem_top i a Γ A M m : Prop :=
 Hint Constructors glu_elem_top : mctt.
 
 Variant glu_typ_top i a Γ A : Prop :=
-| glu_typ_top_make :
+| mk_glu_typ_top :
     {{ Γ ⊢ A : Type@i }} ->
     {{ Dom a ≈ a ∈ per_top_typ }} ->
     (forall Δ σ A', {{ Δ ⊢w σ : Γ }} -> {{ Rtyp a in length Δ ↘ A' }} -> {{ Δ ⊢ A[σ] ≈ A' : Type@i }}) ->

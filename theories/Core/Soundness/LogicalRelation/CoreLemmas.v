@@ -829,7 +829,6 @@ Lemma glu_univ_elem_sigma_clean_inversion2 : forall {i a ρ B fst_rel FP FEl P E
   {{ DG Σ a ρ B ∈ glu_univ_elem i ↘ P ↘ El }} ->
   exists (SP : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_typ_pred)
      (SEl : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_exp_pred) elem_rel,
-      {{ DG a ∈ glu_univ_elem i ↘ FP ↘ FEl }} /\
         (forall c (equiv_c : {{ Dom c ≈ c ∈ fst_rel }}) b,
             {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
             {{ DG b ∈ glu_univ_elem i ↘ SP _ equiv_c ↘ SEl _ equiv_c }}) /\
@@ -929,9 +928,9 @@ Proof.
     saturate_refl_for per_univ_elem;
     invert_glu_univ_elem Horig.
 
+  (* TODO : handle Sigma case uniformly  *)
   1,2,3,5,6:
     split;
-    (* for Sigma cases, we don't want to apply constructors to eagerly *)
     try glu_univ_elem_econstructor;
     try eassumption; mauto 3;
     intros;
@@ -1059,6 +1058,7 @@ Proof.
         etransitivity; [symmetry | ]; eassumption.
       }
       destruct_rel_mod_eval. simplify_evals.
+      (* TODO : too slow *)
       handle_per_univ_elem_irrel.
 
       eapply mk_sigma_glu_exp_pred with (equiv_m:=H16); mauto 3.
