@@ -203,12 +203,12 @@ Qed.
 #[export]
 Hint Resolve exp_succ_sub_rhs : mctt.
 
-Lemma sub_decompose_q : forall Γ S i σ Δ Δ' τ t,
-  {{ Γ ⊢ S : Type@i }} ->
+Lemma sub_decompose_q : forall Γ A i σ Δ Δ' τ M,
+  {{ Γ ⊢ A : Type@i }} ->
   {{ Δ ⊢s σ : Γ }} ->
   {{ Δ' ⊢s τ : Δ }} ->
-  {{ Δ' ⊢ t : S[σ][τ] }} ->
-  {{ Δ' ⊢s q σ ∘ (τ ,, t) ≈ σ ∘ τ ,, t : Γ, S }}.
+  {{ Δ' ⊢ M : A[σ][τ] }} ->
+  {{ Δ' ⊢s q σ ∘ (τ ,, M) ≈ σ ∘ τ ,, M : Γ, A }}.
 Proof.
   intros. gen_presups.
   simpl. autorewrite with mctt.
@@ -225,12 +225,12 @@ Qed.
 #[local]
 Hint Rewrite -> @sub_decompose_q using mauto 4 : mctt.
 
-Lemma sub_decompose_q_typ : forall Γ S T i σ Δ Δ' τ t,
-  {{ Γ, S ⊢ T : Type@i }} ->
+Lemma sub_decompose_q_typ : forall Γ A B i σ Δ Δ' τ M,
+  {{ Γ, A ⊢ B : Type@i }} ->
   {{ Δ ⊢s σ : Γ }} ->
   {{ Δ' ⊢s τ : Δ }} ->
-  {{ Δ' ⊢ t : S[σ][τ] }} ->
-  {{ Δ' ⊢ T[σ∘τ,,t] ≈ T[q σ][τ,,t] : Type@i}}.
+  {{ Δ' ⊢ M : A[σ][τ] }} ->
+  {{ Δ' ⊢ B[σ∘τ,,M] ≈ B[q σ][τ,,M] : Type@i}}.
 Proof.
   intros. gen_presups.
   autorewrite with mctt.
@@ -517,6 +517,33 @@ Qed.
 
 #[export]
 Hint Resolve exp_sigma_sub_lhs : mctt.
+
+Lemma typ_sigma_sub : forall {Γ σ Δ A B i},
+   {{ Δ ⊢s σ : Γ }} ->  
+   {{ Γ ⊢ A : Type@i }} ->
+   {{ Γ, A ⊢ B : Type@i }} ->
+   {{ Δ, A[σ] ⊢ B[q σ] : Type@i }}.
+Proof.
+  intros * Hs HA HB.
+  eapply wf_conv'; [eapply wf_exp_sub | ]; mauto 3.
+Qed.
+
+#[export]
+Hint Resolve typ_sigma_sub : mctt.
+
+Lemma exp_sigma_sub : forall {Γ σ Δ A B i M },
+   {{ Δ ⊢s σ : Γ }} ->  
+   {{ Γ ⊢ A : Type@i }} ->
+   {{ Γ, A ⊢ B : Type@i }} ->
+   {{ Γ ⊢ M : Σ A B }} ->
+   {{ Δ ⊢ M[σ] : Σ A[σ] B[q σ] }}.
+Proof.
+  intros * Hs HA HB HM.
+  eapply wf_conv'; [eapply wf_exp_sub | ]; mauto 3.
+Qed.
+
+#[export]
+Hint Resolve exp_sigma_sub : mctt.
 
 Lemma exp_sigma_sub_rhs : forall {Γ σ Δ A B i},
     {{ Γ ⊢s σ : Δ }} ->

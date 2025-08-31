@@ -175,8 +175,7 @@ Proof.
   }
   assert {{ ⊢ Γ, A[σ], A[σ][Wk], Eq A[σ][Wk∘Wk] #1 #0 }} by mauto 2.
   assert {{ ⊢ Γ, A[σ], A[σ][Wk], (Eq A[Wk∘Wk] #1 #0)[q (q σ)]}} by (econstructor; mauto 2).
-  assert {{ Γ, A[σ], A[σ][Wk], Eq A[σ][Wk∘Wk] #1 #0 ⊢s q (q (q σ)) : Δ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }}
-    by (eapply ctxeq_sub; [econstructor | eapply sub_q]; mauto 3).
+  assert {{ Γ, A[σ], A[σ][Wk], Eq A[σ][Wk∘Wk] #1 #0 ⊢s q (q (q σ)) : Δ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by (eapply ctxeq_sub; [|eapply sub_q]; mauto 3).
   assert {{ Γ, A[σ] ⊢ #0 : A[σ][Wk] }} by mauto 3.
   assert {{ Γ, A[σ] ⊢s Id,,#0 : Γ, A[σ], A[σ][Wk] }} by mauto 2.
   assert {{ Γ, A[σ] ⊢ A[σ][Wk∘Wk][Id,,#0] ≈ A[σ][Wk] : Type@i }}

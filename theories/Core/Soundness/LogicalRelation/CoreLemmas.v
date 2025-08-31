@@ -1348,53 +1348,52 @@ Proof.
       assert {{ Δ0 ⊢w σ∘σ0 : Γ }} by mauto.
       bulky_rewrite.
       destruct_rel_mod_eval. simplify_evals.
-      assert {{ Δ ⊢ fst M[σ] : FT[σ] }}. {
-            eapply wf_fst with (B:={{{ST[q σ]}}}) (i:=i); mauto 3.
-            eapply wf_conv with (A:={{{A[σ]}}}); mauto 3.
-            etransitivity; [|eapply wf_exp_eq_sigma_sub ]; mauto 3.
-          }
-          assert {{ Δ0 ⊢s σ0,,(fst M[σ])[σ0] : Δ, FT[σ] }}.
-          {
-            econstructor; mauto 2.
-          }
-        assert {{ Δ0 ⊢ (fst M)[σ∘σ0] : FT[σ][σ0] }}. {
-           eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
-        }
-        assert {{ Δ0 ⊢s σ∘σ0,,(fst M)[σ∘σ0] : Γ , FT }}. {
-          econstructor; mauto 2.
-          eapply wf_conv;  mauto 3.  
-        }
-        assert {{ Δ0 ⊢ ST[σ∘σ0,,(fst M)[σ∘σ0]] ≈ ST[q σ][σ0,,(fst M[σ])[σ0]] : Type@i }}. {
-          etransitivity; [eapply sub_decompose_q_typ |]; mauto 3.
-          eapply wf_eq_typ_exp_sub_cong_twice; mauto 3.
-          eapply wf_sub_eq_compose_cong; mauto 3.
-          eapply wf_sub_eq_extend_cong; mauto 3.
-          etransitivity; [eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose| | ]|]; mauto 3.
-          eapply wf_exp_eq_sub_cong; mauto 3.
-        }
-        assert {{ Δ0 ⊢ ST[Id,,fst M][σ∘σ0] ≈ ST[σ∘σ0,,(fst M)[σ∘σ0]] : Type@i }}. {
-          eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3.
-        }
-        assert {{ Δ0 ⊢ ST[σ∘σ0,,(fst M)[σ∘σ0]] : Type@i }}. {
-          gen_presups; mauto 3.
-        }
-        split.
-        eapply glu_univ_elem_trm_resp_exp_eq; mauto 3. intuition.
-        etransitivity.
-        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose | |]; mauto 3.
-        eapply exp_eq_refl; econstructor; mauto 3.
-        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
-        eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
-        eapply glu_univ_elem_trm_resp_exp_eq; mauto 3; intuition.
-        etransitivity.
-        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose | |]; mauto 3.
-        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
-        symmetry; etransitivity; [|eapply exp_eq_compose_typ]; mauto 3.
-        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 4.
-        etransitivity; [|symmetry; eapply wf_sub_eq_extend_compose]; mauto 3.
+      assert {{ Δ ⊢ fst M[σ] : FT[σ] }}. 
+      {
+        eapply wf_fst with (B:={{{ST[q σ]}}}) (i:=i); mauto 3.
+      }
+      assert {{ Δ0 ⊢s σ0,,(fst M[σ])[σ0] : Δ, FT[σ] }}.
+      {
+        econstructor; mauto 2.
+      }
+      assert {{ Δ0 ⊢ (fst M)[σ∘σ0] : FT[σ][σ0] }}. {
+          eapply wf_conv; [eapply wf_exp_sub | |]; mauto 3.
+      }
+      assert {{ Δ0 ⊢s σ∘σ0,,(fst M)[σ∘σ0] : Γ , FT }}. {
+        econstructor; mauto 2.
+        eapply wf_conv;  mauto 3.  
+      }
+      assert {{ Δ0 ⊢ ST[σ∘σ0,,(fst M)[σ∘σ0]] ≈ ST[q σ][σ0,,(fst M[σ])[σ0]] : Type@i }}. {
+        etransitivity; [eapply sub_decompose_q_typ |]; mauto 3.
+        eapply wf_eq_typ_exp_sub_cong_twice; mauto 3.
+        eapply wf_sub_eq_compose_cong; mauto 3.
         eapply wf_sub_eq_extend_cong; mauto 3.
-        etransitivity; [eapply wf_exp_eq_sub_compose|]; mauto 3.
-        eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
+        etransitivity; [eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose| | ]|]; mauto 3.
+        eapply wf_exp_eq_sub_cong; mauto 3.
+      }
+      assert {{ Δ0 ⊢ ST[Id,,fst M][σ∘σ0] ≈ ST[σ∘σ0,,(fst M)[σ∘σ0]] : Type@i }}. {
+        eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3.
+      }
+      assert {{ Δ0 ⊢ ST[σ∘σ0,,(fst M)[σ∘σ0]] : Type@i }}. {
+        gen_presups; mauto 3.
+      }
+      split.
+      eapply glu_univ_elem_trm_resp_exp_eq; mauto 3. intuition.
+      etransitivity.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose | |]; mauto 3.
+      eapply exp_eq_refl; econstructor; mauto 3.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
+      eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
+      eapply glu_univ_elem_trm_resp_exp_eq; mauto 3; intuition.
+      etransitivity.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_compose | |]; mauto 3.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
+      symmetry; etransitivity; [|eapply exp_eq_compose_typ]; mauto 3.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 4.
+      etransitivity; [|symmetry; eapply wf_sub_eq_extend_compose]; mauto 3.
+      eapply wf_sub_eq_extend_cong; mauto 3.
+      etransitivity; [eapply wf_exp_eq_sub_compose|]; mauto 3.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_sub_cong | |]; mauto 3.
   - simpl_glu_rel.
     econstructor; intros; only 1: bulky_rewrite; mauto 3;
       solve [eapply IHglu_univ_elem; eauto].

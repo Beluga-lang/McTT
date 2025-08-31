@@ -407,7 +407,6 @@ Proof.
       transitivity {{{ST[σ∘σ0,,fst M[σ∘σ0]] }}}; mauto 3.
       eapply exp_eq_elim_sub_rhs_typ; mauto 3.
       eapply wf_fst; mauto 3.
-      erewrite <- HSig; mauto 3.
 
   - handle_functional_glu_univ_elem.
     handle_per_univ_elem_irrel.
