@@ -435,6 +435,16 @@ Proof.
   mauto 4.
 Qed.
 
+Corollary wf_exp_eq_sigma_eta' : forall {Γ A B M},
+    {{ Γ ⊢ M : Σ A B }} ->
+    {{ Γ ⊢ M ≈ ⟨ fst M ; snd M : B ⟩ : Σ A B }}.
+Proof.
+  intros.
+  gen_presups.
+  exvar nat ltac:(fun i => assert ({{ Γ ⊢ A : Type@i }} /\ {{ Γ, A ⊢ B : Type@i }}) as [] by eauto using wf_sigma_inversion').
+  mautosolve 3.
+Qed.
+
 #[export]
 Hint Resolve wf_subtyp_sigma' : mctt.
 #[export]

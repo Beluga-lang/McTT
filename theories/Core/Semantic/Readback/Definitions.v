@@ -39,7 +39,7 @@ Inductive read_nf : nat -> domain_nf -> nf -> Prop :=
      {{ ⟦ B ⟧ ρ ↦ m' ↘ b' }} ->
      {{ Rnf ⇓ a m' in s ↘ M }} ->
      (* should we use b or b', under (S s) or s ? *)
-     {{ Rnf ⇓ b' n in (S s) ↘ N }} ->
+     {{ Rnf ⇓ b' n in s ↘ N }} ->
      {{ Rnf ⇓ (Σ a ρ B) m in s ↘ ⟨M ; N : B'⟩}} )
 | read_nf_refl :
   `( {{ Rtyp a in s ↘ A }} ->

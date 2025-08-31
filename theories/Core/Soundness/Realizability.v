@@ -310,7 +310,7 @@ Proof.
       destruct (H2 _ ltac:(eassumption) _ ltac:(eassumption)) as [? []].
       assert (FEl {{{ Δ, FT[σ] }}} {{{ FT[σ][Wk] }}} {{{ #0 }}} d{{{ ⇑! a (length Δ) }}}) by mauto 3 using var_glu_elem_bot.
       autorewrite with mctt in H31.
-      specialize (H15 {{{ Δ, FT[σ] }}} {{{ σ∘Wk }}} _ _ ltac:(mauto) ltac:(eassumption) ltac:(eassumption)).
+      specialize (H14 {{{ Δ, FT[σ] }}} {{{ σ∘Wk }}} _ _ ltac:(mauto) ltac:(eassumption) ltac:(eassumption)).
       specialize (H8 _ _ _ ltac:(eassumption) ltac:(eassumption)) as [].
       etransitivity; [| eapply H33]; mauto 3.
   
@@ -318,7 +318,7 @@ Proof.
     apply_equiv_left.
     invert_glu_rel1.
     invert_glu_univ_elem H9.
-    invert_per_univ_elem H19.
+    invert_per_univ_elem H18.
     assert (fst_rel d{{{ ⇑ a fst m  }}} d{{{ ⇑ a fst m  }}}) as equiv_fst. {
       eapply per_bot_then_per_elem; eauto.
       apply fst_bot_per_bot. auto.
@@ -327,15 +327,16 @@ Proof.
     eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_fst); mauto 3.
     + eapply per_bot_then_per_elem; eauto.
     + intros.
+      assert (HSig : {{ Δ ⊢ A[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }}) by admit.
       assert (FEl Δ {{{ FT[σ] }}} {{{ (fst M)[σ] }}} d{{{ ⇑ a fst m }}}). {
         eapply H14; mauto 3.
         econstructor; mauto 3.
         * eapply wf_exp_sub; mauto 3.
         * intros.
           saturate_weakening_escape.
-          dependent destruction H23.
+          dependent destruction H25.
           assert {{ Δ0 ⊢w σ∘σ0 : Γ  }} by mauto 3.
-          specialize (H16 _ {{{σ∘σ0}}} _ ltac:(eassumption) ltac:(eassumption) ).
+          specialize (H12 _ {{{σ∘σ0}}} _ ltac:(eassumption) ltac:(eassumption) ).
           assert {{ Δ0 ⊢ FT[σ][σ0] ≈ FT[σ∘σ0] : Type@i }} by mauto 3.  
           assert {{ Δ0 ⊢ (fst M)[σ][σ0] ≈ (fst M)[σ∘σ0] : FT[σ∘σ0] }}. {
             symmetry; eapply wf_exp_eq_sub_compose; mauto 3.
@@ -358,16 +359,16 @@ Proof.
       intros.
       dependent destruction H27.
       assert {{ Δ0 ⊢w σ∘σ0 : Γ  }} by mauto 3.
-      specialize (H16 _ {{{σ∘σ0}}} _ ltac:(eassumption) ltac:(eassumption) ).
+      specialize (H12 _ {{{σ∘σ0}}} _ ltac:(eassumption) ltac:(eassumption) ).
       assert {{ Δ0 ⊢ ST[σ,,(fst M)[σ]][σ0] ≈ ST[Id,,(fst M)][σ∘σ0] : Type@i }} by admit.
       assert {{ Δ0 ⊢ (snd M)[σ][σ0] ≈ (snd M)[σ∘σ0] : ST[Id,,(fst M)][σ∘σ0] }} by admit.
       assert {{ Δ0 ⊢ (snd M[σ∘σ0]) ≈ (snd M)[σ∘σ0] : ST[Id,,(fst M)][σ∘σ0] }} by admit.
       assert {{ Δ0 ⊢ FT[σ∘σ0] : Type@i }} by admit.
-      assert {{ Δ0, FT[σ∘σ0] ⊢ ST[q σ∘σ0] : Type@i }} by admit.
+      assert {{ Δ0, FT[σ∘σ0] ⊢ ST[q (σ∘σ0)] : Type@i }} by admit.
       rewrite H29. rewrite H30. rewrite <- H31.
-      eapply wf_exp_eq_conv; [eapply wf_exp_eq_snd_cong | |]; mauto 3; fold nf_to_exp; fold ne_to_exp.
+      eapply wf_exp_eq_conv with (i:=i); [eapply wf_exp_eq_snd_cong | |]; mauto 3; fold nf_to_exp; fold ne_to_exp.
       eapply wf_exp_eq_conv'; mauto 3.
-      admit.
+      etransitivity; [eapply wf_eq_typ_exp_sub_cong | ]; mauto 3.
       admit.
       admit.
 
@@ -382,17 +383,62 @@ Proof.
       saturate_weakening_escape.
       invert_glu_rel1. clear_dups.
       progressive_invert H23.
+      rewrite H21 in H4.
+      replace (S (length Δ)) with (length ({{{ Δ, FT[σ] }}})) in * by (simpl; auto).
 
-      assert {{ Γ ⊢w Id : Γ }} by mauto 4.
-      (* pose proof (H15 _ _ H28). *)
-      (* specialize (H15 _ _ H22). *)
-      (* assert {{ Γ ⊢ FT[Id] ≈ FT : Type@i }} by mauto 3. *)
-      destruct (H17 _ σ ltac:(eassumption)) as [].
-      bulky_rewrite_in H31.
+      assert {{ Δ, FT[σ] ⊢ ST[q σ] ≈ B' : Type@i }}. {
+        assert {{ Dom (⇑! a (length Δ)) ≈ ⇑! a (length Δ) ∈ fst_rel }} by (eapply var_per_elem; eauto).
+        destruct_by_head rel_mod_proj.
+        destruct_rel_mod_eval.
+        simplify_evals.
+        assert (glu_typ_top i b {{{ Δ, FT[σ] }}} {{{ ST[σ∘Wk,,#0] }}}). {
+          assert (HElB' : FEl {{{ Δ, FT[σ] }}} {{{ FT[σ][Wk] }}} {{{ #0 }}} d{{{ ⇑! a (length Δ) }}}). 
+          {
+            eapply H12; mauto 3.
+            eapply var_glu_elem_bot; eauto.
+          }
+          assert {{ Δ, FT[σ] ⊢ FT[σ][Wk] ≈ FT[σ∘Wk] : Type@i }} by (symmetry; eapply exp_eq_compose_typ; mauto 4).
+          rewrite H5 in HElB'.
+          assert {{ Δ, FT[σ] ⊢w σ∘Wk : Γ}}. {
+            eapply weakening_compose; mauto 3.
+          }
+          assert (SP d{{{ ⇑! a (length Δ) }}} H28 {{{ Δ, FT[σ] }}} {{{ ST[σ∘Wk,,#0] }}}) by mauto.
+          eapply H2 with (equiv_c:=H28) in H9 .  destruct_all.
+          mauto.
+        }
+        destruct H5. 
+        eapply H24 with (σ:={{{ Id }}} ) in H23 as HB.
+        simpl in *. functional_read_rewrite_clear.
+        rewrite <- HB. mauto 3.
+        apply weakening_id; mauto.
+      }
+
+      destruct_by_head rel_mod_proj.
+      destruct_rel_mod_eval.
       simplify_evals.
-      eapply H16 with (equiv_m':=equiv_m) in H29 as HSP; eauto.
+      assert {{ Γ ⊢w Id : Γ }} by mauto 4.
+      destruct (H17 _ σ ltac:(eassumption)) as [].
+      simplify_evals.
+      rename b0 into m1. rename c into m2.
+      assert (HSP: SP m1 equiv_m Δ {{{ ST[σ,,(fst M)[σ]] }}}) by eauto.
       eapply H2 with (equiv_c:=equiv_m) in H26 as IH; eauto. destruct_all.
-      admit.
+      eapply H1 with (equiv_c:=equiv_m) in H26 as Hgluu; eauto.
+      eapply H13 with (R:=fst_rel) in H7; eauto.
+      eapply H25 in HSP; mauto 3.
+      eapply H30 with (R:=(x m1 m1 equiv_b_b')) in H24; mauto 3.
+      assert {{ Δ ⊢ A[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }} by admit.
+      rewrite H32.
+      transitivity {{{ ⟨ fst M[σ] ; snd M[σ] : ST[q σ] ⟩}}}.
+      eapply wf_exp_eq_sigma_eta'; mauto 3.
+      eapply wf_exp_eq_pair_cong with (i:=i); mauto 3; fold nf_to_exp; fold ne_to_exp.
+      * destruct H7.
+        eapply H37 with (σ:={{{ Id }}}) in H23_ ; mauto 3.
+        assert {{ Δ ⊢ FT[σ][Id] ≈ FT[σ] : Type@i }} by mauto 3.
+        bulky_rewrite_in H23_.
+        rewrite <- H23_. symmetry. mauto 3. 
+      * destruct H24.
+        eapply H37 with (σ:={{{ Id }}}) in H23_0. admit.
+        eapply weakening_id; mauto 3.
 
   - match_by_head eq_glu_typ_pred progressive_invert.
     econstructor; eauto; intros.

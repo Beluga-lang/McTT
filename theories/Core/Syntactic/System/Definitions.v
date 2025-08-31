@@ -313,7 +313,7 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Γ ⊢ M : A }} ->
      {{ Γ ⊢ N : B[Id,,M] }} ->
      {{ Γ ⊢ snd ⟨ M ; N : B ⟩ ≈ N : B[Id,,M] }} )
-| wf_exp_eq_pair_eta :
+| wf_exp_eq_sigma_eta :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ M : Σ A B }} ->

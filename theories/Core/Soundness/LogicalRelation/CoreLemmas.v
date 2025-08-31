@@ -1324,13 +1324,11 @@ Proof.
       saturate_weakening_escape.
     + intros.
       eapply IHglu_univ_elem; eauto.
-    + assert {{ Δ0 ⊢w σ∘σ0 : Γ }} by mauto.
-      eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
     + invert_per_univ_elem H3.
       destruct_rel_mod_eval. simplify_evals.
       assert {{ Δ0 ⊢w σ∘σ0 : Γ }} by mauto.
       eapply glu_univ_elem_typ_resp_exp_eq with (A:={{{ST[σ∘σ0,,M]}}}); mauto 3.
-      eapply H10; mauto 3.
+      eapply H9; mauto 3.
       eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
       eapply sub_decompose_q_typ; mauto 3.
       eapply glu_univ_elem_trm_escape; mauto 3.
