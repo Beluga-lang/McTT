@@ -27,6 +27,24 @@ Qed.
 #[export]
 Hint Resolve invert_sub_id : mctt.
 
+Corollary invert_eq_sub_id_typ : forall Γ M M' A,
+    {{ Γ ⊢ M ≈ M' : A[Id] }} ->
+    {{ Γ ⊢ M ≈ M' : A }}.
+Proof.
+  intros * H.
+  gen_presups.
+  eapply wf_exp_eq_conv'; mauto 3.
+Qed.
+
+Corollary invert_eq_sub_id : forall Γ M M' A,
+    {{ Γ ⊢ M[Id] ≈ M' : A }} ->
+    {{ Γ ⊢ M ≈ M' : A }}.
+Proof.
+  intros * H.
+  gen_presups.
+  transitivity {{{ M[Id] }}}; mauto 4.
+Qed.
+
 Corollary invert_sub_id_typ : forall Γ M A,
     {{ Γ ⊢ M : A[Id] }} ->
     {{ Γ ⊢ M : A }}.

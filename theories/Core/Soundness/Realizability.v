@@ -327,7 +327,16 @@ Proof.
     eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_fst); mauto 3.
     + eapply per_bot_then_per_elem; eauto.
     + intros.
-      assert (HSig : {{ Δ ⊢ A[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }}) by admit.
+      assert (HSig : 
+        forall {Δ σ}, {{Δ ⊢s σ : Γ }} -> {{ Δ ⊢ A[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }}). {
+        intros. 
+        assert {{ Δ0 ⊢ (Σ FT ST)[σ0] ≈ Σ FT[σ0] ST[q σ0] : Type@i }}. {
+          eapply wf_exp_eq_conv' with (A:={{{Type@i}}}); mauto 3.
+          apply exp_eq_refl; econstructor; mauto 3.
+        }
+        rewrite <- H25.
+        eapply wf_eq_typ_exp_sub_cong; mauto 3.
+      }
       assert (FEl Δ {{{ FT[σ] }}} {{{ (fst M)[σ] }}} d{{{ ⇑ a fst m }}}). {
         eapply H14; mauto 3.
         econstructor; mauto 3.
@@ -344,33 +353,61 @@ Proof.
           assert {{ Δ0 ⊢ (fst M[σ∘σ0]) ≈ (fst M)[σ∘σ0] : FT[σ∘σ0] }}. {
             symmetry; eapply wf_exp_eq_fst_sub; mauto 3.
           }
-          assert {{ Δ0, FT[σ∘σ0] ⊢ ST[q σ∘σ0] : Type@i }} by admit.
+          assert {{ Δ0, FT[σ∘σ0] ⊢ ST[q (σ∘σ0)] : Type@i }}. {
+            eapply wf_conv'; [eapply wf_exp_sub | ]; mauto 4.
+          }
           eapply wf_exp_eq_conv; mauto 3.
           rewrite H30. rewrite <- H31. 
           eapply wf_exp_eq_fst_cong; mauto 3; fold nf_to_exp; fold ne_to_exp.
           eapply wf_exp_eq_conv'; mauto 3.
-          admit.
       }
       split; auto.
       assert {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }} by 
         (eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3).
-      eapply H2; mauto 3. econstructor; mauto 3.
+      eapply H2; mauto 3. 
+      eapply H1 with (equiv_c:=equiv_fst) in H21 as Hglu.
+      eapply glu_elem_bot_make; mauto 3.
       gen_presups. eapply wf_conv; [eapply wf_exp_sub| | ]; mauto 3.
       intros.
+
       dependent destruction H27.
-      assert {{ Δ0 ⊢w σ∘σ0 : Γ  }} by mauto 3.
+      assert {{ Δ0 ⊢w σ∘σ0 : Γ }} by mauto 3.
+      assert {{ Δ0 ⊢s σ∘σ0 : Γ }} by mauto 3.
       specialize (H12 _ {{{σ∘σ0}}} _ ltac:(eassumption) ltac:(eassumption) ).
-      assert {{ Δ0 ⊢ ST[σ,,(fst M)[σ]][σ0] ≈ ST[Id,,(fst M)][σ∘σ0] : Type@i }} by admit.
-      assert {{ Δ0 ⊢ (snd M)[σ][σ0] ≈ (snd M)[σ∘σ0] : ST[Id,,(fst M)][σ∘σ0] }} by admit.
-      assert {{ Δ0 ⊢ (snd M[σ∘σ0]) ≈ (snd M)[σ∘σ0] : ST[Id,,(fst M)][σ∘σ0] }} by admit.
-      assert {{ Δ0 ⊢ FT[σ∘σ0] : Type@i }} by admit.
-      assert {{ Δ0, FT[σ∘σ0] ⊢ ST[q (σ∘σ0)] : Type@i }} by admit.
-      rewrite H29. rewrite H30. rewrite <- H31.
+      assert {{ Δ0 ⊢ ST[σ∘σ0,,fst M[σ∘σ0]] ≈ ST[Id,,fst M][σ∘σ0] : Type@i }}. {
+        assert {{ Δ0 ⊢s σ∘σ0,,fst M[σ∘σ0] : Γ , FT }}. {
+          econstructor; mauto 3.
+          specialize (HSig _ _ ltac:(eassumption)).
+          eapply wf_fst with (B:= {{{ ST[q (σ∘σ0)]}}}) (i:=i); mauto 3.
+        }
+        transitivity {{{ ST[σ∘σ0,,(fst M)[σ∘σ0]]}}}.
+        eapply wf_exp_eq_conv'; [eapply wf_exp_eq_sub_cong | ]; mauto 3.
+        eapply wf_sub_eq_extend_cong; mauto 3.
+        symmetry; eapply wf_exp_eq_fst_sub; mauto 3.
+        symmetry; eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3.
+      }
+      assert {{ Δ0 ⊢ ST[σ,,(fst M)[σ]][σ0] ≈ ST[Id,,(fst M)][σ∘σ0] : Type@i }}. {
+        assert {{ Γ ⊢s Id,,fst M : Γ , FT }}. {
+          econstructor; mauto 3.
+          eapply wf_conv'; [eapply wf_fst | ]; mauto 3.
+        }
+        transitivity {{{  ST[Id,,(fst M)][σ][σ0] }}}.
+        eapply wf_eq_typ_exp_sub_cong; mauto 3.
+        symmetry; eapply exp_eq_compose_typ; mauto 3.
+      }
+      assert {{ Δ0 ⊢ (snd M)[σ][σ0] ≈ (snd M)[σ∘σ0] : ST[Id,,(fst M)][σ∘σ0] }} by (symmetry; eapply wf_exp_eq_sub_compose; mauto 3).
+      assert {{ Δ0 ⊢ (snd M[σ∘σ0]) ≈ (snd M)[σ∘σ0] : ST[Id,,(fst M)][σ∘σ0] }}. {
+        eapply wf_exp_eq_conv'; [symmetry; eapply wf_exp_eq_snd_sub | ]; mauto 3.
+      }
+      assert {{ Δ0 ⊢ FT[σ∘σ0] : Type@i }} by mauto 3. 
+      assert {{ Δ0, FT[σ∘σ0] ⊢ ST[q (σ∘σ0)] : Type@i }} by (eapply wf_conv'; [eapply wf_exp_sub | ]; mauto 4).
+      rewrite H31. rewrite H32. rewrite <- H33.
       eapply wf_exp_eq_conv with (i:=i); [eapply wf_exp_eq_snd_cong | |]; mauto 3; fold nf_to_exp; fold ne_to_exp.
-      eapply wf_exp_eq_conv'; mauto 3.
-      etransitivity; [eapply wf_eq_typ_exp_sub_cong | ]; mauto 3.
-      admit.
-      admit.
+      gen_presups; mauto 3.
+      transitivity {{{ST[σ∘σ0,,fst M[σ∘σ0]] }}}; mauto 3.
+      eapply exp_eq_elim_sub_rhs_typ; mauto 3.
+      eapply wf_fst; mauto 3.
+      erewrite <- HSig; mauto 3.
 
   - handle_functional_glu_univ_elem.
     handle_per_univ_elem_irrel.
@@ -426,7 +463,14 @@ Proof.
       eapply H13 with (R:=fst_rel) in H7; eauto.
       eapply H25 in HSP; mauto 3.
       eapply H30 with (R:=(x m1 m1 equiv_b_b')) in H24; mauto 3.
-      assert {{ Δ ⊢ A[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }} by admit.
+      assert {{ Δ ⊢ A[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }}. {
+         assert {{ Δ ⊢ (Σ FT ST)[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }}. {
+          eapply wf_exp_eq_conv' with (A:={{{Type@i}}}); mauto 3.
+          apply exp_eq_refl; econstructor; mauto 3.
+        }
+        rewrite <- H32.
+        eapply wf_eq_typ_exp_sub_cong; mauto 3.
+      }
       rewrite H32.
       transitivity {{{ ⟨ fst M[σ] ; snd M[σ] : ST[q σ] ⟩}}}.
       eapply wf_exp_eq_sigma_eta'; mauto 3.
@@ -436,9 +480,19 @@ Proof.
         assert {{ Δ ⊢ FT[σ][Id] ≈ FT[σ] : Type@i }} by mauto 3.
         bulky_rewrite_in H23_.
         rewrite <- H23_. symmetry. mauto 3. 
-      * destruct H24.
-        eapply H37 with (σ:={{{ Id }}}) in H23_0. admit.
-        eapply weakening_id; mauto 3.
+      * assert {{ Δ ⊢w Id : Δ }} by mauto using weakening_id.
+        destruct H24.
+        eapply H38 with (σ:={{{ Id }}}) in H23_0; mauto 3.
+        assert {{ Δ ⊢ fst M[σ] ≈ (fst M)[σ] : FT[σ] }} by (symmetry; mauto 3).
+        apply invert_eq_sub_id_typ in H23_0.
+        apply invert_eq_sub_id in H23_0.
+        eapply wf_exp_eq_conv'; [rewrite <- H23_0 | ]; mauto 3.
+        eapply wf_exp_eq_conv'; [symmetry; eapply wf_exp_eq_snd_sub | ]; mauto 3.
+        eapply wf_eq_typ_exp_sub_cong; mauto 3.
+        etransitivity; [| symmetry; eapply exp_eq_elim_sub_rhs_typ ]; mauto 3.
+        eapply wf_eq_typ_exp_sub_cong; mauto 3.
+        eapply wf_sub_eq_extend_cong; mauto 3.
+        gen_presups; mauto 3.
 
   - match_by_head eq_glu_typ_pred progressive_invert.
     econstructor; eauto; intros.
@@ -498,7 +552,7 @@ Proof.
       progressive_inversion.
       specialize (H11 (length Δ)) as [? []].
       firstorder.
-Admitted.
+Qed.
 
 Corollary realize_glu_typ_top : forall a i P El,
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
