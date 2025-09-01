@@ -126,6 +126,32 @@ Proof. mauto 3. Qed.
 #[export]
 Hint Resolve canonical_form_of_pi : mctt.
 
+Lemma exp_eq_sigma_inversion : forall {Γ A B A' B' i},
+    {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@i }} ->
+    {{ Γ ⊢ A ≈ A' : Type@i }} /\ {{ Γ, A ⊢ B ≈ B' : Type@i }}.
+Proof.
+  intros * H.
+  gen_presups.
+  (on_all_hyp: fun H => apply wf_sigma_inversion' in H; destruct H).
+  (on_all_hyp: fun H => apply completeness_ty in H).
+  (on_all_hyp: fun H => pose proof (soundness H)).
+  destruct_conjs.
+  dir_inversion_clear_by_head nbe.
+  dir_inversion_clear_by_head nbe_ty.
+  dir_inversion_by_head initial_env; subst.
+  functional_initial_env_rewrite_clear.
+  invert_rel_typ_body.
+  dir_inversion_clear_by_head read_nf.
+  dir_inversion_by_head read_typ; subst.
+  functional_eval_rewrite_clear.
+  functional_read_rewrite_clear.
+  autoinjections.
+  assert {{ Γ ⊢ A' ≈ A : Type@i }} by mauto 3.
+  assert {{ ⊢ Γ, A' ≈ Γ, A }} by mauto 3.
+  split; [mauto 3 |].
+  etransitivity; [| symmetry]; mauto 2.
+Qed.
+
 Lemma nf_of_sigma : forall {Γ M A B},
     {{ Γ ⊢ M : Σ A B }} ->
     exists W1 W2 W3, nbe Γ M {{{ Σ A B }}} n{{{ ⟨ W1 ; W2 : W3 ⟩ }}}.
@@ -231,18 +257,33 @@ Proof with (congruence + firstorder (mautosolve 4 + lia)).
       * eexists; eapply exp_eq_trans_typ_max...
       * etransitivity; [| eassumption].
         etransitivity; eapply ctxeq_subtyp...
-    + admit.
+    + assert {{ Γ ⊢ Π ^_ ^_ ≈ Σ ^_ ^_ : Type@_ }} as Hcontra by mauto 3.
+      eapply is_typ_constr_and_exp_eq_sigma_implies_eq_sigma in Hcontra; mauto 3.
+      destruct_all...
     + assert {{ Γ ⊢ Σ ^_ ^_ ≈ Type@_ : Type@_ }} by mauto 3.
       assert ({{{ Σ ^_ ^_ }}} = {{{ Type@_ }}}) by mauto 3...
-    + admit.
-    + admit.
+    + assert {{ Γ ⊢ Π ^_ ^_ ≈ Σ ^_ ^_ : Type@_ }} as Hcontra by mauto 3.
+      eapply is_typ_constr_and_exp_eq_sigma_implies_eq_sigma in Hcontra; mauto 3.
+      destruct_all...
+    + match goal with
+      | _: {{ Γ ⊢ M' ≈ Σ ^?A1 ^?A2 : Type@_ }},
+          _: {{ Γ ⊢ Σ ^?B1 ^?B2 ≈ M' : Type@_ }} |- _ =>
+          assert {{ Γ ⊢ Σ A1 A2 ≈ Σ B1 B2 : Type@_ }} by mauto 3;
+          assert ({{ Γ ⊢ A1 ≈ B1 : Type@_ }} /\ {{ Γ, A1 ⊢ A2 ≈ B2 : Type@_ }}) as [] by mauto 3 using exp_eq_sigma_inversion
+      end.
+      assert {{ ⊢ Γ ≈ Γ }} by mauto 3.
+      right; right; right.
+      do 4 eexists; repeat split; mauto 3.
+      * eexists; eapply exp_eq_trans_typ_max...
+      * etransitivity; [| eassumption].
+        etransitivity; eapply ctxeq_subtyp...
   - right; left.
     do 2 eexists...
   - right; right; left.
     do 4 eexists...
   - right; right; right.
     do 4 eexists...
-Admitted.
+Qed.
 
 #[export]
 Hint Resolve subtyp_spec : mctt.
@@ -260,19 +301,25 @@ Proof with (congruence + mautosolve 3).
     eapply IHHW4; [| | | | mauto 4]...
   - destruct W; simpl in *; autoinjections.
     eapply IHHW3; [| | | | mauto 4]...
-  - admit.
-  - admit.
+  - destruct W; simpl in *; autoinjections.
+    eapply IHHW3; [| | | | mauto 4]...
+  - destruct W; simpl in *; autoinjections.
+    eapply IHHW3; [| | | | mauto 4]...
   - destruct W; simpl in *; autoinjections.
     do 2 match_by_head ctx_lookup ltac:(fun H => dependent destruction H).
     assert {{ ⋅, Type@i ⊢ Type@i[Wk] ≈ Type@i : Type@(S i) }} by mauto 3.
     eapply subtyp_spec in Heq as [| []]; destruct_conjs;
       try (eapply HA'eq; mautosolve 4).
-    (* assert {{ ⋅, Type@i ⊢ Type@i ≈ Π ^_ ^_ : Type@_ }} by mauto 3.
-    assert ({{{ Π ^_ ^_ }}} = {{{ Type@i }}}) by mauto 3... *)
-    admit.
+    destruct H1. 
+    + destruct_all.
+      assert {{ ⋅, Type@i ⊢ Type@i ≈ Π ^_ ^_ : Type@_ }} by mauto 3.
+      assert ({{{ Π ^_ ^_ }}} = {{{ Type@i }}}) by mauto 3...
+    + destruct_all.
+      assert {{ ⋅, Type@i ⊢ Type@i ≈ Σ ^_ ^_ : Type@_ }} by mauto 3.
+      assert ({{{ Σ ^_ ^_ }}} = {{{ Type@i }}}) by mauto 3...
   - destruct W; simpl in *; autoinjections.
     eapply IHHW6; [| | | | mauto 4]...
-Admitted.
+Qed.
 
 Theorem consistency : forall {i} M,
     ~ {{ ⋅ ⊢ M : Π Type@i #0 }}.
@@ -290,10 +337,15 @@ Proof with (congruence + mautosolve 3).
   match_by_head read_nf ltac:(fun H => directed dependent destruction H).
   simpl in *.
   assert (exists B, {{ ⋅, Type@i ⊢ M0 : B }} /\ {{ ⋅ ⊢ Π Type@i B ⊆ Π Type@i #0 }}) as [B [? [| [|]]%subtyp_spec]] by mauto 3;
-    destruct_conjs;
+    destruct_all;
     try assert ({{{ Π ^_ ^_ }}} = {{{ Type@_ }}}) by mauto 3;
     try congruence.
   - assert (_ /\ {{ ^_ ⊢ B ≈ #0 : ^_ }}) as [_ ?] by mauto 3 using exp_eq_pi_inversion.
     eapply consistency_ne_helper...
-  - admit.
-Admitted.
+  - assert (_ /\ {{ ^_ ⊢ B ≈ ^_ : ^_ }}) as [_ ?] by mauto 3 using exp_eq_pi_inversion.
+    assert (_ /\ {{ ^_ ⊢ ^_ ≈ #0 : ^_ }}) as [? ?] by mauto 3 using exp_eq_pi_inversion.
+    assert {{ ^_ ⊢ B ⊆ #0 }} by (etransitivity; [| eapply ctxeq_subtyp]; mauto 4).
+    eapply consistency_ne_helper...
+  - eapply is_typ_constr_and_exp_eq_pi_implies_eq_pi in H6; mauto 3.
+    destruct_all...
+Qed.
