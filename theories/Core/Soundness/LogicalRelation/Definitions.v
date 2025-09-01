@@ -119,8 +119,6 @@ Variant sigma_glu_typ_pred i
          {{ Δ ⊢ M : FT[σ] ® m ∈ FEl }} ->
          forall (equiv_m : {{ Dom m ≈ m ∈ FR }}),
            {{ Δ ⊢ ST[σ,,M] ® SP _ equiv_m }}) ->
-     (* (forall Δ σ, {{ Δ ⊢w σ : Γ }} ->
-         {{ Δ ⊢ M[σ] : FT[σ] ® m ∈ FEl }} /\ {{ Δ ⊢ ST[σ,,M[σ]] ® SP _ equiv_m }}) -> *)
      {{ Γ ⊢ A ® sigma_glu_typ_pred i FR FP FEl SP }} }.
 
 Variant sigma_glu_exp_pred i
@@ -129,7 +127,6 @@ Variant sigma_glu_exp_pred i
   (FEl : glu_exp_pred)
   (elem_rel : relation domain)
   (SP : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_typ_pred)
-  (* should SEl be parameterized over equiv_c? *)
   (SEl : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_exp_pred): glu_exp_pred :=
 | mk_sigma_glu_exp_pred :
   `{ forall (equiv_m : {{ Dom m1 ≈ m1 ∈ FR }}),
@@ -141,7 +138,7 @@ Variant sigma_glu_exp_pred i
      {{ Γ ⊢ FT : Type@i }} ->
      {{ Γ , FT ⊢ ST : Type@i }} ->
      (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
-     (* I think we have to introduce SP and this extra condition, 
+     (* We have to introduce SP and this extra condition, 
         otherwise our `sigma_glu_exp_pred` does not imply `sigma_glu_typ_pred` *)
      (forall Δ σ M' m',
          {{ Δ ⊢w σ : Γ }} ->
