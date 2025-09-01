@@ -222,8 +222,7 @@ Section glu_univ_elem_cumulativity.
       rename OEl0 into OEl'.
       destruct_by_head pi_glu_typ_pred.
       econstructor; intros; mauto 4.
-      + assert {{ Δ ⊢ IT[σ] ® IP }} by mauto.
-        enough (forall Γ A, {{ Γ ⊢ A ® IP }} -> {{ Γ ⊢ A ® IP' }}) by mauto 4.
+      + enough (forall Γ A, {{ Γ ⊢ A ® IP }} -> {{ Γ ⊢ A ® IP' }}) by mauto 4.
         eapply proj1...
       + match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
         apply_relation_equivalence.
@@ -232,7 +231,8 @@ Section glu_univ_elem_cumulativity.
         assert (forall Γ A, {{ Γ ⊢ A ® OP m equiv_m }} -> {{ Γ ⊢ A ® OP' m equiv_m }}) by (eapply proj1; mauto).
         enough {{ Δ ⊢ OT[σ,,M] ® OP m equiv_m }} by mauto.
         enough {{ Δ ⊢ M : IT[σ] ® m ∈ IEl }} by mauto.
-        eapply IHHglu...
+        eapply IHHglu; mauto 3.
+        eapply glu_univ_elem_typ_monotone...
     - rename IP0 into IP'.
       rename IEl0 into IEl'.
       rename OP0 into OP'.
@@ -250,7 +250,7 @@ Section glu_univ_elem_cumulativity.
         eexists; split; mauto 4.
         assert (forall Γ A M m, {{ Γ ⊢ M : A ® m ∈ OEl n equiv_n }} -> {{ Γ ⊢ M : A ® m ∈ OEl' n equiv_n }}) by (eapply proj1, proj2; mauto 4).
         enough {{ Δ ⊢ M[σ] N : OT[σ,,N] ® fa ∈ OEl n equiv_n }} by mauto 4.
-        assert {{ Δ ⊢ N : IT[σ] ® n ∈ IEl }} by (eapply IHHglu; mauto 3).
+        assert {{ Δ ⊢ N : IT[σ] ® n ∈ IEl }} by (eapply IHHglu; mauto 3; eapply glu_univ_elem_typ_monotone; mauto 2).
         assert (exists mn, {{ $| m & n |↘ mn }} /\ {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl n equiv_n }}) by mauto 4.
         destruct_conjs.
         functional_eval_rewrite_clear...
@@ -277,7 +277,7 @@ Section glu_univ_elem_cumulativity.
       enough {{ Δ ⊢ M[σ] N : OT[σ,,N] ® fa ∈ OEl' n equiv_n }} by mauto 4.
       assert {{ Δ ⊢ N : IT[σ] ® n ∈ IEl' }} by (eapply IHHglu; mauto 3).
       assert {{ Δ ⊢ IT[σ] ® IP' }} by (eapply glu_univ_elem_trm_typ; mauto 2).
-      assert {{ Δ ⊢ IT0[σ] ® IP' }} by mauto 2.
+      assert {{ Δ ⊢ IT0[σ] ® IP' }} by (eapply glu_univ_elem_typ_monotone; mauto 2).
       assert {{ Δ ⊢ IT[σ] ≈ IT0[σ] : Type@j }} as HITeq by mauto 2.
       assert {{ Δ ⊢ N : IT0[σ] ® n ∈ IEl' }} by (rewrite <- HITeq; mauto 3).
       assert (exists mn, {{ $| m & n |↘ mn }} /\ {{ Δ ⊢ M[σ] N : OT0[σ,,N] ® mn ∈ OEl' n equiv_n }}) by mauto 3.
@@ -298,40 +298,21 @@ Section glu_univ_elem_cumulativity.
       handle_per_univ_elem_irrel.
 
       econstructor; intros; firstorder mauto 3.
-      assert {{ Γ ⊢w Id : Γ }} by mauto 4.
-      assert (P Γ {{{ B[Id] }}}) as HB by mauto 3.
-      bulky_rewrite_in HB.
       assert (P0 Γ B) as HB' by firstorder.
-      assert (P0 Γ {{{ B0[Id] }}}) as HB0 by mauto 3.
-      bulky_rewrite_in HB0.
       assert {{ Γ ⊢ B0 ≈ B : Type@j }} by mauto 3.
-      assert (El Γ {{{ B[Id] }}} {{{ M0[Id] }}} m) as HM0 by mauto 3.
-      bulky_rewrite_in HM0.
-      assert (El0 Γ B M0 m) as HM0' by firstorder.
-      assert (El Γ {{{ B[Id] }}} {{{ N[Id] }}} n) as HN by mauto 3.
-      bulky_rewrite_in HN.
-      assert (El0 Γ B N n) as HN' by firstorder.
-      assert (El0 Γ {{{ B0[Id] }}} {{{ M[Id] }}} m) as HM by mauto 3.
-      bulky_rewrite_in HM.
-      assert (El0 Γ {{{ B0[Id] }}} {{{ N0[Id] }}} n) as HN0 by mauto 3.
-      bulky_rewrite_in HN0.
+      assert (El0 Γ B M0 m) by firstorder.
+      assert (El0 Γ B N n) by firstorder.
       assert {{ Γ ⊢ M0 ≈ M : B }} by mauto 3.
       assert {{ Γ ⊢ N ≈ N0 : B }} by mauto 3.
 
       destruct_glu_eq; econstructor; apply_equiv_left; mauto 3.
       + bulky_rewrite.
         eapply wf_exp_eq_conv'; [econstructor |]; mauto 3.
-        transitivity M; mauto 3.
-        bulky_rewrite.
       + transitivity M; mauto 3.
         transitivity M''; mauto 3.
         transitivity N0; mauto 3.
-      + intros.
-        assert (P Δ {{{ B[σ] }}}) by mauto 3.
-        assert {{ Δ ⊢ B0[σ] ≈ B[σ] : Type@j }} by mauto 3.
-        assert {{ Γ ⊢ M'' ≈ M0 : B }} by (transitivity M; mauto 3).
-        assert {{ Δ ⊢ M''[σ] ≈ M0[σ] : B[σ] }} by mauto 4.
-        assert (El0 Δ {{{ B0[σ] }}} {{{M''[σ]}}} m') as HEl0 by mauto 3.
+      + assert {{ Γ ⊢ M'' ≈ M0 : B }} as <- by (transitivity M; mauto 3).
+        assert (El0 Γ B0 M'' m') as HEl0 by mauto 3.
         bulky_rewrite_in HEl0.
         firstorder.
 
@@ -503,18 +484,6 @@ Proof.
   - destruct_by_head pi_glu_typ_pred.
     rename A0 into A'. rename IT0 into IT'. rename OT0 into OT'.
     rename OP0 into OP'. rename OEl0 into OEl'.
-    assert {{ Γ ⊢ IT ® IP }}.
-    {
-      assert {{ Γ ⊢ IT[Id] ® IP }} by mauto 4.
-      simpl in *.
-      autorewrite with mctt in *; mauto 3.
-    }
-    assert {{ Γ ⊢ IT' ® IP }}.
-    {
-      assert {{ Γ ⊢ IT'[Id] ® IP }} by mauto 4.
-      simpl in *.
-      autorewrite with mctt in *; mauto 3.
-    }
     do 2 bulky_rewrite1.
     assert {{ Γ ⊢ IT ≈ IT' : Type@i }} by mauto 4.
     enough {{ Γ, IT' ⊢ OT ⊆ OT' }} by mauto 3.
@@ -599,19 +568,6 @@ Proof.
     + enough {{ Sub Π a ρ B <: Π a' ρ' B' at i }} by (eapply per_elem_subtyping; try eassumption).
       econstructor; mauto 3.
     + intros.
-      assert {{ Γ ⊢w Id : Γ }} by mauto 3.
-      assert {{ Γ ⊢ IT ® IP }}.
-      {
-        assert {{ Γ ⊢ IT[Id] ® IP }} by mauto 3.
-        simpl in *.
-        autorewrite with mctt in *; mauto 3.
-      }
-      assert {{ Γ ⊢ IT' ® IP }}.
-      {
-        assert {{ Γ ⊢ IT'[Id] ® IP }} by mauto 3.
-        simpl in *.
-        autorewrite with mctt in *; mauto 3.
-      }
       assert {{ Δ ⊢ IT'[σ] ≈ IT[σ] : Type@i }} by (symmetry; mauto 4 using glu_univ_elem_per_univ_typ_escape).
       assert {{ Δ ⊢ N : IT'[σ] ® n ∈ IEl }} by (simpl; bulky_rewrite1; eassumption).
       assert (exists mn : domain, {{ $| m & n |↘ mn }} /\ {{Δ ⊢ M[σ] N : OT'[σ,,N] ® mn ∈ OEl n equiv_n }}) by mauto 3.
@@ -1118,17 +1074,17 @@ Lemma initial_env_glu_rel_exp : forall {Γ ρ Sb},
     initial_env Γ ρ ->
     {{ EG Γ ∈ glu_ctx_env ↘ Sb }} ->
     {{ Γ ⊢s Id ® ρ ∈ Sb }}.
-Proof.
+Proof with mautosolve 4.
   intros * Hinit HΓ.
   gen ρ.
   induction HΓ; intros * Hinit;
     dependent destruction Hinit;
     apply_predicate_equivalence;
-    try solve [econstructor; mauto].
+    try solve [econstructor; mauto 4].
 
-  assert (glu_rel_typ_with_sub i Γ A {{{ Id }}} ρ) as [] by mauto.
+  assert (glu_rel_typ_with_sub i Γ A {{{ Id }}} ρ) as [] by mauto 3.
   functional_eval_rewrite_clear.
-  econstructor; mauto.
+  econstructor; mauto 4.
   - match goal with
     | H: P Γ {{{ A[Id] }}} |- _ =>
         bulky_rewrite_in H
@@ -1139,11 +1095,11 @@ Proof.
     assert {{ Γ, A ⊢ A[Wk] : Type@i }} by mauto 4.
     assert {{ Γ, A ⊢ A[Wk] ≈ A[Wk][Id] : Type@i }} as <- by mauto 3.
     assert {{ Γ, A ⊢ #0 ≈ #0[Id] : A[Wk] }} as <- by mauto.
-    eapply var_glu_elem_bot; mauto.
+    eapply var_glu_elem_bot...
   - assert {{ Γ, A ⊢s Wk : Γ }} by mauto 4.
     assert {{ Γ, A ⊢s Wk∘Id : Γ }} by mauto 4.
     assert {{ Γ, A ⊢s Id∘Wk ≈ Wk∘Id : Γ }} as <- by (transitivity {{{ Wk }}}; mauto 3).
-    eapply glu_ctx_env_sub_monotone; mauto 4.
+    eapply glu_ctx_env_sub_monotone...
 Qed.
 
 (** *** Tactics for [glu_rel_*] *)
@@ -1538,11 +1494,11 @@ Ltac saturate_syn_judge1 :=
 
 
 #[global]
-  Ltac saturate_syn_judge :=
+Ltac saturate_syn_judge :=
   repeat saturate_syn_judge1.
 
 #[global]
-  Ltac invert_sem_judge1 :=
+Ltac invert_sem_judge1 :=
   match goal with
   | H : {{ ^?Γ ⊩ ^?M : ^?A }} |- _ =>
       mark H;
@@ -1557,5 +1513,5 @@ Ltac saturate_syn_judge1 :=
   end.
 
 #[global]
-  Ltac invert_sem_judge :=
+Ltac invert_sem_judge :=
   repeat invert_sem_judge1; unmark_all.
