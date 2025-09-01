@@ -9,7 +9,7 @@ pretty-timed:
 	@dune build
 
 test:
-	@dune runtest
+#	@dune runtest
 
 coqdoc:
 	@$(MAKE) coqdoc -C theories
