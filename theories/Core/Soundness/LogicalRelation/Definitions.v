@@ -76,7 +76,7 @@ Variant pi_glu_typ_pred i
   `{ {{ Γ ⊢ A ≈ Π IT OT : Type@i }} ->
      {{ Γ ⊢ IT : Type@i }} ->
      {{ Γ , IT ⊢ OT : Type@i }} ->
-     (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ IT[σ] ® IP }}) ->
+     {{ Γ ⊢ IT ® IP }} ->
      (forall Δ σ M m,
          {{ Δ ⊢w σ : Γ }} ->
          {{ Δ ⊢ M : IT[σ] ® m ∈ IEl }} ->
@@ -96,7 +96,7 @@ Variant pi_glu_exp_pred i
      {{ Γ ⊢ A ≈ Π IT OT : Type@i }} ->
      {{ Γ ⊢ IT : Type@i }} ->
      {{ Γ , IT ⊢ OT : Type@i }} ->
-     (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ IT[σ] ® IP }}) ->
+     {{ Γ ⊢ IT ® IP }} ->
      (forall Δ σ N n,
          {{ Δ ⊢w σ : Γ }} ->
          {{ Δ ⊢ N : IT[σ] ® n ∈ IEl }} ->
@@ -112,9 +112,9 @@ Variant eq_glu_typ_pred i m n
        {{ Γ ⊢ B : Type@i }} ->
        {{ Γ ⊢ M : B }} ->
        {{ Γ ⊢ N : B }} ->
-       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ B[σ] ® P }}) ->
-       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ M[σ] : B[σ] ® m ∈ El }}) ->
-       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ N[σ] : B[σ] ® n ∈ El }}) ->
+       {{ Γ ⊢ B ® P }} ->
+       {{ Γ ⊢ M : B ® m ∈ El }} ->
+       {{ Γ ⊢ N : B ® n ∈ El }} ->
        {{ Γ ⊢ A ® eq_glu_typ_pred i m n P El }} }.
 
 Variant glu_eq B M N m n (R : relation domain) (El : glu_exp_pred) : glu_exp_pred :=
@@ -124,7 +124,7 @@ Variant glu_eq B M N m n (R : relation domain) (El : glu_exp_pred) : glu_exp_pre
        {{ Γ ⊢ M'' ≈ N : B }} ->
        {{ Dom m ≈ m' ∈ R }} ->
        {{ Dom m' ≈ n ∈ R }} ->
-       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ M''[σ] : B[σ] ® m' ∈ El }}) ->
+       {{ Γ ⊢ M'' : B ® m' ∈ El }} ->
        {{ Γ ⊢ M' : A ® refl m' ∈ glu_eq B M N m n R El }} }
   | glu_eq_neut :
     `{ {{ Dom v ≈ v ∈ per_bot }} ->
@@ -138,14 +138,14 @@ Variant eq_glu_exp_pred i m n R (P : glu_typ_pred) (El : glu_exp_pred) : glu_exp
        {{ Γ ⊢ B : Type@i }} ->
        {{ Γ ⊢ M : B }} ->
        {{ Γ ⊢ N : B }} ->
-       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ B[σ] ® P }}) ->
-       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ M[σ] : B[σ] ® m ∈ El }}) ->
-       (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ N[σ] : B[σ] ® n ∈ El }}) ->
+       {{ Γ ⊢ B ® P }} ->
+       {{ Γ ⊢ M : B ® m ∈ El }} ->
+       {{ Γ ⊢ N : B ® n ∈ El }} ->
        {{ Γ ⊢ M' : A ® m' ∈ glu_eq B M N m n R El }} ->
        {{ Γ ⊢ M' : A ® m' ∈ eq_glu_exp_pred i m n R P El }} }.
 
 #[export]
-  Hint Constructors
+Hint Constructors
   neut_glu_exp_pred
   pi_glu_typ_pred
   pi_glu_exp_pred

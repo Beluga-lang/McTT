@@ -83,7 +83,7 @@ jobs:
               python3 ./scripts/check_assumptions_v2.py
             endGroup
             startGroup "Run inline tests"
-              dune runtest
+              make test
             endGroup
           after_script: |
             startGroup "after"

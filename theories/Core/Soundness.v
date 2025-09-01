@@ -23,12 +23,15 @@ Proof.
   match_by_head per_top ltac:(fun H => destruct (H (length Γ)) as [W []]).
   eexists.
   split; [econstructor |]; try eassumption.
-  assert {{ Γ ⊢ A : Type@i }} by mauto 4 using glu_univ_elem_univ_lvl.
-  assert {{ Γ ⊢ A[Id] ≈ A : Type@i }} by mauto.
-  assert {{ Γ ⊢ A[Id][Id] ≈ A : Type@i }} as <- by mauto 4.
-  assert {{ Γ ⊢ M ≈ M[Id] : A[Id][Id] }} by mauto.
-  assert {{ Γ ⊢ M ≈ M[Id][Id] : A[Id][Id] }} as -> by mauto.
-  mauto.
+  assert {{ Γ ⊢ A[Id] ≈ A : Type@i }} by mauto 3.
+  assert {{ Γ ⊢ A[Id][Id] ≈ A : Type@i }} as HA by (transitivity {{{ A[Id] }}}; mauto 3).
+  bulky_rewrite_in HA.
+  assert {{ Γ ⊢ M[Id][Id] ≈ W : A[Id][Id] }} as HM by mauto 3.
+  match goal with
+  | H: forall Δ σ (w : nf), _ -> _ -> {{ Δ ⊢ M[Id][σ] ≈ ^(nf_to_exp w) : A[Id][σ] }} |- _ =>
+      clear H
+  end.
+  bulky_rewrite_in HM.
 Qed.
 
 Theorem soundness' : forall {Γ M A W},

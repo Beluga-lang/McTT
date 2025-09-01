@@ -23,8 +23,8 @@ COQDOCFLAGS := \
 export COQDOCFLAGS
 DOC_BASE ?= ""
 
-post-all:: $(COQPARSERFILE) $(PARSERMESSAGEEXTRACTIONFILE) check_parserMessages
-	@echo "Separate Extraction main." | $(COQTOP) $(COQFLAGS) $(COQLIBS) -topfile Entrypoint.v -l Entrypoint.v
+# post-all:: $(COQPARSERFILE) $(PARSERMESSAGEEXTRACTIONFILE) check_parserMessages
+# 	@echo "Separate Extraction main." | $(COQTOP) $(COQFLAGS) $(COQLIBS) -topfile Entrypoint.v -l Entrypoint.v
 
 $(COQPARSERFILE): %.v : %.vy
 	@echo "MENHIR $?"
