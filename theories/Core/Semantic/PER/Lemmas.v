@@ -425,7 +425,7 @@ Proof with (destruct_rel_mod_eval; destruct_rel_mod_app; functional_eval_rewrite
       assert (equiv0_b_b' : fst_rel b b') by firstorder.
       destruct_rel_mod_eval.
       functional_eval_rewrite_clear.
-      econstructor; mauto 3. eauto. 
+      econstructor; mauto 3.
       intuition.
   - assert (point_rel <~> point_rel0) by mauto 3.
     etransitivity; [apply per_eq_morphism_relation_equivalence3 | apply per_eq_morphism_relation_equivalence1]; eauto.
