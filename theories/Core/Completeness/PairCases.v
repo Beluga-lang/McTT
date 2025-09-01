@@ -15,7 +15,7 @@ Lemma rel_exp_of_sigma_inversion : forall {Γ M M' A B},
           rel_typ i A ρ A ρ' fst_rel /\
             (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}), rel_typ i B d{{{ ρ ↦ c }}} B d{{{ ρ' ↦ c' }}} (snd_rel c c' equiv_c_c')) /\
             rel_exp M ρ M' ρ'
-              (fun b b' => rel_mod_proj b b' fst_rel (fun c c' => snd_rel c c') ).
+              (fun b b' => rel_mod_proj b b' fst_rel snd_rel).
 Proof.
   intros * [env_relΓ].
   destruct_conjs.
@@ -34,7 +34,7 @@ Lemma rel_exp_of_sigma : forall {Γ env_rel M M' i j A B},
         rel_typ i A ρ A ρ' fst_rel /\
           (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}), rel_typ j B d{{{ ρ ↦ c }}} B d{{{ ρ' ↦ c' }}} (snd_rel c c' equiv_c_c')) /\
           rel_exp M ρ M' ρ'
-            (fun b b' => rel_mod_proj b b' fst_rel (fun c c' => snd_rel c c') )) ->
+            (fun b b' => rel_mod_proj b b' fst_rel snd_rel)) ->
     {{ Γ ⊨ M ≈ M' : Σ A B }}.
 Proof.
       intros.
@@ -123,22 +123,20 @@ Qed.
 #[export]
 Hint Resolve rel_exp_sigma_sub : mctt.
 
-Lemma rel_exp_pair_cong : forall {i Γ A A' B B' M N M' N'},
-    {{ Γ ⊨ A ≈ A' : Type@i }} ->
+Lemma rel_exp_pair_cong : forall {i Γ A B B' M N M' N'},
+    {{ Γ ⊨ A : Type@i }} ->
     {{ Γ, A ⊨ B ≈ B' : Type@i }} ->
     {{ Γ ⊨ M ≈ M' : A }} ->
     {{ Γ ⊨ N ≈ N' : B[Id,,M] }} ->
     {{ Γ ⊨ ⟨ M ; N : B ⟩ ≈ ⟨ M' ; N' : B' ⟩ : Σ A B }}.
 Proof with mautosolve.
-  intros * HAA' HBB' HM HN.
-  assert {{ Γ ⊨ A : Type@i }} as HA by mauto.
+  intros * HA HBB' HM HN.
   assert {{ Γ , A ⊨ B : Type@i }} as HB by mauto.
   invert_rel_exp_of_typ HA.
   destruct_all. rename x into env_relΓ.
   (on_all_hyp: fun H => unshelve eapply (rel_exp_under_ctx_implies_rel_typ_under_ctx _) in H as [elem_relA]; shelve_unifiable; [eassumption |]).
   pose (env_relΓA := cons_per_ctx_env env_relΓ elem_relA).
   assert {{ EF Γ, A ≈ Γ, A ∈ per_ctx_env ↘ env_relΓA }} by (econstructor; mauto 3; try reflexivity; typeclasses eauto).
-  invert_rel_exp_of_typ HAA'.
   invert_rel_exp_of_typ HB.
   invert_rel_exp_of_typ HBB'.
   invert_rel_exp HM.
@@ -267,7 +265,6 @@ Proof with mautosolve.
   (on_all_hyp: destruct_rel_by_assumption env_relΔ).
   destruct_rel_typ.
   simplify_evals.
-  simplify_evals.
   destruct_by_head rel_exp.
   destruct_by_head rel_mod_proj.
   simplify_evals.
@@ -357,7 +354,6 @@ Proof with mautosolve.
     assert {{ Dom ρ'σ' ≈ ρ'σ' ∈ env_relΔ }} by (etransitivity; [symmetry |]; eassumption).
     (on_all_hyp: destruct_rel_by_assumption env_relΔ).
     destruct_rel_typ.
-    simplify_evals.
     simplify_evals.
     destruct_by_head rel_exp.
     destruct_by_head rel_mod_proj.

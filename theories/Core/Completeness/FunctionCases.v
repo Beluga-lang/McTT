@@ -170,11 +170,11 @@ Proof with mautosolve.
   functional_eval_rewrite_clear.
   do 2 eexists.
   repeat split; [econstructor | | econstructor]; mauto.
-  - eapply rel_exp_pi_core.
+  - eapply rel_exp_pi_core; try reflexivity.
     intros.
     extract_output_info_with ρ c ρ' c' (cons_per_ctx_env env_relΓ elem_relA).
     econstructor; eauto.
-    eexists... reflexivity.
+    eexists...
   - intros.
     extract_output_info_with ρ c ρ' c' (cons_per_ctx_env env_relΓ elem_relA).
     econstructor; mauto.
