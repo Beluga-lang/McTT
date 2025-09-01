@@ -714,9 +714,6 @@ Proof.
   destruct_glu_eq; rename Γ0 into Δ.
   - rename M'' into Mσ.
     assert {{ Δ ⊢ Mσ : Aσ }} by (gen_presups; trivial).
-    (* assert (HAσ : P Δ {{{ Aσ[Id] }}}) by mauto 2. *)
-    (* assert (HM1σ : El Δ {{{ Aσ[Id] }}} {{{ M1σ[Id] }}} m1) by mauto 2. *)
-    (* assert (HM2σ : El Δ {{{ Aσ[Id] }}} {{{ M2σ[Id] }}} m2) by mauto 2. *)
     saturate_glu_typ_from_el.
     assert {{ Δ ⊢ Aσ ≈ A[σ] : Type@i }} as HrwAσ' by mauto 3. rewrite HrwAσ' in *.
     assert {{ Δ ⊢ A[σ] ≈ Aσ : Type@i }} by mauto 2.
