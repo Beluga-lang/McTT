@@ -8,8 +8,11 @@ pretty-timed:
 	@$(MAKE) pretty-timed -C theories
 	@dune build
 
+test:
+	@dune test
+
 coqdoc:
-	@${MAKE} coqdoc -C theories
+	@$(MAKE) coqdoc -C theories
 
 depgraphdoc:
 	@$(MAKE) depgraphdoc -C theories
