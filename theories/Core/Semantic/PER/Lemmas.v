@@ -845,19 +845,16 @@ Proof.
     destruct_by_head rel_typ.
     handle_per_univ_elem_irrel.
     intuition.
-  - split; intros.
-    + destruct_by_head rel_mod_proj.
-        destruct_rel_mod_eval.
+  - split; intros; destruct_by_head rel_mod_proj.
+    + destruct_rel_mod_eval.
       econstructor; intuition.
       destruct_by_head rel_typ.
       simplify_evals.
       handle_per_univ_elem_irrel.
       intuition.
-    + destruct_by_head rel_mod_proj.
-      assert (fst_rel0 b b') by intuition.
+    + assert (fst_rel0 b b') by intuition.
       destruct_rel_mod_eval.
       econstructor; intuition.
-      intuition.
       eapply H1; econstructor; mauto 3.
 Qed.
 
@@ -957,16 +954,12 @@ Proof.
     saturate_refl_for per_univ_elem.
     destruct_rel_mod_app_nouip.
     simplify_evals.
-    econstructor; eauto.
-    intuition.
+    econstructor; intuition.
   - destruct_by_head rel_mod_proj.
     simplify_evals.
     destruct_rel_mod_eval_nouip.
     handle_per_univ_elem_irrel.
-    saturate_refl_for per_univ_elem.
-    simplify_evals.
-    handle_per_univ_elem_irrel.
-    econstructor; eauto. intuition.
+    econstructor; intuition.
 Qed.
 
 Lemma per_elem_subtyping_gen : forall a b i a' b' R R' m n,
