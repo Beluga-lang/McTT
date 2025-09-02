@@ -28,7 +28,7 @@ Proof.
   enough {{ Γ'' ⊢ A[σ∘τ] ≈ A[σ][τ] : Type@i }} as ->; mauto 3.
 Qed.
 
-#[local]
+(* #[local] *)
 Hint Resolve cons_glu_sub_pred_pi_helper : mctt.
 
 Lemma glu_rel_exp_pi : forall {Γ A B i},

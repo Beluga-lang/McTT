@@ -561,12 +561,14 @@ Proof.
   eauto using per_univ_elem_right_irrel.
 Qed.
 
+(* TODO : R1 <~> R2 shouldn't be added if R1 <~> R2 can be solved by intuition *)
 Ltac do_per_univ_elem_irrel_assert1 :=
   let tactic_error o1 o2 := fail 2 "per_univ_elem_irrel biconditional between" o1 "and" o2 "cannot be solved" in
   match goal with
   | H1 : {{ DF ^?a ≈ ^_ ∈ per_univ_elem ?i ↘ ?R1 }},
       H2 : {{ DF ^?a ≈ ^_ ∈ per_univ_elem ?i' ↘ ?R2 }} |- _ =>
       assert_fails (unify R1 R2);
+      (* assert_fails (assert (R1 <~> R2) by intuition); *)
       match goal with
       | H : R1 <~> R2 |- _ => fail 1
       | H : R2 <~> R1 |- _ => fail 1
@@ -575,6 +577,7 @@ Ltac do_per_univ_elem_irrel_assert1 :=
   | H1 : {{ DF ^_ ≈ ^?b ∈ per_univ_elem ?i ↘ ?R1 }},
       H2 : {{ DF ^_ ≈ ^?b ∈ per_univ_elem ?i' ↘ ?R2 }} |- _ =>
       assert_fails (unify R1 R2);
+      (* assert_fails (assert (R1 <~> R2) by intuition); *)
       match goal with
       | H : R1 <~> R2 |- _ => fail 1
       | H : R2 <~> R1 |- _ => fail 1
@@ -584,6 +587,7 @@ Ltac do_per_univ_elem_irrel_assert1 :=
       H2 : {{ DF ^_ ≈ ^?a ∈ per_univ_elem ?i' ↘ ?R2 }} |- _ =>
       (** Order matters less here as H1 and H2 cannot be exchanged *)
       assert_fails (unify R1 R2);
+      (* assert_fails (assert (R1 <~> R2) by intuition); *)
       match goal with
       | H : R1 <~> R2 |- _ => fail 1
       | H : R2 <~> R1 |- _ => fail 1

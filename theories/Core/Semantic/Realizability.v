@@ -87,7 +87,7 @@ Proof with (solve [try (try (eexists; split); econstructor); mauto]).
     (* TODO : automate this *)
     specialize (H5 _ _ equiv_b_b' s).
     specialize (H10 (S s)).
-    specialize (H18 _ _ H2 (S s)).
+    specialize (H18 _ _ H2 s).
     destruct_all.
     eexists. split; mauto 3. 
   - intros s.

@@ -122,6 +122,34 @@ Qed.
 #[export]
 Hint Resolve wf_app_inversion : mctt.
 
+Lemma wf_sigma_inversion : forall {Γ A B C},
+    {{ Γ ⊢ Σ A B : C }} ->
+    exists i, {{ Γ ⊢ A : Type@i }} /\ {{ Γ, A ⊢ B : Type@i }} /\ {{ Γ ⊢ Type@i ⊆ C }}.
+Proof with mautosolve 4.
+  intros * H.
+  dependent induction H;
+    try specialize (IHwf_exp1 _ _ eq_refl);
+    destruct_conjs; gen_core_presups; eexists...
+Qed.
+
+#[export]
+Hint Resolve wf_sigma_inversion : mctt.
+
+Corollary wf_sigma_inversion' : forall {Γ A B i},
+    {{ Γ ⊢ Σ A B : Type@i }} ->
+    {{ Γ ⊢ A : Type@i }} /\ {{ Γ, A ⊢ B : Type@i }}.
+Proof with mautosolve 4.
+  intros * [j [? []]]%wf_sigma_inversion.
+  assert {{ Γ, A ⊢s Wk : Γ }} by mauto 4.
+  assert {{ Γ, A ⊢ Type@j ⊆ Type@j[Wk] }} by (econstructor; mauto 4).
+  assert {{ Γ, A ⊢ Type@j[Wk] ⊆ Type@i[Wk] }} by mauto 4.
+  assert {{ Γ, A ⊢ Type@i[Wk] ⊆ Type@i }} by (econstructor; mauto 4).
+  enough {{ Γ, A ⊢ Type@j ⊆ Type@i }}...
+Qed.
+
+#[export]
+Hint Resolve wf_sigma_inversion' : mctt.
+
 Lemma wf_vlookup_inversion : forall {Γ x A},
     {{ Γ ⊢ #x : A }} ->
     exists A', {{ #x : A' ∈ Γ }} /\ {{ Γ ⊢ A' ⊆ A }}.

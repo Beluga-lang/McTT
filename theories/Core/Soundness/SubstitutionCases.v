@@ -90,6 +90,41 @@ Qed.
 #[export]
 Hint Resolve glu_rel_sub_compose : mctt.
 
+Lemma glu_rel_sub_extend_helper : forall {Γ Δ0 m ρ0 σ0 Δ σ M A i a SbΔ P El},
+    {{ Γ ⊢s σ : Δ }} ->
+    {{ Δ0 ⊢s σ0 : Γ }} ->
+    {{ Δ ⊢ A : Type@i }} ->
+    {{ Γ ⊢ M : A[σ] }} ->
+    {{ ⟦ A ⟧ ρ0 ↘ a }} ->
+    {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }}  -> 
+    {{ EG Δ ∈ glu_ctx_env ↘ SbΔ }} ->
+    {{ Δ0 ⊢s σ∘σ0 ® ρ0 ∈ SbΔ }} ->
+    {{ Δ0 ⊢ M[σ0] : A[σ][σ0] ® m ∈ El }} ->
+    {{ Δ0 ⊢s (σ,,M)∘σ0 ® ρ0 ↦ m ∈ (cons_glu_sub_pred i Δ A SbΔ) }}.
+Proof.
+  intros.
+  assert {{ Δ0 ⊢s (σ,,M)∘σ0 : Δ, A }} by mauto 3.
+  assert {{ Δ0 ⊢s (σ,,M)∘σ0 ≈ (σ∘σ0),,M[σ0] : Δ, A }} by mauto 3.
+  assert {{ Δ0 ⊢s Wk∘((σ,,M)∘σ0) : Δ }} by mauto 4.
+  assert {{ Δ0 ⊢s Wk∘((σ,,M)∘σ0) ≈ Wk∘((σ∘σ0),,M[σ0]) : Δ }} by mauto 4.
+  assert {{ Δ0 ⊢ M[σ0] : A[σ][σ0] }} by mauto 3.
+  assert {{ Δ0 ⊢ M[σ0] : A[σ∘σ0] }} by mauto 3.
+  assert {{ Δ0 ⊢s Wk∘((σ∘σ0),,M[σ0]) ≈ σ∘σ0 : Δ }} by mauto 3.
+  assert {{ Δ0 ⊢s Wk∘((σ,,M)∘σ0) ≈ σ∘σ0 : Δ }} by mauto 3.
+  econstructor; mauto 3.
+  + assert {{ Δ, A ⊢s Wk : Δ }} by mauto 4.
+    assert {{ Δ0 ⊢ A[Wk][(σ,,M)∘σ0] ≈ A[Wk][(σ∘σ0),,M[σ0]] : Type@i }} as -> by mauto 3.
+    assert {{ Δ0 ⊢ A[Wk][(σ∘σ0),,M[σ0]] ≈ A[σ∘σ0] : Type@i }} as -> by mauto 3.
+    assert {{ Δ0 ⊢ A[σ∘σ0] ≈ A[σ][σ0] : Type@i }} as -> by mauto 3.
+    assert {{ Δ, A ⊢ #0 : A[Wk] }} by mauto 3.
+    assert {{ Δ0 ⊢ #0[(σ,,M)∘σ0] ≈ #0[(σ∘σ0),,M[σ0]] : A[Wk][(σ,,M)∘σ0] }} by mauto 3.
+    assert {{ Δ0 ⊢ #0[(σ,,M)∘σ0] ≈ #0[(σ∘σ0),,M[σ0]] : A[σ][σ0] }} as -> by mauto 3.
+    assert {{ Δ0 ⊢ #0[(σ∘σ0),,M[σ0]] ≈ M[σ0] : A[σ∘σ0] }} by mauto.
+    assert {{ Δ0 ⊢ #0[(σ∘σ0),,M[σ0]] ≈ M[σ0] : A[σ][σ0] }} as -> by (eapply wf_exp_eq_conv; mauto 3).
+    mautosolve 3.
+  + enough {{ Δ0 ⊢s Wk∘((σ,,M)∘σ0) ≈ σ∘σ0 : Δ }} as ->; mauto 3.
+Qed.
+
 Lemma glu_rel_sub_extend : forall {Γ σ Δ M A i},
     {{ Γ ⊩s σ : Δ }} ->
     {{ Δ ⊩ A : Type@i }} ->
@@ -122,26 +157,7 @@ Proof.
     rename m0 into a.
     assert {{ Δ0 ⊢s σ0 : Γ }} by mauto 4.
     econstructor; mauto 3.
-    assert {{ Δ0 ⊢s (σ,,M)∘σ0 : Δ, A }} by mauto 3.
-    assert {{ Δ0 ⊢s (σ,,M)∘σ0 ≈ (σ∘σ0),,M[σ0] : Δ, A }} by mauto 3.
-    assert {{ Δ0 ⊢s Wk∘((σ,,M)∘σ0) : Δ }} by mauto 4.
-    assert {{ Δ0 ⊢s Wk∘((σ,,M)∘σ0) ≈ Wk∘((σ∘σ0),,M[σ0]) : Δ }} by mauto 4.
-    assert {{ Δ0 ⊢ M[σ0] : A[σ][σ0] }} by mauto 3.
-    assert {{ Δ0 ⊢ M[σ0] : A[σ∘σ0] }} by mauto 3.
-    assert {{ Δ0 ⊢s Wk∘((σ∘σ0),,M[σ0]) ≈ σ∘σ0 : Δ }} by mauto 3.
-    assert {{ Δ0 ⊢s Wk∘((σ,,M)∘σ0) ≈ σ∘σ0 : Δ }} by mauto 3.
-    econstructor; mauto 4.
-    + assert {{ Δ, A ⊢s Wk : Δ }} by mauto 4.
-      assert {{ Δ0 ⊢ A[Wk][(σ,,M)∘σ0] ≈ A[Wk][(σ∘σ0),,M[σ0]] : Type@i }} as -> by mauto 3.
-      assert {{ Δ0 ⊢ A[Wk][(σ∘σ0),,M[σ0]] ≈ A[σ∘σ0] : Type@i }} as -> by mauto 3.
-      assert {{ Δ0 ⊢ A[σ∘σ0] ≈ A[σ][σ0] : Type@i }} as -> by mauto 3.
-      assert {{ Δ, A ⊢ #0 : A[Wk] }} by mauto 3.
-      assert {{ Δ0 ⊢ #0[(σ,,M)∘σ0] ≈ #0[(σ∘σ0),,M[σ0]] : A[Wk][(σ,,M)∘σ0] }} by mauto 3.
-      assert {{ Δ0 ⊢ #0[(σ,,M)∘σ0] ≈ #0[(σ∘σ0),,M[σ0]] : A[σ][σ0] }} as -> by mauto 3.
-      assert {{ Δ0 ⊢ #0[(σ∘σ0),,M[σ0]] ≈ M[σ0] : A[σ∘σ0] }} by mauto.
-      assert {{ Δ0 ⊢ #0[(σ∘σ0),,M[σ0]] ≈ M[σ0] : A[σ][σ0] }} as -> by (eapply wf_exp_eq_conv; mauto 3).
-      mautosolve 3.
-    + enough {{ Δ0 ⊢s Wk∘((σ,,M)∘σ0) ≈ σ∘σ0 : Δ }} as ->; eassumption.
+    eapply glu_rel_sub_extend_helper; mauto 4.  
 Qed.
 
 #[export]
