@@ -558,6 +558,47 @@ Qed.
 #[export]
 Hint Resolve exp_sigma_sub_rhs : mctt.
 
+Lemma exp_sigma_snd_bundle : forall i Δ σ Γ M M' FT ST,
+    {{ Γ ⊢ FT : Type@i }} ->
+    {{ Γ, FT ⊢ ST : Type@i }} ->
+    {{ Γ ⊢ M : Σ FT ST }} ->
+    {{ Δ ⊢s σ : Γ }} ->
+    {{ Δ ⊢ M[σ] ≈ M' : Σ FT[σ] ST[q σ] }} ->
+    {{ Δ ⊢ (snd M)[σ] ≈ snd M' : ST[Id,,fst M][σ] }} 
+    /\ {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }}
+    /\ {{ Δ ⊢ snd M[σ] ≈ (snd M)[σ] : ST[Id,,fst M][σ] }}
+    /\ {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[q σ][Id,,fst M[σ]] : Type@i }}.
+Proof.
+  intros.
+  assert {{ Δ ⊢ FT[σ] : Type@i }} by mauto 3.
+  assert {{ Δ, FT[σ] ⊢ ST[q σ] : Type@i }}. {
+    eapply wf_conv'; [ eapply wf_exp_sub; mauto 3 | ].
+    econstructor; mauto 3.
+  }
+  assert {{ Δ ⊢ (fst M)[σ] ≈ fst M[σ] : FT[σ] }} by (eapply wf_exp_eq_fst_sub; mauto 3).
+  assert {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }} by 
+    (eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3).
+  assert {{ Δ ⊢ ST[σ,,(fst M)[σ]] ≈ ST[σ,,(fst M[σ])] : Type@i }}. {
+    eapply wf_eq_typ_exp_sub_cong; mauto 3. 
+  }
+  assert {{ Δ ⊢ ST[q σ][Id,,(fst M)[σ]] ≈ ST[σ,,(fst M)[σ]] : Type@i }}. {
+    eapply exp_eq_elim_sub_rhs_typ; mauto 3.
+  }
+  assert {{ Δ ⊢ ST[q σ][Id,,(fst M)[σ]] ≈ ST[q σ][Id,,(fst M[σ])]: Type@i }}. {
+    gen_presups.
+    eapply @wf_eq_typ_exp_sub_cong_twice with (Ψ:={{{Γ, FT}}}); mauto 3.
+    eapply wf_sub_eq_compose_cong; mauto 3.
+  }
+  assert {{ Δ ⊢ (snd M)[σ] ≈ (snd M[σ]) : ST[σ,,fst M[σ]] }} by (eapply wf_exp_eq_snd_sub; mauto 3).
+  repeat split.
+  - eapply wf_exp_eq_conv'; [ etransitivity; [eapply wf_exp_eq_snd_sub | ] | ]; mauto 3.
+    eapply wf_exp_eq_conv'; [ eapply wf_exp_eq_snd_cong | ]; mauto 3.
+    rewrite <- H10. rewrite H9. mauto.
+  - auto.
+  - eapply wf_exp_eq_conv'; mauto 3.
+  - rewrite H7. rewrite <- H9. auto.
+Qed.
+  
 (** This works for both var_0 and var_S cases *)
 Lemma exp_eq_var_sub_rhs_typ_gen : forall {Γ σ Δ i A M},
     {{ Γ ⊢s σ : Δ }} ->

@@ -113,7 +113,7 @@ Variant sigma_glu_typ_pred i
   `{ {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
      {{ Γ ⊢ FT : Type@i }} ->
      {{ Γ , FT ⊢ ST : Type@i }} ->
-     (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
+     {{ Γ ⊢ FT ® FP }} ->
      (forall Δ σ M m,
          {{ Δ ⊢w σ : Γ }} ->
          {{ Δ ⊢ M : FT[σ] ® m ∈ FEl }} ->
@@ -137,7 +137,7 @@ Variant sigma_glu_exp_pred i
      {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
      {{ Γ ⊢ FT : Type@i }} ->
      {{ Γ , FT ⊢ ST : Type@i }} ->
-     (forall Δ σ, {{ Δ ⊢w σ : Γ }} -> {{ Δ ⊢ FT[σ] ® FP }}) ->
+     {{ Γ ⊢ FT ® FP }} ->
      (* We have to introduce SP and this extra condition, 
         otherwise our `sigma_glu_exp_pred` does not imply `sigma_glu_typ_pred` *)
      (forall Δ σ M' m',
@@ -145,10 +145,8 @@ Variant sigma_glu_exp_pred i
          {{ Δ ⊢ M' : FT[σ] ® m' ∈ FEl }} ->
          forall (equiv_m' : {{ Dom m' ≈ m' ∈ FR }}),
            {{ Δ ⊢ ST[σ,,M'] ® SP m' equiv_m' }}) ->
-     (forall Δ σ,
-         {{ Δ ⊢w σ : Γ }} ->          
-          {{ Δ ⊢ (fst M)[σ] : FT[σ] ® m1 ∈ FEl }} /\
-          {{ Δ ⊢ (snd M)[σ] : ST[σ,,(fst M)[σ]] ® m2 ∈ SEl _ equiv_m }} ) ->
+     {{ Γ ⊢ fst M : FT ® m1 ∈ FEl }} ->
+     {{ Γ ⊢ snd M : ST[Id,,(fst M)] ® m2 ∈ SEl _ equiv_m }} ->
      {{ Γ ⊢ M : A ® m ∈ sigma_glu_exp_pred i FR FP FEl elem_rel SP SEl }} }.
 
 Variant eq_glu_typ_pred i m n
