@@ -39,6 +39,7 @@ Ltac destruct_rel_mod_eval :=
         dependent destruction H
     end;
   unmark_all.
+
 Ltac destruct_rel_mod_app :=
   repeat
     match goal with
@@ -48,6 +49,7 @@ Ltac destruct_rel_mod_app :=
         dependent destruction H
     end;
   unmark_all.
+
 (* TODO: unify with the uip version above *)
 Ltac destruct_rel_mod_eval_nouip :=
   repeat
@@ -58,6 +60,7 @@ Ltac destruct_rel_mod_eval_nouip :=
         dependent inversion_clear H
     end;
   unmark_all.
+
 (* TODO: unify with the uip version above *)
 Ltac destruct_rel_mod_app_nouip :=
   repeat
@@ -68,6 +71,7 @@ Ltac destruct_rel_mod_app_nouip :=
         dependent inversion_clear H
     end;
   unmark_all.
+
 Ltac destruct_rel_typ :=
   repeat
     match goal with

@@ -27,6 +27,24 @@ Qed.
 #[export]
 Hint Resolve invert_sub_id : mctt.
 
+Corollary invert_eq_sub_id_typ : forall Γ M M' A,
+    {{ Γ ⊢ M ≈ M' : A[Id] }} ->
+    {{ Γ ⊢ M ≈ M' : A }}.
+Proof.
+  intros * H.
+  gen_presups.
+  eapply wf_exp_eq_conv'; mauto 3.
+Qed.
+
+Corollary invert_eq_sub_id : forall Γ M M' A,
+    {{ Γ ⊢ M[Id] ≈ M' : A }} ->
+    {{ Γ ⊢ M ≈ M' : A }}.
+Proof.
+  intros * H.
+  gen_presups.
+  transitivity {{{ M[Id] }}}; mauto 4.
+Qed.
+
 Corollary invert_sub_id_typ : forall Γ M A,
     {{ Γ ⊢ M : A[Id] }} ->
     {{ Γ ⊢ M : A }}.
@@ -181,15 +199,16 @@ Lemma exp_succ_sub_rhs : forall {Γ σ Δ M},
 Proof.
   intros; mauto 3.
 Qed.
+
 #[export]
 Hint Resolve exp_succ_sub_rhs : mctt.
 
-Lemma sub_decompose_q : forall Γ S i σ Δ Δ' τ t,
-  {{ Γ ⊢ S : Type@i }} ->
+Lemma sub_decompose_q : forall Γ A i σ Δ Δ' τ M,
+  {{ Γ ⊢ A : Type@i }} ->
   {{ Δ ⊢s σ : Γ }} ->
   {{ Δ' ⊢s τ : Δ }} ->
-  {{ Δ' ⊢ t : S[σ][τ] }} ->
-  {{ Δ' ⊢s q σ ∘ (τ ,, t) ≈ σ ∘ τ ,, t : Γ, S }}.
+  {{ Δ' ⊢ M : A[σ][τ] }} ->
+  {{ Δ' ⊢s q σ ∘ (τ ,, M) ≈ σ ∘ τ ,, M : Γ, A }}.
 Proof.
   intros. gen_presups.
   simpl. autorewrite with mctt.
@@ -206,12 +225,12 @@ Qed.
 #[local]
 Hint Rewrite -> @sub_decompose_q using mauto 4 : mctt.
 
-Lemma sub_decompose_q_typ : forall Γ S T i σ Δ Δ' τ t,
-  {{ Γ, S ⊢ T : Type@i }} ->
+Lemma sub_decompose_q_typ : forall Γ A B i σ Δ Δ' τ M,
+  {{ Γ, A ⊢ B : Type@i }} ->
   {{ Δ ⊢s σ : Γ }} ->
   {{ Δ' ⊢s τ : Δ }} ->
-  {{ Δ' ⊢ t : S[σ][τ] }} ->
-  {{ Δ' ⊢ T[σ∘τ,,t] ≈ T[q σ][τ,,t] : Type@i}}.
+  {{ Δ' ⊢ M : A[σ][τ] }} ->
+  {{ Δ' ⊢ B[σ∘τ,,M] ≈ B[q σ][τ,,M] : Type@i}}.
 Proof.
   intros. gen_presups.
   autorewrite with mctt.
@@ -499,6 +518,33 @@ Qed.
 #[export]
 Hint Resolve exp_sigma_sub_lhs : mctt.
 
+Lemma typ_sigma_sub : forall {Γ σ Δ A B i},
+   {{ Δ ⊢s σ : Γ }} ->  
+   {{ Γ ⊢ A : Type@i }} ->
+   {{ Γ, A ⊢ B : Type@i }} ->
+   {{ Δ, A[σ] ⊢ B[q σ] : Type@i }}.
+Proof.
+  intros * Hs HA HB.
+  eapply wf_conv'; [eapply wf_exp_sub | ]; mauto 3.
+Qed.
+
+#[export]
+Hint Resolve typ_sigma_sub : mctt.
+
+Lemma exp_sigma_sub : forall {Γ σ Δ A B i M },
+   {{ Δ ⊢s σ : Γ }} ->  
+   {{ Γ ⊢ A : Type@i }} ->
+   {{ Γ, A ⊢ B : Type@i }} ->
+   {{ Γ ⊢ M : Σ A B }} ->
+   {{ Δ ⊢ M[σ] : Σ A[σ] B[q σ] }}.
+Proof.
+  intros * Hs HA HB HM.
+  eapply wf_conv'; [eapply wf_exp_sub | ]; mauto 3.
+Qed.
+
+#[export]
+Hint Resolve exp_sigma_sub : mctt.
+
 Lemma exp_sigma_sub_rhs : forall {Γ σ Δ A B i},
     {{ Γ ⊢s σ : Δ }} ->
     {{ Δ ⊢ A : Type@i }} ->
@@ -512,6 +558,47 @@ Qed.
 #[export]
 Hint Resolve exp_sigma_sub_rhs : mctt.
 
+Lemma exp_sigma_snd_bundle : forall i Δ σ Γ M M' FT ST,
+    {{ Γ ⊢ FT : Type@i }} ->
+    {{ Γ, FT ⊢ ST : Type@i }} ->
+    {{ Γ ⊢ M : Σ FT ST }} ->
+    {{ Δ ⊢s σ : Γ }} ->
+    {{ Δ ⊢ M[σ] ≈ M' : Σ FT[σ] ST[q σ] }} ->
+    {{ Δ ⊢ (snd M)[σ] ≈ snd M' : ST[Id,,fst M][σ] }} 
+    /\ {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }}
+    /\ {{ Δ ⊢ snd M[σ] ≈ (snd M)[σ] : ST[Id,,fst M][σ] }}
+    /\ {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[q σ][Id,,fst M[σ]] : Type@i }}.
+Proof.
+  intros.
+  assert {{ Δ ⊢ FT[σ] : Type@i }} by mauto 3.
+  assert {{ Δ, FT[σ] ⊢ ST[q σ] : Type@i }}. {
+    eapply wf_conv'; [ eapply wf_exp_sub; mauto 3 | ].
+    econstructor; mauto 3.
+  }
+  assert {{ Δ ⊢ (fst M)[σ] ≈ fst M[σ] : FT[σ] }} by (eapply wf_exp_eq_fst_sub; mauto 3).
+  assert {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }} by 
+    (eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3).
+  assert {{ Δ ⊢ ST[σ,,(fst M)[σ]] ≈ ST[σ,,(fst M[σ])] : Type@i }}. {
+    eapply wf_eq_typ_exp_sub_cong; mauto 3. 
+  }
+  assert {{ Δ ⊢ ST[q σ][Id,,(fst M)[σ]] ≈ ST[σ,,(fst M)[σ]] : Type@i }}. {
+    eapply exp_eq_elim_sub_rhs_typ; mauto 3.
+  }
+  assert {{ Δ ⊢ ST[q σ][Id,,(fst M)[σ]] ≈ ST[q σ][Id,,(fst M[σ])]: Type@i }}. {
+    gen_presups.
+    eapply @wf_eq_typ_exp_sub_cong_twice with (Ψ:={{{Γ, FT}}}); mauto 3.
+    eapply wf_sub_eq_compose_cong; mauto 3.
+  }
+  assert {{ Δ ⊢ (snd M)[σ] ≈ (snd M[σ]) : ST[σ,,fst M[σ]] }} by (eapply wf_exp_eq_snd_sub; mauto 3).
+  repeat split.
+  - eapply wf_exp_eq_conv'; [ etransitivity; [eapply wf_exp_eq_snd_sub | ] | ]; mauto 3.
+    eapply wf_exp_eq_conv'; [ eapply wf_exp_eq_snd_cong | ]; mauto 3.
+    rewrite <- H10. rewrite H9. mauto.
+  - auto.
+  - eapply wf_exp_eq_conv'; mauto 3.
+  - rewrite H7. rewrite <- H9. auto.
+Qed.
+  
 (** This works for both var_0 and var_S cases *)
 Lemma exp_eq_var_sub_rhs_typ_gen : forall {Γ σ Δ i A M},
     {{ Γ ⊢s σ : Δ }} ->

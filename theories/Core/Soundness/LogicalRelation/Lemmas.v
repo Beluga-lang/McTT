@@ -211,6 +211,7 @@ Section glu_univ_elem_cumulativity.
     intros * Hge Hglu Hglu'. gen El' P' j.
     induction Hglu using glu_univ_elem_ind; repeat split; intros;
       try assert {{ DF a ≈ a ∈ per_univ_elem j ↘ in_rel }} by mauto 2;
+      try assert {{ DF a ≈ a ∈ per_univ_elem j ↘ fst_rel }} by mauto 2;
       invert_glu_univ_elem Hglu';
       handle_functional_glu_univ_elem;
       simpl in *;
@@ -286,6 +287,86 @@ Section glu_univ_elem_cumulativity.
       assert {{ DG b ∈ glu_univ_elem j ↘ OP' n equiv_n ↘ OEl' n equiv_n }} by mauto 3.
       assert {{ Δ ⊢ OT0[σ,,N] ® OP' n equiv_n }} by (eapply glu_univ_elem_trm_typ; mauto 3).
       enough {{ Δ ⊢ OT[σ,,N] ≈ OT0[σ,,N] : Type@j }} as ->...
+    - rename FP0 into FP'.
+      rename FEl0 into FEl'.
+      rename SP0 into SP'.
+      rename SEl0 into SEl'.
+      destruct_by_head sigma_glu_typ_pred.
+      econstructor; intros; mauto 4.
+      + enough (forall Γ A, {{ Γ ⊢ A ® FP }} -> {{ Γ ⊢ A ® FP' }}) by mauto 4.
+        eapply proj1...
+      + match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+        apply_relation_equivalence.
+        destruct_rel_mod_eval.
+        handle_per_univ_elem_irrel.
+        assert (forall Γ A, {{ Γ ⊢ A ® SP m equiv_m }} -> {{ Γ ⊢ A ® SP' m equiv_m }}) by (eapply proj1; mauto).
+        enough {{ Δ ⊢ ST[σ,,M] ® SP m equiv_m }} by mauto.
+        enough {{ Δ ⊢ M : FT[σ] ® m ∈ FEl }} by mauto.
+        eapply IHHglu; mauto 3.
+        eapply glu_univ_elem_typ_monotone...
+    - rename FP0 into FP'.
+      rename FEl0 into FEl'.
+      rename SP0 into SP'.
+      rename SEl0 into SEl'.
+      destruct_by_head sigma_glu_exp_pred.
+      handle_per_univ_elem_irrel.
+      eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_m); mauto 3.
+      + enough (forall Γ A, {{ Γ ⊢ A ® FP }} -> {{ Γ ⊢ A ® FP' }}) by mauto 4.
+        eapply proj1...
+      + intros. 
+        match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+        destruct_rel_mod_eval. simplify_evals.
+        rename a0 into b. rename a1 into b'.
+        assert (FEl Δ {{{ FT[σ] }}} {{{ (fst M)[σ] }}} m1) by (eapply glu_univ_elem_exp_monotone; mauto 3). 
+        assert (SEl m1 equiv_m Δ {{{ ST[σ,,(fst M)[σ]] }}} {{{ (snd M)[σ] }}} m2). {
+          eapply glu_univ_elem_trm_resp_typ_exp_eq; [ | eapply glu_univ_elem_exp_monotone |]; mauto 3.
+          eapply exp_sigma_snd_bundle with (FT:=FT) (ST:=ST); mauto 3.
+          eapply exp_eq_refl; mauto 3. eapply exp_sigma_sub; mauto 3.
+        }
+        assert (glu_univ_elem j (SP' m' equiv_m') (SEl' m' equiv_m') b) as Hglu by auto.
+        assert (SP m1 equiv_m Δ {{{ ST[σ,,(fst M)[σ]] }}}) by eauto.
+        eapply H2 with (equiv_c:=equiv_m') (b:=b) in Hglu as IH; mauto 3.
+        destruct_all. 
+        assert (FP Δ {{{ FT[σ] }}}) by (eapply glu_univ_elem_typ_monotone; mauto 3).
+        eapply H30; mauto 3. 
+        eapply H16; mauto 3.
+        eapply IHHglu; mauto 3.
+      + match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+        eapply IHHglu; mauto 3.
+      + match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+        destruct_rel_mod_eval. simplify_evals.
+        eapply H2 with (P':=SP' m1 equiv_m) (El':=SEl' m1 equiv_m) (equiv_c:=equiv_m) in H21; mauto 3.
+        intuition.
+    - rename FP0 into FP'.
+      rename FEl0 into FEl'.
+      rename SP0 into SP'.
+      rename SEl0 into SEl'.
+      destruct_by_head sigma_glu_typ_pred.
+      destruct_by_head sigma_glu_exp_pred.
+      handle_per_univ_elem_irrel.
+      match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+      destruct_rel_mod_eval. simplify_evals.
+      rename a0 into b.
+      apply IHHglu in H9 as IH; mauto 3. destruct_conjs.
+      assert {{ Γ ⊢w Id : Γ }} by mauto 3.
+      assert (FP' Γ FT) by auto.
+      assert (FP' Γ FT0) by auto.
+      assert {{ Γ ⊢ FT ≈ FT0 : Type@j }} by mauto 3.
+      assert (FEl' Γ FT {{{ fst M }}} m1) by (eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3).
+      assert (FEl Γ {{{ FT[Id] }}} {{{ fst M }}} m1) by (bulky_rewrite; mauto 3).
+      eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_m); mauto 3.
+
+      + assert (glu_univ_elem j (SP' m1 equiv_m) (SEl' m1 equiv_m) b) by eauto.
+        assert (SP m1 equiv_m Γ {{{ ST[Id,,fst M] }}}) by eauto.
+        assert (FEl' Γ {{{ FT0[Id] }}} {{{ fst M }}} m1)  by (bulky_rewrite; mauto 3).
+        assert (SP' m1 equiv_m Γ {{{ ST0[Id,,(fst M)] }}}) by eauto.
+        assert (SP' m1 equiv_m Γ {{{ ST[Id,,(fst M)] }}}). 
+        {
+          eapply H2 with (equiv_c:=equiv_m) in H38; mauto 3. intuition.
+        }
+        assert {{ Γ ⊢ ST0[Id,,(fst M)] ≈  ST[Id,,(fst M)] : Type@j }} as HSTeq by mauto 2.
+        eapply H2; mauto 3.
+        eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3.
 
     - invert_glu_rel1.
       econstructor; intros; firstorder mauto 3.
@@ -476,6 +557,7 @@ Proof.
     handle_functional_glu_univ_elem;
     handle_per_univ_elem_irrel;
     destruct_by_head pi_glu_typ_pred;
+    destruct_by_head sigma_glu_typ_pred;
     saturate_glu_by_per;
     invert_glu_univ_elem Hglu';
     handle_functional_glu_univ_elem.
@@ -518,6 +600,44 @@ Proof.
       mauto 4.
     }
     mauto 3.
+  (* Same as the Pi case *)
+  - destruct_by_head sigma_glu_typ_pred.
+    rename A0 into A'. rename FT0 into FT'. rename ST0 into ST'.
+    rename SP0 into SP'. rename SEl0 into SEl'.
+    do 2 bulky_rewrite1.
+    assert {{ Γ ⊢ FT ≈ FT' : Type@i }} by mauto 4.
+    enough {{ Γ, FT' ⊢ ST ⊆ ST' }} by mauto 3.
+    assert {{ Dom ⇑! a (length Γ) ≈ ⇑! a' (length Γ) ∈ fst_rel }} as equiv_len_len' by (eapply per_bot_then_per_elem; mauto 4).
+    assert {{ Dom ⇑! a (length Γ) ≈ ⇑! a (length Γ) ∈ fst_rel }} as equiv_len_len by (eapply per_bot_then_per_elem; mauto 4).
+    assert {{ Dom ⇑! a' (length Γ) ≈ ⇑! a' (length Γ) ∈ fst_rel }} as equiv_len'_len' by (eapply per_bot_then_per_elem; mauto 4).
+    handle_per_univ_elem_irrel.
+    match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+    apply_relation_equivalence.
+    destruct_rel_mod_eval.
+    handle_per_univ_elem_irrel.
+    match goal with
+    | _: {{ ⟦ B ⟧ ρ ↦ ⇑! a (length Γ) ↘ ^?a0 }},
+        _: {{ ⟦ B' ⟧ ρ' ↦ ⇑! a' (length Γ) ↘ ^?a0' }} |- _ =>
+        rename a0 into b;
+        rename a0' into b'
+    end.
+    assert {{ DG b ∈ glu_univ_elem i ↘ SP d{{{ ⇑! a (length Γ) }}} equiv_len_len ↘ SEl d{{{ ⇑! a (length Γ) }}} equiv_len_len }} by mauto 4.
+    assert {{ DG b' ∈ glu_univ_elem i ↘ SP' d{{{ ⇑! a' (length Γ) }}} equiv_len'_len' ↘ SEl' d{{{ ⇑! a' (length Γ) }}} equiv_len'_len' }} by mauto 4.
+    assert {{ Γ, FT' ⊢ ST ® SP d{{{ ⇑! a (length Γ) }}} equiv_len_len }}.
+    {
+      assert {{ Γ, FT ⊢ #0 : FT[Wk] ® ⇑! a (length Γ) ∈ FEl }} by (eapply var0_glu_elem; mauto 3).
+      assert {{ ⊢ Γ, FT' ≈ Γ, FT }} as -> by mauto.
+      assert {{ Γ, FT ⊢ ST[Wk,,#0] ≈ ST : Type@i }} as <- by (bulky_rewrite1; mauto 2).
+      mauto 4.
+    }
+    assert {{ Γ, FT' ⊢ ST' ® SP' d{{{ ⇑! a' (length Γ) }}} equiv_len'_len' }}.
+    {
+      assert {{ Γ, FT' ⊢ #0 : FT'[Wk] ® ⇑! a' (length Γ) ∈ FEl }} by (eapply var0_glu_elem; mauto 3).
+      assert {{ Γ, FT' ⊢ ST'[Wk,,#0] ® SP' d{{{ ⇑! a' (length Γ) }}} equiv_len'_len' }} by mauto 4.
+      assert {{ Γ, FT' ⊢ ST'[Wk,,#0] ≈ ST' : Type@i }} as <- by (bulky_rewrite1; mauto 2).
+      mauto 4.
+    }
+    mauto 3.
   - match_by_head (per_bot b b') ltac:(fun H => specialize (H (length Γ)) as [V []]).
     simpl in *.
     destruct_conjs.
@@ -544,7 +664,7 @@ Proof.
   gen m M A' A. gen Γ. gen El' El P' P.
   induction Hsubtyp using per_subtyp_ind; intros; subst;
     saturate_refl_for per_univ_elem.
-  1-3,5:
+  1-4,6:
     invert_glu_univ_elem Hglu;
   handle_functional_glu_univ_elem;
   handle_per_univ_elem_irrel;
@@ -588,6 +708,40 @@ Proof.
       assert {{ Sub b <: b' at i }} by mauto 3.
       assert {{ Δ ⊢ OT'[σ,,N] ⊆ OT[σ,,N] }} by mauto 3.
       intuition.
+  - rename A0 into A'.
+    rename FT0 into FT'. rename ST0 into ST'.
+    rename SP0 into SP'. rename SEl0 into SEl'.
+    handle_per_univ_elem_irrel.
+    assert {{ Γ ⊢w Id : Γ }} by mauto 3.
+    assert {{ Γ ⊢ FT' ® FP }} by mauto 3.
+    assert {{ Γ ⊢ FT' ≈ FT : Type@i }} by mauto 3.
+    assert {{ Γ ⊢ fst M : FT' ® m1 ∈ FEl }} by intuition.
+    assert {{ Γ ⊢ fst M : FT ® m1 ∈ FEl }} by (eapply glu_univ_elem_trm_resp_typ_exp_eq; mauto 3).
+
+    eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_m); mauto 3.
+    + enough {{ Sub Σ a ρ B <: Σ a' ρ' B' at i }} by (eapply per_elem_subtyping; try eassumption).
+      econstructor; mauto 3.
+    + assert (SEl m1 equiv_m Γ {{{ ST'[Id,,fst M] }}} {{{ snd M }}} m2) by intuition.
+      assert (FEl Γ {{{ FT[Id] }}} {{{ fst M }}} m1) by (bulky_rewrite; mauto 3). 
+      match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
+      destruct_rel_mod_eval. simplify_evals. handle_per_univ_elem_irrel.
+      match goal with
+      | _: {{ ⟦ B ⟧ ρ ↦ m1 ↘ ^?a }},
+          _: {{ ⟦ B' ⟧ ρ' ↦ m1 ↘ ^?a' }} |- _ =>
+          rename a into b;
+          rename a' into b'
+      end.
+      assert {{ Sub b <: b' at i }} by mauto 3.
+      assert (SP' m1 equiv_m Γ {{{ ST[Id,,fst M] }}}) by eauto.
+      assert {{ Γ ⊢ ST'[Id,,fst M] ® SP m1 equiv_m }} by (eapply glu_univ_elem_trm_typ; mauto 3).
+      assert {{ Γ ⊢ ST'[Id,,fst M] ⊆ ST[Id,,fst M] }}. 
+      {
+        eapply @glu_univ_elem_per_subtyp_typ_escape with 
+          (P:= SP m1 equiv_m) (P':=SP' m1 equiv_m) 
+            (El:=SEl m1 equiv_m) (El':=SEl' m1 equiv_m); mauto 3.
+      }
+      eapply H1 with (El:=SEl m1 equiv_m); mauto 3.
+
   - match_by_head1 (per_bot b b') ltac:(fun H => destruct (H (length Γ)) as [V []]).
     econstructor; mauto 3.
     + econstructor; mauto 3.

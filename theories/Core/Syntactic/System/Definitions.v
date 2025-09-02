@@ -77,7 +77,7 @@ with wf_exp : ctx -> typ -> exp -> Prop :=
      {{ Γ ⊢ M N : B[Id,,N] }} )
 
 | wf_sigma :
-    `( {{ Γ ⊢ A : Type@i }} ->
+  `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ Σ A B : Type@i }} )
 | wf_pair :
@@ -87,12 +87,12 @@ with wf_exp : ctx -> typ -> exp -> Prop :=
      {{ Γ ⊢ N : B[Id,,M] }} ->
      {{ Γ ⊢ ⟨ M ; N : B ⟩ : Σ A B }} )
 | wf_fst :
-    `( {{ Γ ⊢ A : Type@i }} ->
+  `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ M : Σ A B }} ->
      {{ Γ ⊢ fst M : A }} )
 | wf_snd :
-    `( {{ Γ ⊢ A : Type@i }} ->
+  `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ M : Σ A B }} ->
      {{ Γ ⊢ snd M : B[Id,,fst M] }} )
@@ -268,7 +268,6 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@i }} )
 | wf_exp_eq_pair_cong : 
   `( {{ Γ ⊢ A : Type@i }} ->
-     (* {{ Γ, A ⊢ B : Type@i }} -> *)
      {{ Γ, A ⊢ B ≈ B' : Type@i }} ->
      {{ Γ ⊢ M ≈ M' : A }} ->
      {{ Γ ⊢ N ≈ N' : B[Id,,M] }} ->
@@ -314,7 +313,7 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Γ ⊢ M : A }} ->
      {{ Γ ⊢ N : B[Id,,M] }} ->
      {{ Γ ⊢ snd ⟨ M ; N : B ⟩ ≈ N : B[Id,,M] }} )
-| wf_exp_eq_pair_eta :
+| wf_exp_eq_sigma_eta :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ M : Σ A B }} ->

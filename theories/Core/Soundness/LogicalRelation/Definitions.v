@@ -104,6 +104,51 @@ Variant pi_glu_exp_pred i
          exists mn, {{ $| m & n |↘ mn }} /\ {{ Δ ⊢ M[σ] N : OT[σ,,N] ® mn ∈ OEl _ equiv_n }}) ->
      {{ Γ ⊢ M : A ® m ∈ pi_glu_exp_pred i IR IP IEl elem_rel OEl }} }.
 
+Variant sigma_glu_typ_pred i
+  (FR : relation domain)
+  (FP : glu_typ_pred)
+  (FEl : glu_exp_pred)
+  (SP : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_typ_pred) : glu_typ_pred :=
+| mk_sigma_glu_typ_pred :
+  `{ {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
+     {{ Γ ⊢ FT : Type@i }} ->
+     {{ Γ , FT ⊢ ST : Type@i }} ->
+     {{ Γ ⊢ FT ® FP }} ->
+     (forall Δ σ M m,
+         {{ Δ ⊢w σ : Γ }} ->
+         {{ Δ ⊢ M : FT[σ] ® m ∈ FEl }} ->
+         forall (equiv_m : {{ Dom m ≈ m ∈ FR }}),
+           {{ Δ ⊢ ST[σ,,M] ® SP _ equiv_m }}) ->
+     {{ Γ ⊢ A ® sigma_glu_typ_pred i FR FP FEl SP }} }.
+
+Variant sigma_glu_exp_pred i
+  (FR : relation domain)
+  (FP : glu_typ_pred)
+  (FEl : glu_exp_pred)
+  (elem_rel : relation domain)
+  (SP : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_typ_pred)
+  (SEl : forall c (equiv_c : {{ Dom c ≈ c ∈ FR }}), glu_exp_pred): glu_exp_pred :=
+| mk_sigma_glu_exp_pred :
+  `{ forall (equiv_m : {{ Dom m1 ≈ m1 ∈ FR }}),
+     {{ Γ ⊢ M : A }} ->
+     {{ Dom m ≈ m ∈ elem_rel }} ->
+     {{ π₁ m ↘ m1 }} -> 
+     {{ π₂ m ↘ m2 }} ->
+     {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
+     {{ Γ ⊢ FT : Type@i }} ->
+     {{ Γ , FT ⊢ ST : Type@i }} ->
+     {{ Γ ⊢ FT ® FP }} ->
+     (* We have to introduce SP and this extra condition, 
+        otherwise our `sigma_glu_exp_pred` does not imply `sigma_glu_typ_pred` *)
+     (forall Δ σ M' m',
+         {{ Δ ⊢w σ : Γ }} ->
+         {{ Δ ⊢ M' : FT[σ] ® m' ∈ FEl }} ->
+         forall (equiv_m' : {{ Dom m' ≈ m' ∈ FR }}),
+           {{ Δ ⊢ ST[σ,,M'] ® SP m' equiv_m' }}) ->
+     {{ Γ ⊢ fst M : FT ® m1 ∈ FEl }} ->
+     {{ Γ ⊢ snd M : ST[Id,,(fst M)] ® m2 ∈ SEl _ equiv_m }} ->
+     {{ Γ ⊢ M : A ® m ∈ sigma_glu_exp_pred i FR FP FEl elem_rel SP SEl }} }.
+
 Variant eq_glu_typ_pred i m n
   (P : glu_typ_pred)
   (El : glu_exp_pred) : glu_typ_pred :=
@@ -149,6 +194,8 @@ Hint Constructors
   neut_glu_exp_pred
   pi_glu_typ_pred
   pi_glu_exp_pred
+  sigma_glu_typ_pred
+  sigma_glu_exp_pred
   eq_glu_typ_pred
   glu_eq eq_glu_exp_pred : mctt.
 
@@ -201,6 +248,23 @@ Section Gluing.
           typ_rel <∙> pi_glu_typ_pred i in_rel IP IEl OP ->
           el_rel <∙> pi_glu_exp_pred i in_rel IP IEl elem_rel OEl ->
           {{ DG Π a ρ B ∈ glu_univ_elem_core ↘ typ_rel ↘ el_rel }} }
+
+  | glu_univ_elem_core_sigma :
+    `{ forall (fst_rel : relation domain)
+         FP FEl
+         (SP : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_typ_pred)
+         (SEl : forall c (equiv_c_c : {{ Dom c ≈ c ∈ fst_rel }}), glu_exp_pred)
+         typ_rel el_rel
+         (elem_rel : relation domain),
+          {{ DG a ∈ glu_univ_elem_core ↘ FP ↘ FEl }} ->
+          {{ DF a ≈ a ∈ per_univ_elem i ↘ fst_rel }} ->
+          (forall {c} (equiv_c : {{ Dom c ≈ c ∈ fst_rel }}) b,
+              {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
+              {{ DG b ∈ glu_univ_elem_core ↘ SP _ equiv_c ↘ SEl _ equiv_c }}) ->
+          {{ DF Σ a ρ B ≈ Σ a ρ B ∈ per_univ_elem i ↘ elem_rel }} ->
+          typ_rel <∙> sigma_glu_typ_pred i fst_rel FP FEl SP ->
+          el_rel <∙> sigma_glu_exp_pred i fst_rel FP FEl elem_rel SP SEl ->
+          {{ DG Σ a ρ B ∈ glu_univ_elem_core ↘ typ_rel ↘ el_rel }} }
 
   | glu_univ_elem_core_eq :
     `{ forall a m n R P El typ_rel el_rel,
@@ -273,6 +337,25 @@ Section GluingInduction.
           El <∙> pi_glu_exp_pred i in_rel IP IEl elem_rel OEl ->
           motive i P El d{{{ Π a ρ B }}})
 
+      (case_sigma :
+        forall i a B (ρ : env) (fst_rel : relation domain) (FP : glu_typ_pred)
+          (FEl : glu_exp_pred) (SP : forall c : domain, {{ Dom c ≈ c ∈ fst_rel }} -> glu_typ_pred)
+          (SEl : forall c : domain, {{ Dom c ≈ c ∈ fst_rel }} -> glu_exp_pred) (P : glu_typ_pred) (El : glu_exp_pred)
+          (elem_rel : relation domain),
+          {{ DG a ∈ glu_univ_elem i ↘ FP ↘ FEl }} ->
+          motive i FP FEl a ->
+          {{ DF a ≈ a ∈ per_univ_elem i ↘ fst_rel }} ->
+          (forall (c : domain) (equiv_c : {{ Dom c ≈ c ∈ fst_rel }}) (b : domain),
+              {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
+              {{ DG b ∈ glu_univ_elem i ↘ SP c equiv_c ↘ SEl c equiv_c }}) ->
+          (forall (c : domain) (equiv_c : {{ Dom c ≈ c ∈ fst_rel }}) (b : domain),
+              {{ ⟦ B ⟧ ρ ↦ c ↘ b }} ->
+              motive i (SP c equiv_c) (SEl c equiv_c) b) ->
+          {{ DF Σ a ρ B ≈ Σ a ρ B ∈ per_univ_elem i ↘ elem_rel }} ->
+          P <∙> sigma_glu_typ_pred i fst_rel FP FEl SP ->
+          El <∙> sigma_glu_exp_pred i fst_rel FP FEl elem_rel SP SEl ->
+          motive i P El d{{{ Σ a ρ B }}})
+
       (case_eq :
         forall i a m n R P El typ_rel el_rel,
           {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
@@ -312,6 +395,7 @@ Section GluingInduction.
              HEl')
         (case_nat i)
         _ (* (case_pi i) *)
+        _ (* (case_sigma i) *)
         _ (* (case_eq i) *)
         (case_neut i)
         P El a
@@ -320,12 +404,15 @@ Section GluingInduction.
     eapply (case_pi i); def_simp; eauto.
   Qed.
   Next Obligation.
+    eapply (case_sigma i); def_simp; eauto.
+  Qed.
+  Next Obligation.
     eapply (case_eq i); def_simp; eauto.
   Qed.
 End GluingInduction.
 
 Variant glu_elem_bot i a Γ A M m : Prop :=
-| glu_elem_bot_make : forall P El,
+| mk_glu_elem_bot : forall P El,
     {{ Γ ⊢ M : A }} ->
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
     {{ Γ ⊢ A ® P }} ->
@@ -336,7 +423,7 @@ Variant glu_elem_bot i a Γ A M m : Prop :=
 Hint Constructors glu_elem_bot : mctt.
 
 Variant glu_elem_top i a Γ A M m : Prop :=
-| glu_elem_top_make : forall P El,
+| mk_glu_elem_top : forall P El,
     {{ Γ ⊢ M : A }} ->
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
     {{ Γ ⊢ A ® P }} ->
@@ -347,7 +434,7 @@ Variant glu_elem_top i a Γ A M m : Prop :=
 Hint Constructors glu_elem_top : mctt.
 
 Variant glu_typ_top i a Γ A : Prop :=
-| glu_typ_top_make :
+| mk_glu_typ_top :
     {{ Γ ⊢ A : Type@i }} ->
     {{ Dom a ≈ a ∈ per_top_typ }} ->
     (forall Δ σ A', {{ Δ ⊢w σ : Γ }} -> {{ Rtyp a in length Δ ↘ A' }} -> {{ Δ ⊢ A[σ] ≈ A' : Type@i }}) ->

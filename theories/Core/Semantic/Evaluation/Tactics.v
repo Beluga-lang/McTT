@@ -9,6 +9,8 @@ Ltac simplify_evals :=
   repeat (match_by_head eval_exp ltac:(fun H => directed dependent destruction H)
           || match_by_head eval_natrec ltac:(fun H => directed dependent destruction H)
           || match_by_head eval_app ltac:(fun H => directed dependent destruction H)
+          || match_by_head eval_fst ltac:(fun H => directed dependent destruction H)
+          || match_by_head eval_snd ltac:(fun H => directed dependent destruction H)
           || match_by_head eval_eqrec ltac:(fun H => directed dependent destruction H)
           || match_by_head eval_sub ltac:(fun H => directed dependent destruction H));
   functional_eval_rewrite_clear;

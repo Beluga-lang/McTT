@@ -60,7 +60,6 @@ Qed.
 Ltac eexists_rel_exp_of_pi :=
   unshelve eapply (rel_exp_of_pi _); shelve_unifiable; [eassumption |].
 
-#[local]
 Ltac extract_output_info_with ρ c ρ' c' env_rel :=
   let Hequiv := fresh "equiv" in
   (assert (Hequiv : {{ Dom ρ ↦ c ≈ ρ' ↦ c' ∈ env_rel }}) by (apply_relation_equivalence; mauto 4);
@@ -171,7 +170,7 @@ Proof with mautosolve.
   functional_eval_rewrite_clear.
   do 2 eexists.
   repeat split; [econstructor | | econstructor]; mauto.
-  - eapply rel_exp_pi_core; eauto; try reflexivity.
+  - eapply rel_exp_pi_core; try reflexivity.
     intros.
     extract_output_info_with ρ c ρ' c' (cons_per_ctx_env env_relΓ elem_relA).
     econstructor; eauto.
