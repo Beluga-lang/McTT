@@ -130,7 +130,7 @@ Lemma glu_rel_exp_pair : forall {Γ M N A B i},
     {{ Γ, A ⊩ B : Type@i }} ->
     {{ Γ ⊩ M : A }} ->
     {{ Γ ⊩ N : B[Id,,M] }} ->
-    {{ Γ ⊩ ⟨ M ; N : B ⟩ : Σ A B }}.
+    {{ Γ ⊩ ⟨ M : A ; N : B ⟩ : Σ A B }}.
 Proof.
   intros * HA HB HM HN.
   assert {{ ⊩ Γ }} as [SbΓ] by mauto 3.
@@ -187,11 +187,11 @@ Proof.
     assert (equiv_m : {{ Dom m ≈ m ∈ fst_rel }}). {
       eapply glu_univ_elem_per_elem with (P:=Pa) (El:=Ela); mauto 3. 
     }
-    assert {{ Δ ⊢ fst (⟨ M; N : B ⟩)[σ] ≈ M[σ] : A[σ] }}. {
-      assert {{ Δ ⊢ (fst (⟨ M; N : B ⟩))[σ] ≈ fst (⟨ M; N : B ⟩)[σ] : A[σ] }} as <- by (eapply wf_exp_eq_fst_sub; mauto 3).
+    assert {{ Δ ⊢ fst (⟨ M : A ; N : B ⟩)[σ] ≈ M[σ] : A[σ] }}. {
+      assert {{ Δ ⊢ (fst (⟨ M : A ; N : B ⟩))[σ] ≈ fst (⟨ M : A ; N : B ⟩)[σ] : A[σ] }} as <- by (eapply wf_exp_eq_fst_sub; mauto 3).
       eapply wf_exp_eq_sub_cong; mauto 3.
     }
-    assert {{ Δ ⊢ fst (⟨ M; N : B ⟩)[σ] : A[σ] }} by (gen_presups; mauto 3).
+    assert {{ Δ ⊢ fst (⟨ M : A ; N : B ⟩)[σ] : A[σ] }} by (gen_presups; mauto 3).
     eapply mk_sigma_glu_exp_pred with (equiv_m:=equiv_m); mauto 3.
     + eapply wf_exp_sub; mauto.
     + invert_per_univ_elem H24. rewrite H26.
@@ -227,7 +227,7 @@ Proof.
       rewrite H29 in H30.
       unfold univ_glu_exp_pred' in *.
       destruct_all. handle_functional_glu_univ_elem.
-      assert {{ Δ ⊢ B[q σ][Id,,(fst (⟨ M; N : B ⟩)[σ])] ≈ B[Id,,M][σ] : Type@i }} as ->.
+      assert {{ Δ ⊢ B[q σ][Id,,(fst (⟨ M : A ; N : B ⟩)[σ])] ≈ B[Id,,M][σ] : Type@i }} as ->.
       {
         assert {{ Δ , A[σ] ⊢ B[q σ] : Type@i }}. {
           eapply wf_conv'; [eapply wf_exp_sub | ]; mauto 3.
@@ -241,9 +241,9 @@ Proof.
         etransitivity; [|symmetry; eapply wf_sub_eq_extend_compose]; mauto 3.
         eapply wf_sub_eq_extend_cong; mauto 3. symmetry; mauto 3. 
       }
-      assert {{ Δ ⊢ (snd (⟨ M; N : B ⟩)[σ]) ≈ N[σ] : B[Id,,M][σ] }} as ->. 
+      assert {{ Δ ⊢ (snd (⟨ M : A ; N : B ⟩)[σ]) ≈ N[σ] : B[Id,,M][σ] }} as ->. 
       {
-        assert {{ Δ ⊢ B[σ,,fst (⟨ M; N : B ⟩)[σ]] ≈ B[Id,,M][σ] : Type@i }}. {
+        assert {{ Δ ⊢ B[σ,,fst (⟨ M : A ; N : B ⟩)[σ]] ≈ B[Id,,M][σ] : Type@i }}. {
           transitivity {{{B[σ,, M[σ]]}}}.
           eapply exp_eq_sub_cong_typ2; mauto 3.
           eapply wf_sub_eq_extend_cong; mauto 3.

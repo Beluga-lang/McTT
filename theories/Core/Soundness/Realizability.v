@@ -384,13 +384,13 @@ Proof.
           assert {{ Δ, FT[σ] ⊢w σ∘Wk : Γ}}. {
             eapply weakening_compose; mauto 3.
           }
-          assert (SP d{{{ ⇑! a (length Δ) }}} H30 {{{ Δ, FT[σ] }}} {{{ ST[σ∘Wk,,#0] }}}) by mauto.
-          eapply H2 with (equiv_c:=H30) in H9 .  destruct_all.
+          assert (SP d{{{ ⇑! a (length Δ) }}} H31 {{{ Δ, FT[σ] }}} {{{ ST[σ∘Wk,,#0] }}}) by mauto.
+          eapply H2 with (equiv_c:=H31) in H24.  destruct_all.
           mauto.
         }
         destruct H5. 
-        eapply H25 with (σ:={{{ Id }}} ) in H29 as HB; mauto 3.
-        rewrite <- HB. clear HB. clear H25. bulky_rewrite.
+        eapply H26 with (σ:={{{ Id }}} ) in H30 as HB; mauto 3.
+        rewrite <- HB. clear HB. mauto.
       }
 
       destruct_by_head rel_mod_proj.
@@ -401,31 +401,34 @@ Proof.
       rename b0 into m1. rename c into m2.
       assert (FEl Δ {{{ FT[σ] }}} {{{ (fst M)[σ] }}} m1) by (eapply glu_univ_elem_exp_monotone; mauto 3).
       assert (HSP: SP m1 equiv_m Δ {{{ ST[σ,,(fst M)[σ]] }}}) by eauto.
-      eapply H2 with (equiv_c:=equiv_m) in H27 as IH; eauto. destruct_all.
-      eapply H1 with (equiv_c:=equiv_m) in H27 as Hgluu; eauto.
+      eapply H2 with (equiv_c:=equiv_m) in H28 as IH; eauto. destruct_all.
+      eapply H1 with (equiv_c:=equiv_m) in H28 as Hgluu; eauto.
       eapply H13 with (R:=fst_rel) in H7; eauto.
-      eapply H25 in HSP; mauto 3.
-      eapply H30 with (R:=(x m1 m1 equiv_b_b')) in H18; mauto 3.
+      eapply H26 in HSP; mauto 3.
+      eapply H31 with (R:=(x m1 m1 equiv_b_b')) in H18; mauto 3.
       assert {{ Δ ⊢ A[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }}. {
          assert {{ Δ ⊢ (Σ FT ST)[σ] ≈ Σ FT[σ] ST[q σ] : Type@i }}. {
           eapply wf_exp_eq_conv' with (A:={{{Type@i}}}); mauto 3.
           apply exp_eq_refl; econstructor; mauto 3.
         }
-        rewrite <- H31.
+        rewrite <- H32.
         eapply wf_eq_typ_exp_sub_cong; mauto 3.
       }
-      rewrite H31.
-      transitivity {{{ ⟨ fst M[σ] ; snd M[σ] : ST[q σ] ⟩}}}.
+      rewrite H32.
+      transitivity {{{ ⟨ fst M[σ] : FT[σ] ; snd M[σ] : ST[q σ] ⟩}}}.
       eapply wf_exp_eq_sigma_eta'; mauto 3.
       eapply wf_exp_eq_pair_cong with (i:=i); mauto 3; fold nf_to_exp; fold ne_to_exp.
+      * eapply H11 in H0; mauto 3.
+        destruct H0.
+        eapply H35 in H9; mauto 3.
       * destruct H7.
-        eapply H37 with (σ:={{{ Id }}}) in H24_ ; mauto 3.
+        eapply H38 with (σ:={{{ Id }}}) in H24_ ; mauto 3.
         assert {{ Δ ⊢ FT[σ][Id] ≈ FT[σ] : Type@i }} by mauto 3.
         bulky_rewrite_in H24_.
         rewrite <- H24_. symmetry. mauto 3. 
       * assert {{ Δ ⊢w Id : Δ }} by mauto using weakening_id.
         destruct H18.
-        eapply H38 with (σ:={{{ σ }}}) in H24_0; mauto 3.
+        eapply H39 with (σ:={{{ σ }}}) in H24_0; mauto 3.
         assert {{ Δ ⊢ fst M[σ] ≈ (fst M)[σ] : FT[σ] }} by (symmetry; mauto 3).
         eapply wf_exp_eq_conv'; [etransitivity|]; mauto 3;
         eapply exp_sigma_snd_bundle with (FT:=FT) (ST:=ST); mauto 4.

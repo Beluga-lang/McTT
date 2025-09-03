@@ -154,13 +154,13 @@ Qed.
 
 Lemma nf_of_sigma : forall {Γ M A B},
     {{ Γ ⊢ M : Σ A B }} ->
-    exists W1 W2 W3, nbe Γ M {{{ Σ A B }}} n{{{ ⟨ W1 ; W2 : W3 ⟩ }}}.
+    exists W1 W2 W3 W4, nbe Γ M {{{ Σ A B }}} n{{{ ⟨ W1 : W2 ; W3 : W4 ⟩ }}}.
 Proof.
   intros * [? []]%soundness.
   dir_inversion_clear_by_head nbe.
   invert_rel_typ_body.
   dir_inversion_clear_by_head read_nf.
-  do 3 eexists; mauto 4.
+  do 4 eexists; mauto 4.
 Qed.
 
 #[export]
@@ -168,7 +168,7 @@ Hint Resolve nf_of_sigma : mctt.
 
 Theorem canonical_form_of_sigma : forall {M A B},
     {{ ⋅ ⊢ M : Σ A B }} ->
-    exists W1 W2 W3, nbe {{{ ⋅ }}} M {{{ Σ A B }}} n{{{ ⟨ W1 ; W2 : W3 ⟩ }}}.
+    exists W1 W2 W3 W4, nbe {{{ ⋅ }}} M {{{ Σ A B }}} n{{{ ⟨ W1 : W2 ; W3 : W4 ⟩ }}}.
 Proof. mauto 3. Qed.
 
 #[export]

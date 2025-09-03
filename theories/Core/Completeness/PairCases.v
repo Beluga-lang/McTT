@@ -122,14 +122,15 @@ Qed.
 #[export]
 Hint Resolve rel_exp_sigma_sub : mctt.
 
-Lemma rel_exp_pair_cong : forall {i Γ A B B' M N M' N'},
+Lemma rel_exp_pair_cong : forall {i Γ A A' B B' M N M' N'},
     {{ Γ ⊨ A : Type@i }} ->
+    {{ Γ ⊨ A ≈ A' : Type@i }} ->
     {{ Γ, A ⊨ B ≈ B' : Type@i }} ->
     {{ Γ ⊨ M ≈ M' : A }} ->
     {{ Γ ⊨ N ≈ N' : B[Id,,M] }} ->
-    {{ Γ ⊨ ⟨ M ; N : B ⟩ ≈ ⟨ M' ; N' : B' ⟩ : Σ A B }}.
+    {{ Γ ⊨ ⟨ M : A ; N : B ⟩ ≈ ⟨ M' : A' ; N' : B' ⟩ : Σ A B }}.
 Proof with mautosolve.
-  intros * HA HBB' HM HN.
+  intros * HA _ HBB' HM HN.
   assert {{ Γ , A ⊨ B : Type@i }} as HB by mauto.
   invert_rel_exp_of_typ HA.
   destruct_all. rename x into env_relΓ.
@@ -169,7 +170,7 @@ Lemma rel_exp_pair_sub : forall {i Γ σ Δ A B M N},
     {{ Δ, A ⊨ B : Type@i }} ->
     {{ Δ ⊨ M : A }} ->
     {{ Δ ⊨ N : B[Id,,M] }} ->
-    {{ Γ ⊨ ⟨ M ; N : B ⟩[σ] ≈ ⟨ M[σ] ; N[σ] : B[q σ] ⟩ : (Σ A B)[σ] }}.
+    {{ Γ ⊨ ⟨ M : A ; N : B ⟩[σ] ≈ ⟨ M[σ] : A[σ] ; N[σ] : B[q σ] ⟩ : (Σ A B)[σ] }}.
 Proof.
   intros * [env_relΓ [? [env_relΔ]]] HA HB HM HN.
   destruct_conjs.
@@ -368,7 +369,7 @@ Lemma rel_exp_fst_beta : forall {i Γ A B M N},
     {{ Γ, A ⊨ B : Type@i }} ->
     {{ Γ ⊨ M : A }} ->
     {{ Γ ⊨ N : B[Id,,M] }} ->
-    {{ Γ ⊨ fst (⟨ M ; N : B⟩) ≈ M : A }}.
+    {{ Γ ⊨ fst (⟨ M : A ; N : B⟩) ≈ M : A }}.
 Proof with mautosolve.
   intros * [env_relΓ]%rel_exp_of_typ_inversion1 [env_relΓA]%rel_exp_of_typ_inversion1 HM HN.
   destruct_conjs.
@@ -391,7 +392,7 @@ Lemma rel_exp_snd_beta : forall {i Γ A B M N},
     {{ Γ, A ⊨ B : Type@i }} ->
     {{ Γ ⊨ M : A }} ->
     {{ Γ ⊨ N : B[Id,,M] }} ->
-    {{ Γ ⊨ snd ⟨ M ; N : B ⟩ ≈ N : B[Id,,M] }}.
+    {{ Γ ⊨ snd ⟨ M : A ; N : B ⟩ ≈ N : B[Id,,M] }}.
 Proof with mautosolve.
   intros * [env_relΓ]%rel_exp_of_typ_inversion1 [env_relΓA]%rel_exp_of_typ_inversion1 HM HN.
   destruct_conjs.
@@ -413,7 +414,7 @@ Lemma rel_exp_pair_eta : forall {i Γ A B M},
     {{ Γ ⊨ A : Type@i }} ->
     {{ Γ, A ⊨ B : Type@i }} ->
     {{ Γ ⊨ M : Σ A B }} ->
-    {{ Γ ⊨ M ≈ ⟨ fst M ; snd M : B ⟩ : Σ A B }}.
+    {{ Γ ⊨ M ≈ ⟨ fst M : A ; snd M : B ⟩ : Σ A B }}.
 Proof with mautosolve.
   intros * HA HB [env_relΓ]%rel_exp_of_sigma_inversion.
   destruct_all.

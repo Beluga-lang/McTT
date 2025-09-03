@@ -30,7 +30,8 @@ Inductive read_nf : nat -> domain_nf -> nf -> Prop :=
      {{ Rnf ⇓ b m' in S s ↘ M }} ->
      {{ Rnf ⇓ (Π a ρ B) m in s ↘ λ A M }} )
 | read_nf_sigma : 
-  `( (** Normal form of snd's type *)
+  `( {{ Rtyp a in s ↘ A }} ->
+     (** Normal form of snd's type *)
      {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↘ b }} ->
      {{ Rtyp b in S s ↘ B' }} ->
      {{ π₁ m ↘ m' }} ->
@@ -40,7 +41,7 @@ Inductive read_nf : nat -> domain_nf -> nf -> Prop :=
      {{ Rnf ⇓ a m' in s ↘ M }} ->
      (* Normal form of snd *)
      {{ Rnf ⇓ b' n in s ↘ N }} ->
-     {{ Rnf ⇓ (Σ a ρ B) m in s ↘ ⟨M ; N : B'⟩}} )
+     {{ Rnf ⇓ (Σ a ρ B) m in s ↘ ⟨M : A ; N : B'⟩}} )
 | read_nf_refl :
   `( {{ Rtyp a in s ↘ A }} ->
      {{ Rnf ⇓ a m' in s ↘ M' }} ->

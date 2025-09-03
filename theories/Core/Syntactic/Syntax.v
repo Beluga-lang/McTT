@@ -208,7 +208,7 @@ Module Syntax_Notations.
   Notation "'Π' A B" := (nf_pi A B) (in custom nf at level 2, A custom nf at level 1, B custom nf at level 60) : mctt_scope.
   Notation "'λ' A e" := (nf_fn A e) (in custom nf at level 2, A custom nf at level 1, e custom nf at level 60) : mctt_scope.
   Notation "'Σ' A B" := (nf_sigma A B) (in custom nf at level 2, A custom nf at level 1, B custom nf at level 60) : mctt_scope.
-  Notation "⟨ M ; N : A ⟩" := (nf_pair M N A) (in custom nf at level 2, M custom nf at level 1, N custom nf at level 60, A custom nf at level 60) : mctt_scope.
+  Notation "⟨ M : A ; N : B ⟩" := (nf_pair M A N B) (in custom nf at level 2, M custom nf at level 1, A custom nf at level 60, N custom nf at level 60, B custom nf at level 60) : mctt_scope.
   Notation "f x .. y" := (ne_app .. (ne_app f x) .. y) (in custom nf at level 40, f custom nf, x custom nf at next level, y custom nf at next level) : mctt_scope.
   Notation "'fst' M" := (ne_fst M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
   Notation "'snd' M" := (ne_snd M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
