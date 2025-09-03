@@ -325,6 +325,45 @@ Qed.
 #[export]
 Hint Resolve alg_type_check_pi_implies_alg_type_infer_pi : mctt.
 
+Lemma alg_type_check_sigma_implies_alg_type_infer_sigma : forall {Γ M A B i},
+    {{ ⊢ Γ }} ->
+    {{ Γ ⊢ Σ A B : Type@i }} ->
+    {{ Γ ⊢a M ⟸ Σ A B }} ->
+    exists A' B', {{ Γ ⊢a M ⟹ Σ A' B' }} /\ {{ Γ ⊢ A' ≈ A : Type@i }} /\ {{ Γ, A ⊢a B' ⊆ B }}.
+Proof.
+  intros * ? ? Hcheck.
+  assert ({{ Γ ⊢ A : Type@i }} /\ {{ Γ, A ⊢ B : Type@i }}) as [] by mauto 3.
+  inversion Hcheck as [? A' ? ? Hinfer Hsub]; subst.
+  inversion Hsub as [? ? ? A'' C Hnbe1 Hnbe2 Hnfsub]; subst.
+  replace A' with A'' in * by (symmetry; mauto 3).
+  inversion Hnbe2; subst.
+  dir_inversion_by_head eval_exp; subst.
+  dir_inversion_by_head read_typ; subst.
+  inversion Hnfsub; subst; [contradiction |].
+  inversion Hnbe1; subst.
+  functional_initial_env_rewrite_clear.
+  dir_inversion_by_head eval_exp; subst.
+  dir_inversion_by_head read_typ; subst.
+  simpl in *.
+  assert {{ Γ ⊢ M : ^n{{{ Σ A0 B0 }}} }} by mauto 3 using alg_type_infer_sound.
+  assert (exists j, {{ Γ ⊢ Σ A0 B0 : Type@j }}) as [j] by (gen_presups; eauto 2).
+  assert ({{ Γ ⊢ A0 : Type@j }} /\ {{ Γ, ^(A0 : exp) ⊢ B0 : Type@j }}) as [] by mauto 3.
+  do 2 eexists.
+  assert (nbe_ty Γ A A0) by mauto 3.
+  assert {{ Γ ⊢ A ≈ A0 : Type@i }} by mauto 3 using soundness_ty'.
+  repeat split; mauto 3.
+  assert (initial_env {{{ Γ, A }}} d{{{ ρ ↦ ⇑! a (length Γ) }}}) by mauto 3.
+  assert (nbe_ty {{{ Γ, A }}} B B') by mauto 3.
+  assert (initial_env {{{ Γ, ^(A0 : exp) }}} d{{{ ρ ↦ ⇑! a0 (length Γ) }}}) by mauto 3.
+  assert (nbe_ty {{{ Γ, ^(A0 : exp) }}} B0 B0) by mauto 3.
+  assert {{ ⊢ Γ, A ≈ Γ, ^(A0 : exp) }} by mauto 3.
+  assert (nbe_ty {{{ Γ, A }}} B0 B0) by mauto 4 using ctxeq_nbe_ty_eq'.
+  mauto 3.
+Qed.
+
+#[export]
+Hint Resolve alg_type_check_sigma_implies_alg_type_infer_sigma : mctt.
+
 Lemma alg_type_check_subtyp : forall {Γ A A' M},
     {{ Γ ⊢a M ⟸ A }} ->
     {{ Γ ⊢ A ⊆ A' }} ->
@@ -394,6 +433,28 @@ Proof.
     assert {{ Γ ⊢ B'[Id,,N] ⊆ B[Id,,N] }} by mauto 3.
     assert {{ Γ ⊢ W ⊆ B[Id,,N] }} by (transitivity {{{ B'[Id,,N] }}}; mauto 3).
     econstructor; mauto 4 using alg_subtyping_complete.
+  - assert (exists j, {{ Γ ⊢a A ⟹ Type@j }} /\ j <= i) as [j []] by mauto 3.
+    assert {{ ⊢ Γ, A }} by mauto 3.
+    assert (exists j, {{ Γ, A ⊢a B ⟹ Type@j }} /\ j <= i) as [j' []] by mauto 3.
+    assert (max j j' <= i) by lia.
+    econstructor; mauto 3 using alg_subtyping_complete.
+  - assert {{ Γ ⊢a M ⟸ A }} by mauto 2.  
+    assert {{ Γ ⊢a N ⟸ B[Id,,M] }} by mauto 2.  
+    assert (exists A', {{ Γ ⊢a M ⟹ A' }} /\ {{ Γ ⊢a A' ⊆ A }}) as [A' []] by (inversion_clear_by_head alg_type_check; firstorder).
+    assert (exists B', {{ Γ ⊢a N ⟹ B' }} /\ {{ Γ ⊢a B' ⊆ B[Id,,M] }}) as [B' []] by (inversion_clear_by_head alg_type_check; firstorder).
+    eapply atc_ati with (A:=n{{{Σ A' B}}}); mauto 3.
+    econstructor; mauto 3.
+   econstructor; mauto 3.
+   econstructor; mauto 3.
+  
+  assert {{ Γ ⊢a M ⟸ Σ A B }} by mauto 2.
+    assert (exists A' B', {{ Γ ⊢a M ⟹ Π A' B' }} /\ {{ Γ ⊢ A' ≈ A : Type@i }} /\ {{ Γ, A ⊢a B' ⊆ B }}) as [A' [B' [? []]]] by mauto 3.
+
+    econstructor; mauto 3.
+  - assert {{ Γ ⊢a M ⟸ Σ A B }} by mauto 2.
+
+   econstructor; mauto 3. admit.
+  - econstructor. admit.
   - assert (exists W, nbe_ty Γ A W /\ {{ Γ ⊢ A ≈ W : Type@i }}) as [W []] by (eapply soundness_ty; mauto 3).
     econstructor; mauto 4 using alg_subtyping_complete.
   - assert (exists j, {{ Γ ⊢a A ⟹ Type@j }} /\ j <= i) as [j []] by mauto 3.
@@ -416,7 +477,7 @@ Proof.
     assert {{ Γ ⊢ B[Id,,M1,,M2,,N] : Type@j }} by mauto 2.
     assert (exists C, nbe_ty Γ {{{ B[Id,,M1,,M2,,N] }}} C /\ {{ Γ ⊢ B[Id,,M1,,M2,,N] ≈ C : Type@j }}) as [C []] by mauto 3 using soundness_ty.
     econstructor; [econstructor |]; mauto 4 using alg_subtyping_complete.
-Qed.
+Admitted.
 
 #[export]
 Hint Resolve alg_type_check_complete : mctt.
