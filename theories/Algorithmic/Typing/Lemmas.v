@@ -213,15 +213,26 @@ Proof with (f_equiv; mautosolve 4).
     assert (nbe_ty {{{ Γ, ^(A : exp) }}} C B') by mauto 3.
     assert (C = B') by mauto 3...
   - assert {{ Γ ⊢ M : ^n{{{ Σ A B }}} }} by mauto 3 using alg_type_infer_sound.
-    (* assert (exists i, {{ Γ ⊢ Σ A B : Type@i }}) as [i] by (gen_presups; eauto 2). *)
-    assert (exists A'' B'', nbe_ty Γ {{{Σ A B }}} n{{{Σ A'' B'' }}}) by admit.
-    destruct_all.
-    assert (nbe_ty Γ {{{Σ A' B }}} n{{{Σ A'' B'' }}}). {
-      admit.
+    gen_presups.
+    assert (nbe_ty Γ {{{Σ A B }}} n{{{Σ A B}}}). {
+      assert {{ Γ ⊢ ^ n{{{ Σ A B }}} ≈ ^ n{{{ Σ A B }}} : Type@i }} by (eapply exp_eq_refl; mauto 3).
+      apply completeness_ty in H as IH. destruct_all.
+      eapply IHHinfer in H2; subst; auto.
     }
-    admit.
+    dir_inversion_clear_by_head nbe.
+    dir_inversion_clear_by_head nbe_ty.
+    simplify_evals.
+    dir_inversion_by_head read_typ; subst.
+    functional_initial_env_rewrite_clear.
+    simplify_evals.
+    functional_read_rewrite_clear. reflexivity.
   - assert {{ Γ ⊢ M : ^n{{{ Σ A B }}} }} by mauto 3 using alg_type_infer_sound.
-    admit.
+    gen_presups.
+    apply wf_sigma_inversion' in HA; fold nf_to_exp in *.
+    destruct_all.
+    assert {{ Γ ⊢ fst M : A }} by mauto 3.
+    assert {{ Γ ⊢ B[Id,,fst M] : Type@i }} by mauto 3.
+    mauto 3.
   - assert {{ Γ ⊢ A : ^n{{{ Type@i }}} }} by mauto 3 using alg_type_infer_sound.
     assert {{ Γ ⊢ M : A }} by mauto 3 using alg_type_check_sound.
     dir_inversion_clear_by_head nbe.
@@ -251,7 +262,7 @@ Proof with (f_equiv; mautosolve 4).
     assert {{ Γ ⊢ B[Id,,M1,,M2,,N] : Type@j }} by mauto 2.
     mauto 3.
   - assert (exists i, {{ Γ ⊢ A : Type@i }}) as [i] by mauto 2...
-Admitted.
+Qed.
 
 #[export]
 Hint Resolve alg_type_infer_normal : mctt.
