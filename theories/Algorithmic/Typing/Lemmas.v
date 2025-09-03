@@ -5,7 +5,7 @@ From Mctt.Core Require Import Base.
 From Mctt.Core.Completeness Require Import Consequences.Rules.
 From Mctt.Core.Semantic Require Import Consequences.
 From Mctt.Core.Soundness Require Import EqualityCases.
-From Mctt.Frontend Require Import Elaborator.
+(* From Mctt.Frontend Require Import Elaborator. *)
 Import Domain_Notations.
 
 Lemma functional_alg_type_infer : forall {Γ A A' M},
@@ -24,6 +24,18 @@ Proof.
     assert (n{{{ Type@j }}} = n{{{ Type@j0 }}}) as [= <-] by intuition.
     reflexivity.
   - assert (n{{{ Π A B }}} = n{{{ Π A0 B0 }}}) as [= <- <-] by intuition.
+    functional_nbe_rewrite_clear.
+    reflexivity.
+  - assert (n{{{ Type@i }}} = n{{{ Type@i0 }}}) as [= <-] by intuition.
+    assert (n{{{ Type@j }}} = n{{{ Type@j0 }}}) as [= <-] by intuition.
+    reflexivity.
+  - assert (n{{{ A }}} = n{{{ A0 }}}) as [= <-] by intuition.
+    functional_nbe_rewrite_clear.
+    reflexivity.
+  - assert (n{{{ Σ A B }}} = n{{{ Σ A0 B0 }}}) as [= <- <-] by intuition.
+    functional_nbe_rewrite_clear.
+    reflexivity.
+  - assert (n{{{ Σ A B }}} = n{{{ Σ A0 B0 }}}) as [= <- <-] by intuition.
     functional_nbe_rewrite_clear.
     reflexivity.
   - assert (n{{{ Type@i }}} = n{{{ Type@i0 }}}) as [= <-] by intuition.

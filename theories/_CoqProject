@@ -2,11 +2,11 @@
 
 -arg -w -arg -cast-in-pattern,-notation-overridden
 
-# ./Algorithmic/Subtyping.v
-# ./Algorithmic/Subtyping/Definitions.v
-# ./Algorithmic/Subtyping/Lemmas.v
+./Algorithmic/Subtyping.v
+./Algorithmic/Subtyping/Definitions.v
+./Algorithmic/Subtyping/Lemmas.v
 # ./Algorithmic/Typing.v
-# ./Algorithmic/Typing/Definitions.v
+./Algorithmic/Typing/Definitions.v
 # ./Algorithmic/Typing/Lemmas.v
 ./Core/Base.v
 ./Core/Completeness.v
