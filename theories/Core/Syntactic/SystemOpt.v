@@ -449,6 +449,49 @@ Proof.
   mauto 4.
 Qed.
 
+Corollary wf_pair' : forall {i Γ A M1 M2 B},
+    {{ Γ ⊢ M1 : A }} ->
+    {{ Γ , A ⊢ B : Type@i }} ->
+    {{ Γ ⊢ M2 : B[Id,,M1] }} ->
+    {{ Γ ⊢ ⟨ M1 ; M2 : B ⟩ : Σ A B }}.
+Proof.
+  intros. gen_presups.
+  eapply wf_pair with (i:=(max i2 i)); mauto 3 using lift_exp_max_left, lift_exp_max_right.
+Qed.
+
+#[export]
+Hint Resolve wf_pair' : mctt.
+#[export]
+Remove Hints wf_pair : mctt.
+
+Corollary wf_fst' : forall {Γ M A B},
+    {{ Γ ⊢ M : Σ A B }} ->
+    {{ Γ ⊢ fst M : A }}.
+Proof.
+  intros. gen_presups.
+  apply wf_sigma_inversion' in HA.
+  destruct_all. mauto 3.
+Qed.
+
+#[export]
+Hint Resolve wf_fst' : mctt.
+#[export]
+Remove Hints wf_fst : mctt.
+
+Corollary wf_snd' : forall {Γ M A B},
+    {{ Γ ⊢ M : Σ A B }} ->
+    {{ Γ ⊢ snd M : B[Id,,fst M] }}.
+Proof.
+  intros. gen_presups.
+  apply wf_sigma_inversion' in HA.
+  destruct_all. mauto 3.
+Qed.
+
+#[export]
+Hint Resolve wf_snd' : mctt.
+#[export]
+Remove Hints wf_snd : mctt.
+
 Corollary wf_exp_eq_sigma_eta' : forall {Γ A B M},
     {{ Γ ⊢ M : Σ A B }} ->
     {{ Γ ⊢ M ≈ ⟨ fst M : A ; snd M : B ⟩ : Σ A B }}.

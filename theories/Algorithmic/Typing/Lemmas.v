@@ -95,9 +95,22 @@ Proof.
   - assert {{ Γ ⊢ A : Type@i }} by mauto 2.
     assert {{ ⊢ Γ, A }} by mauto 3.
     mauto 3.
-  - admit.
-  - admit.
-  - admit.  
+  - assert {{ Γ ⊢ M1 : A }} by mauto 2.
+    assert (exists j, {{ Γ ⊢ A : Type@j }}) as [j] by (gen_presups; eauto 2).
+    assert {{ Γ ⊢s Id,,M1 : Γ , ^ (A : exp) }} by mauto 3.
+    assert {{ Γ ⊢ B[Id,,M1] : Type@i }} by mauto 4.
+    assert {{ Γ ⊢ M2 : B[Id,,M1] }} by mauto 3.
+    assert {{ ⊢ Γ, ^(A : exp) }} by mauto 3. 
+    assert {{ Γ, ^(A : exp) ⊢ B : Type@i }} by mauto 3. 
+    assert {{ Γ, ^(A : exp) ⊢ B ≈ C : Type@i }} by mauto 2 using soundness_ty'.
+    assert {{ Γ ⊢ Σ A B ≈ Σ A C : Type@(max j i) }} as <- by mauto using wf_exp_eq_sigma_cong_max.
+    mauto 4.
+  - assert {{ Γ ⊢ M : Σ A B }} by mauto 2.
+    gen_presups.
+    apply wf_sigma_inversion' in HA. destruct_all.
+    assert {{ Γ ⊢ fst M : A }} by mauto 3.
+    assert {{ Γ ⊢ B[Id,,fst M] : Type@i }} by mauto 3.
+    eapply wf_conv' with (A:={{{B[Id,,fst M]}}}); mauto 3 using soundness_ty'.
   - assert {{ Γ ⊢ A : Type@i }} by mauto 2.
     assert {{ Γ ⊢ M1 : A }} by mauto 2.
     assert {{ Γ ⊢ M2 : A }} by mauto 2.
@@ -136,7 +149,7 @@ Proof.
     assert (exists i, {{ Γ ⊢ A : Type@i }}) as [i] by mauto 2.
     assert {{ Γ ⊢ A ≈ B : Type@i }} as <- by mauto 2 using soundness_ty'.
     mauto 3.
-Admitted.
+Qed.
 
 Lemma alg_type_check_sound : forall {Γ i A M},
     {{ Γ ⊢a M ⟸ A }} ->
