@@ -14,7 +14,7 @@ Inductive obj : Set :=
 | fn : string -> obj -> obj -> obj
 | app : obj -> obj -> obj
 | sigma : string -> obj -> obj -> obj
-| pair : obj -> obj -> string -> obj -> obj
+| pair : obj -> obj -> obj -> string -> obj -> obj
 | fst : obj -> obj
 | snd : obj -> obj
 | prop_eq : obj -> obj -> obj -> obj
@@ -42,7 +42,7 @@ Inductive exp : Set :=
 | a_app : exp -> exp -> exp
 (** Pairs *)
 | a_sigma : exp -> exp -> exp
-| a_pair : exp -> exp -> typ -> exp
+| a_pair : exp -> typ -> exp -> typ -> exp
 | a_fst : exp -> exp
 | a_snd : exp -> exp
 (** Propositional equality *)
@@ -94,7 +94,7 @@ Inductive nf : Set :=
 | nf_pi : nf -> nf -> nf
 | nf_fn : nf -> nf -> nf
 | nf_sigma : nf -> nf -> nf
-| nf_pair : nf -> nf -> nf -> nf
+| nf_pair : nf -> nf -> nf -> nf -> nf
 | nf_eq : nf -> nf -> nf -> nf
 | nf_refl : nf -> nf -> nf
 | nf_neut : ne -> nf
@@ -116,7 +116,7 @@ Fixpoint nf_to_exp (M : nf) : exp :=
   | nf_pi A B => a_pi (nf_to_exp A) (nf_to_exp B)
   | nf_fn A M => a_fn (nf_to_exp A) (nf_to_exp M)
   | nf_sigma A B => a_sigma (nf_to_exp A) (nf_to_exp B)
-  | nf_pair M N A => a_pair (nf_to_exp M) (nf_to_exp N) (nf_to_exp A)
+  | nf_pair M A N B => a_pair (nf_to_exp M) (nf_to_exp A) (nf_to_exp N) (nf_to_exp B)
   | nf_eq A M N => a_eq (nf_to_exp A) (nf_to_exp M) (nf_to_exp N)
   | nf_refl A M => a_refl (nf_to_exp A) (nf_to_exp M)
   | nf_neut M => ne_to_exp M
@@ -176,7 +176,7 @@ Module Syntax_Notations.
   Notation "'Π' A B" := (a_pi A B) (in custom exp at level 1, A custom exp at level 0, B custom exp at level 60) : mctt_scope.
   Notation "'λ' A e" := (a_fn A e) (in custom exp at level 1, A custom exp at level 0, e custom exp at level 60) : mctt_scope.
   Notation "'Σ' A B" := (a_sigma A B) (in custom exp at level 1, A custom exp at level 0, B custom exp at level 60) : mctt_scope.
-  Notation "⟨ M ; N : A ⟩" := (a_pair M N A) (in custom exp at level 1, M custom exp at next level, N custom exp at next level, A custom exp at next level) : mctt_scope.
+  Notation "⟨ M : A ; N : B ⟩" := (a_pair M A N B) (in custom exp at level 1, M custom exp at next level, A custom exp at next level, N custom exp at next level, B custom exp at next level) : mctt_scope.
   Notation "'fst' M" := (a_fst M) (in custom exp at level 1, M custom exp at level 0) : mctt_scope.
   Notation "'snd' M" := (a_snd M) (in custom exp at level 1, M custom exp at level 0) : mctt_scope.
   Notation "f x .. y" := (a_app .. (a_app f x) .. y) (in custom exp at level 40, f custom exp, x custom exp at next level, y custom exp at next level) : mctt_scope.
