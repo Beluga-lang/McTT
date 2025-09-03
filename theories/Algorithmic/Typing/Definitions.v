@@ -50,6 +50,7 @@ with alg_type_infer : ctx -> nf -> exp -> Prop :=
      {{ Γ ⊢a Σ A B ⟹ Type@(max i j) }} )
 | ati_pair :
   `( {{ Γ ⊢a M1 ⟹ A }} ->
+     {{ Γ , ^(A : exp) ⊢a B ⟹ Type@i }} ->
      {{ Γ ⊢a M2 ⟸ B[Id,,M1] }} ->
      nbe_ty {{{ Γ , ^(A : exp) }}} {{{ B }}} C ->
      {{ Γ ⊢a ⟨ M1 ; M2 : B ⟩ ⟹ Σ A C }} )

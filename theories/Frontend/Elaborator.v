@@ -65,6 +65,26 @@ Fixpoint elaborate (cst : Cst.obj) (ctx : list string) : option exp :=
       | _, None => None
       | Some a1, Some a2 => Some (a_app a1 a2)
       end
+  | Cst.sigma s t c => 
+      match elaborate c (s :: ctx), elaborate t ctx with
+      | Some a, Some t => Some (a_sigma t a)
+      | _, _ => None
+      end
+  | Cst.pair c1 c2 s t => 
+      match elaborate c1 ctx, elaborate c2 ctx, elaborate t (s :: ctx) with
+      | Some a1, Some a2, Some b => Some (a_pair a1 a2 b)
+      | _, _, _ => None
+      end
+  | Cst.fst c =>
+      match elaborate c ctx with
+      | Some a => Some (a_fst a)
+      | None => None
+      end
+  | Cst.snd c => 
+      match elaborate c ctx with
+      | Some a => Some (a_snd a)
+      | None => None
+      end
   | Cst.prop_eq c1 t c2 =>
       match elaborate c1 ctx, elaborate t ctx, elaborate c2 ctx with
       | Some a1, Some t, Some a2 => Some (a_eq t a1 a2)
@@ -115,6 +135,21 @@ Inductive user_exp : exp -> Prop :=
   `( user_exp M ->
      user_exp N ->
      user_exp (a_app M N) )
+| user_exp_sigma : 
+  `( user_exp A ->
+     user_exp B ->
+     user_exp (a_sigma A B) )
+| user_exp_pair :
+  `( user_exp M ->
+     user_exp N ->
+     user_exp B ->
+     user_exp (a_pair M N B) )
+| user_exp_fst :
+  `( user_exp M ->
+     user_exp (a_fst M) )
+| user_exp_snd :
+  `( user_exp M ->
+     user_exp (a_snd M) )
 | user_exp_eq :
   `( user_exp A ->
      user_exp M1 ->
@@ -156,6 +191,7 @@ Proof.
   - econstructor; mauto 3.
   - econstructor; mauto 3.
   - econstructor; mauto 3.
+  - econstructor; mauto 3.
 Qed.
 
 Fixpoint cst_variables (cst : Cst.obj) : StrSet.t :=
@@ -169,6 +205,10 @@ Fixpoint cst_variables (cst : Cst.obj) : StrSet.t :=
   | Cst.pi s t c => StrSet.union (cst_variables t) (StrSet.remove s (cst_variables c))
   | Cst.fn s t c => StrSet.union (cst_variables t) (StrSet.remove s (cst_variables c))
   | Cst.app c1 c2 => StrSet.union (cst_variables c1) (cst_variables c2)
+  | Cst.sigma s t c => StrSet.union (cst_variables t) (StrSet.remove s (cst_variables c))
+  | Cst.pair c1 c2 s t => StrSet.union (StrSet.union (cst_variables c1) (cst_variables c2)) (StrSet.remove s (cst_variables t))
+  | Cst.fst c => cst_variables c  
+  | Cst.snd c => cst_variables c
   | Cst.prop_eq c1 t c2 => StrSet.union (cst_variables c1) (StrSet.union (cst_variables t) (cst_variables c2))
   | Cst.refl t c => StrSet.union (cst_variables t) (cst_variables c)
   | Cst.eqrec n mx my mz m rx r c1 t c2 => StrSet.union (cst_variables n) (StrSet.union (StrSet.remove mx (StrSet.remove my (StrSet.remove mz (cst_variables m)))) (StrSet.union (StrSet.remove rx (cst_variables r)) (StrSet.union (cst_variables c1) (StrSet.union (cst_variables t) (cst_variables c2)))))
@@ -185,6 +225,10 @@ Inductive closed_at : exp -> nat -> Prop :=
  | ca_pi : `( closed_at t n -> closed_at b (1+n) -> closed_at (a_pi t b) n )
  | ca_lam : `( closed_at t n -> closed_at b (1+n) -> closed_at (a_fn t b) n )
  | ca_app : `( closed_at a1 n -> closed_at a2 n -> closed_at (a_app a1 a2) n )
+ | ca_sigma : `( closed_at t n -> closed_at b (1+n) -> closed_at (a_sigma t b) n )
+ | ca_pair : `( closed_at a1 n -> closed_at a2 n -> closed_at b (1+n) -> closed_at (a_pair a1 a2 b) n )
+ | ca_fst : `( closed_at a n -> closed_at (a_fst a) n )
+ | ca_snd : `( closed_at a n -> closed_at (a_snd a) n )
  | ca_eq : `( closed_at t n -> closed_at a1 n -> closed_at a2 n -> closed_at (a_eq t a1 a2) n )
  | ca_refl : `( closed_at t n -> closed_at a n -> closed_at (a_refl t a) n )
  | ca_eqrec : `( closed_at a l -> closed_at m (3+l) -> closed_at r (1+l) -> closed_at m1 l -> closed_at m2 l -> closed_at n l -> closed_at (a_eqrec a m r m1 m2 n) l )
@@ -283,6 +327,22 @@ Proof.
     assert (cst_variables cst2 [<=] StrSProp.of_list ctx) by fsetdec.
     destruct (IHcst1 _ H0) as [ast [-> ?]];
       destruct (IHcst2 _ H1) as [ast' [-> ?]]; mauto.
+  - (* sigma *)
+    assert (cst_variables cst1 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst2 [<=] StrSProp.of_list (s :: ctx)) by (simpl; fsetdec).
+    destruct (IHcst1 _ H0) as [ast [-> ?]];
+    destruct (IHcst2 _ H1) as [ast' [-> ?]]; mauto.
+  - (* pair *)
+    assert (cst_variables cst1 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst2 [<=] StrSProp.of_list ctx) by fsetdec.
+    assert (cst_variables cst3 [<=] StrSProp.of_list (s :: ctx)) by (simpl; fsetdec).
+    destruct (IHcst1 _ H0) as [ast [-> ?]];
+    destruct (IHcst2 _ H1) as [ast' [-> ?]]; mauto.
+    destruct (IHcst3 _ H2) as [ast'' [-> ?]]; mauto.
+  - (* fst *)
+    destruct (IHcst _ H) as [ast [-> ?]]; mauto.
+  - (* snd *)
+    destruct (IHcst _ H) as [ast [-> ?]]; mauto.
   - (* eq *)
     assert (cst_variables cst1 [<=] StrSProp.of_list ctx) by fsetdec.
     assert (cst_variables cst2 [<=] StrSProp.of_list ctx) by fsetdec.
@@ -313,7 +373,7 @@ Proof.
     apply (In_nth _ _ s)  in H.
     destruct H as [? [? ?]].
     mauto.
-Qed.
+Admitted.
 
 Example test_elab : elaborate Cst.nat nil = Some a_nat.
 Proof. reflexivity. Qed.

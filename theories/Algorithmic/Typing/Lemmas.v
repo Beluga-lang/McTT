@@ -5,7 +5,7 @@ From Mctt.Core Require Import Base.
 From Mctt.Core.Completeness Require Import Consequences.Rules.
 From Mctt.Core.Semantic Require Import Consequences.
 From Mctt.Core.Soundness Require Import EqualityCases.
-(* From Mctt.Frontend Require Import Elaborator. *)
+From Mctt.Frontend Require Import Elaborator.
 Import Domain_Notations.
 
 Lemma functional_alg_type_infer : forall {Γ A A' M},
@@ -191,20 +191,21 @@ Proof with (f_equiv; mautosolve 4).
     assert {{ Γ ⊢ N : A }} by mauto 3 using alg_type_check_sound.
     assert {{ Γ ⊢ B[Id,,N] : Type@i }} by mauto 3...
   - assert {{ Γ ⊢ M1 : ^n{{{ A }}} }} by mauto 3 using alg_type_infer_sound.
+    assert {{ Γ ,  ^(A : exp) ⊢ B : ^n{{{Type@i}}} }} by (gen_presups; mauto 3 using alg_type_infer_sound).
     dir_inversion_clear_by_head nbe_ty.
     simplify_evals.
     dir_inversion_by_head read_typ; subst.
     assert (nbe_ty Γ A A0) by mauto 3.
-
-    assert (nbe_ty Γ n{{{ Σ A C }}} n{{{ Σ A C }}}) by admit.
-    admit.
+    assert (nbe_ty {{{ Γ, ^(A : exp) }}} B C) by mauto 3.
+    assert (nbe_ty {{{ Γ, ^(A : exp) }}} C B') by mauto 3.
+    assert (C = B') by mauto 3...
   - assert {{ Γ ⊢ M : ^n{{{ Σ A B }}} }} by mauto 3 using alg_type_infer_sound.
-    (* dir_inversion_clear_by_head nbe_ty.
-    simplify_evals.
-
-    dir_inversion_by_head read_typ; subst.
-    functional_initial_env_rewrite_clear.
-    functional_read_rewrite_clear. *)
+    (* assert (exists i, {{ Γ ⊢ Σ A B : Type@i }}) as [i] by (gen_presups; eauto 2). *)
+    assert (exists A'' B'', nbe_ty Γ {{{Σ A B }}} n{{{Σ A'' B'' }}}) by admit.
+    destruct_all.
+    assert (nbe_ty Γ {{{Σ A' B }}} n{{{Σ A'' B'' }}}). {
+      admit.
+    }
     admit.
   - assert {{ Γ ⊢ M : ^n{{{ Σ A B }}} }} by mauto 3 using alg_type_infer_sound.
     admit.

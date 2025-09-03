@@ -80,6 +80,6 @@
 # ./Extraction/Readback.v
 # ./Extraction/Subtyping.v
 # ./Extraction/TypeCheck.v
-# ./Frontend/Elaborator.v
+./Frontend/Elaborator.v
 # ./Frontend/Parser.v
 ./LibTactics.v
