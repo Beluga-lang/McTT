@@ -7,6 +7,12 @@ Import Domain_Notations.
 
 Generalizable All Variables.
 
+Variant eval_fst_order : domain -> Prop :=
+| efo_pair :
+  `( eval_fst_order d{{{ ⟨ a ; b ⟩ }}} )
+| ef_neut :
+  `( eval_fst_order d{{{ ⇑ (Σ a ρ B) m }}} ).
+
 Inductive eval_exp_order : exp -> env -> Prop :=
 | eeo_typ :
   `( eval_exp_order {{{ Type@i }}} p )
@@ -33,6 +39,21 @@ Inductive eval_exp_order : exp -> env -> Prop :=
      eval_exp_order N p ->
      (forall m n, {{ ⟦ M ⟧ p ↘ m }} -> {{ ⟦ N ⟧ p ↘ n }} -> eval_app_order m n) ->
      eval_exp_order {{{ M N }}} p )
+| eeo_sigma : 
+  `( eval_exp_order A p ->
+     eval_exp_order {{{ Σ A B }}} p )
+| eeo_pair :
+  `( eval_exp_order M1 p ->
+     eval_exp_order M2 p ->
+     eval_exp_order {{{ ⟨ M1 : A ; M2 : B ⟩ }}} p )
+| eeo_fst :
+  `( eval_exp_order M p ->
+     (forall m, {{ ⟦ M ⟧ p ↘ m }} -> eval_fst_order m) ->
+     eval_exp_order {{{ fst M }}} p )
+| eeo_snd :
+  `( eval_exp_order M p ->
+      (forall m, {{ ⟦ M ⟧ p ↘ m }} -> eval_snd_order m) ->
+      eval_exp_order {{{ snd M }}} p )
 | eeo_eq :
   `( eval_exp_order A p ->
      eval_exp_order M1 p ->
@@ -78,6 +99,13 @@ with eval_app_order : domain -> domain -> Prop :=
   `( eval_exp_order B d{{{ p ↦ n }}} ->
      eval_app_order d{{{ ⇑ (Π a p B) m }}} n )
 
+with eval_snd_order : domain -> Prop :=
+| esno_pair :
+  `( eval_snd_order d{{{ ⟨ a ; b ⟩ }}} )
+| esno_neut :
+  `(  eval_exp_order B d{{{ ρ ↦ ⇑ a (fst m) }}} ->
+      eval_snd_order d{{{ ⇑ (Σ a ρ B) m }}} )
+
 with eval_eqrec_order : domain -> exp -> exp -> domain -> domain -> domain -> env -> Prop :=
 | eeqo_refl :
   `( eval_exp_order BR d{{{ p ↦ n }}} ->
@@ -101,7 +129,17 @@ with eval_sub_order : sub -> env -> Prop :=
      eval_sub_order {{{ σ ∘ τ }}} p ).
 
 #[local]
-Hint Constructors eval_exp_order eval_natrec_order eval_app_order eval_sub_order : mctt.
+Hint Constructors eval_exp_order eval_natrec_order eval_app_order eval_fst_order eval_snd_order eval_sub_order : mctt.
+
+Lemma eval_fst_order_sound : forall m d,
+    {{ π₁ m ↘ d }} ->
+    eval_fst_order m.
+Proof.
+  induction 1; eauto.
+Abort.
+
+#[export]
+Hint Resolve eval_fst_order_sound : mctt.
 
 Lemma eval_exp_order_sound : forall m p a,
     {{ ⟦ m ⟧ p ↘ a }} ->
@@ -112,6 +150,9 @@ with eval_natrec_order_sound : forall A MZ MS m p r,
 with eval_app_order_sound : forall m n r,
     {{ $| m & n |↘ r }} ->
     eval_app_order m n
+with eval_snd_order_sound : forall n r,
+    {{ π₂ n ↘ r }} ->
+    eval_snd_order n
 with eval_eqrec_order_sound : forall B BR a m1 m2 n p r,
     {{ eqrec n as Eq a m1 m2 ⟦return B | refl -> BR end⟧ p ↘ r }} ->
     eval_eqrec_order a B BR m1 m2 n p
@@ -122,6 +163,7 @@ Proof with (econstructor; intros; functional_eval_rewrite_clear; eauto).
   - clear eval_exp_order_sound; induction 1...
   - clear eval_natrec_order_sound; induction 1...
   - clear eval_app_order_sound; induction 1...
+  - clear eval_snd_order_sound; induction 1...
   - clear eval_eqrec_order_sound; induction 1...
   - clear eval_sub_order_sound; induction 1...
 Qed.
@@ -135,6 +177,8 @@ Ltac impl_obl_tac1 :=
   | H : eval_exp_order _ _ |- _ => progressive_invert H
   | H : eval_natrec_order _ _ _ _ _ |- _ => progressive_invert H
   | H : eval_app_order _ _ |- _ => progressive_invert H
+  | H : eval_fst_order _ |- _ => progressive_invert H
+  | H : eval_snd_order _ |- _ => progressive_invert H
   | H : eval_eqrec_order _ _ _ _ _ _ _ |- _ => progressive_invert H
   | H : eval_sub_order _ _ |- _ => progressive_invert H
   end.
@@ -142,6 +186,11 @@ Ltac impl_obl_tac1 :=
 #[local]
 Ltac impl_obl_tac :=
   repeat impl_obl_tac1; try econstructor; eauto.
+
+#[tactic="impl_obl_tac",derive(equations=no,eliminator=no)]
+Equations eval_fst_impl m (H : eval_fst_order m) : { d | eval_fst m d } by struct H :=
+| d{{{ ⟨ a ; b ⟩ }}}, H  => exist _ a _
+| d{{{ ⇑ (Σ a ρ B) m }}}, H => exist _ d{{{ ⇑ a (fst m) }}} _.
 
 #[tactic="impl_obl_tac",derive(equations=no,eliminator=no)]
 Equations eval_exp_impl m p (H : eval_exp_order m p) : { d | eval_exp m p d } by struct H :=
@@ -164,6 +213,17 @@ Equations eval_exp_impl m p (H : eval_exp_order m p) : { d | eval_exp m p d } by
     let (m, Hm) := eval_exp_impl M p _ in
     let (n, Hn) := eval_exp_impl N p _ in
     let (a, Ha) := eval_app_impl m n _ in
+    exist _ a _
+| {{{ Σ A B }}}, p, H =>
+    let (r, Hr) := eval_exp_impl A p _ in
+    exist _ d{{{ Σ r p B }}} _
+| {{{ ⟨ M1 : A ; M2 : B ⟩ }}}, p, H =>
+    let (m1, Hm1) := eval_exp_impl M1 p _ in
+    let (m2, Hm2) := eval_exp_impl M2 p _ in
+    exist _ d{{{ ⟨ m1 ; m2 ⟩ }}} _
+| {{{ fst M }}}                                      , p, H =>
+    let (m, Hm) := eval_exp_impl M p _ in
+    let (a, Ha) := eval_fst_impl m _ in
     exist _ a _
 | {{{ Eq A M1 M2 }}}                                    , p, H =>
     let (a, Ha) := eval_exp_impl A p _ in
