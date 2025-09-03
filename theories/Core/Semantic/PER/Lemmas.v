@@ -568,7 +568,6 @@ Ltac do_per_univ_elem_irrel_assert1 :=
   | H1 : {{ DF ^?a ≈ ^_ ∈ per_univ_elem ?i ↘ ?R1 }},
       H2 : {{ DF ^?a ≈ ^_ ∈ per_univ_elem ?i' ↘ ?R2 }} |- _ =>
       assert_fails (unify R1 R2);
-      (* assert_fails (assert (R1 <~> R2) by intuition); *)
       match goal with
       | H : R1 <~> R2 |- _ => fail 1
       | H : R2 <~> R1 |- _ => fail 1
@@ -577,7 +576,6 @@ Ltac do_per_univ_elem_irrel_assert1 :=
   | H1 : {{ DF ^_ ≈ ^?b ∈ per_univ_elem ?i ↘ ?R1 }},
       H2 : {{ DF ^_ ≈ ^?b ∈ per_univ_elem ?i' ↘ ?R2 }} |- _ =>
       assert_fails (unify R1 R2);
-      (* assert_fails (assert (R1 <~> R2) by intuition); *)
       match goal with
       | H : R1 <~> R2 |- _ => fail 1
       | H : R2 <~> R1 |- _ => fail 1
@@ -587,7 +585,6 @@ Ltac do_per_univ_elem_irrel_assert1 :=
       H2 : {{ DF ^_ ≈ ^?a ∈ per_univ_elem ?i' ↘ ?R2 }} |- _ =>
       (** Order matters less here as H1 and H2 cannot be exchanged *)
       assert_fails (unify R1 R2);
-      (* assert_fails (assert (R1 <~> R2) by intuition); *)
       match goal with
       | H : R1 <~> R2 |- _ => fail 1
       | H : R2 <~> R1 |- _ => fail 1
