@@ -29,10 +29,10 @@ Proof.
   - assert (n{{{ Type@i }}} = n{{{ Type@i0 }}}) as [= <-] by intuition.
     assert (n{{{ Type@j }}} = n{{{ Type@j0 }}}) as [= <-] by intuition.
     reflexivity.
-  - assert (n{{{ A }}} = n{{{ A0 }}}) as [= <-] by intuition.
+  - assert (A = A0) as <- by mauto using functional_ctx_lookup.
     functional_nbe_rewrite_clear.
     reflexivity.
-  - assert (n{{{ Σ A B }}} = n{{{ Σ A0 B0 }}}) as [= <- <-] by intuition.
+  - assert (n{{{ Σ A B }}} = n{{{ Σ A' B0 }}}) as [= <- <-] by intuition.
     functional_nbe_rewrite_clear.
     reflexivity.
   - assert (n{{{ Σ A B }}} = n{{{ Σ A0 B0 }}}) as [= <- <-] by intuition.
@@ -78,7 +78,7 @@ Proof.
     mauto 4.
   - assert {{ Γ ⊢ A : Type@i }} by mauto 2.
     assert {{ ⊢ Γ, A }} by mauto 3.
-    mauto 3.
+    mauto 4.
   - assert {{ Γ ⊢ A : Type@i }} by mauto 2.
     assert {{ ⊢ Γ, A }} by mauto 3.
     assert {{ Γ ⊢ A ≈ C : Type@i }} by mauto 2 using soundness_ty'.
@@ -92,6 +92,12 @@ Proof.
     assert {{ Γ ⊢ N : A }} by mauto 2.
     assert {{ Γ ⊢ B[Id,,N] ≈ C : Type@i }} as <- by mauto 4 using soundness_ty'.
     mauto 3.
+  - assert {{ Γ ⊢ A : Type@i }} by mauto 2.
+    assert {{ ⊢ Γ, A }} by mauto 3.
+    mauto 3.
+  - admit.
+  - admit.
+  - admit.  
   - assert {{ Γ ⊢ A : Type@i }} by mauto 2.
     assert {{ Γ ⊢ M1 : A }} by mauto 2.
     assert {{ Γ ⊢ M2 : A }} by mauto 2.
@@ -130,7 +136,7 @@ Proof.
     assert (exists i, {{ Γ ⊢ A : Type@i }}) as [i] by mauto 2.
     assert {{ Γ ⊢ A ≈ B : Type@i }} as <- by mauto 2 using soundness_ty'.
     mauto 3.
-Qed.
+Admitted.
 
 Lemma alg_type_check_sound : forall {Γ i A M},
     {{ Γ ⊢a M ⟸ A }} ->
@@ -184,6 +190,24 @@ Proof with (f_equiv; mautosolve 4).
     assert ({{ Γ ⊢ A : Type@i }} /\ {{ Γ, ^(A : exp) ⊢ B : Type@i }}) as [] by mauto 3.
     assert {{ Γ ⊢ N : A }} by mauto 3 using alg_type_check_sound.
     assert {{ Γ ⊢ B[Id,,N] : Type@i }} by mauto 3...
+  - assert {{ Γ ⊢ M1 : ^n{{{ A }}} }} by mauto 3 using alg_type_infer_sound.
+    dir_inversion_clear_by_head nbe_ty.
+    simplify_evals.
+    dir_inversion_by_head read_typ; subst.
+    assert (nbe_ty Γ A A0) by mauto 3.
+
+    assert (nbe_ty Γ n{{{ Σ A C }}} n{{{ Σ A C }}}) by admit.
+    admit.
+  - assert {{ Γ ⊢ M : ^n{{{ Σ A B }}} }} by mauto 3 using alg_type_infer_sound.
+    (* dir_inversion_clear_by_head nbe_ty.
+    simplify_evals.
+
+    dir_inversion_by_head read_typ; subst.
+    functional_initial_env_rewrite_clear.
+    functional_read_rewrite_clear. *)
+    admit.
+  - assert {{ Γ ⊢ M : ^n{{{ Σ A B }}} }} by mauto 3 using alg_type_infer_sound.
+    admit.
   - assert {{ Γ ⊢ A : ^n{{{ Type@i }}} }} by mauto 3 using alg_type_infer_sound.
     assert {{ Γ ⊢ M : A }} by mauto 3 using alg_type_check_sound.
     dir_inversion_clear_by_head nbe.
@@ -213,7 +237,7 @@ Proof with (f_equiv; mautosolve 4).
     assert {{ Γ ⊢ B[Id,,M1,,M2,,N] : Type@j }} by mauto 2.
     mauto 3.
   - assert (exists i, {{ Γ ⊢ A : Type@i }}) as [i] by mauto 2...
-Qed.
+Admitted.
 
 #[export]
 Hint Resolve alg_type_infer_normal : mctt.

@@ -51,13 +51,11 @@ with alg_type_infer : ctx -> nf -> exp -> Prop :=
 | ati_pair :
   `( {{ Γ ⊢a M1 ⟹ A }} ->
      {{ Γ ⊢a M2 ⟸ B[Id,,M1] }} ->
-     nbe_ty Γ A C1 ->
-     nbe_ty Γ {{{ B[Id,,M1] }}} C2 ->
-     {{ Γ ⊢a ⟨ M1 ; M2 : B ⟩ ⟹ Σ C1 C2 }} )
+     nbe_ty {{{ Γ , ^(A : exp) }}} {{{ B }}} C ->
+     {{ Γ ⊢a ⟨ M1 ; M2 : B ⟩ ⟹ Σ A C }} )
 | ati_fst :
   `( {{ Γ ⊢a M ⟹ Σ A B }} ->
-      nbe_ty Γ A C ->
-      {{ Γ ⊢a fst M ⟹ C }} )
+      {{ Γ ⊢a fst M ⟹ A }} )
 | ati_snd :
   `( {{ Γ ⊢a M ⟹ Σ A B }} ->
       nbe_ty Γ {{{ B[Id,,fst M] }}} C ->

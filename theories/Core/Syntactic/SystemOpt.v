@@ -160,6 +160,20 @@ Hint Resolve wf_app' : mctt.
 #[export]
 Remove Hints wf_app : mctt.
 
+Corollary wf_sigma_max : forall {Γ A i B j},
+    {{ Γ ⊢ A : Type@i }} ->
+    {{ Γ, A ⊢ B : Type@j }} ->
+    {{ Γ ⊢ Σ A B : Type@(max i j) }}.
+Proof.
+  intros.
+  assert {{ Γ ⊢ A : Type@(max i j) }} by mauto using lift_exp_max_left.
+  assert {{ Γ, A ⊢ B : Type@(max i j) }} by mauto using lift_exp_max_right.
+  mauto.
+Qed.
+
+#[export]
+Hint Resolve wf_sigma_max : mctt.
+
 Lemma wf_exp_eq_typ_sub' : forall Γ σ Δ i j,
     {{ Γ ⊢s σ : Δ }} ->
     i < j ->
