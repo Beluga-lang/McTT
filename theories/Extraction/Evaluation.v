@@ -7,7 +7,7 @@ Import Domain_Notations.
 
 Generalizable All Variables.
 
-Variant eval_fst_order : domain -> Prop :=
+Inductive eval_fst_order : domain -> Prop :=
 | efo_pair :
   `( eval_fst_order d{{{ ⟨ a ; b ⟩ }}} )
 | ef_neut :
@@ -135,8 +135,8 @@ Lemma eval_fst_order_sound : forall m d,
     {{ π₁ m ↘ d }} ->
     eval_fst_order m.
 Proof.
-  induction 1; eauto.
-Abort.
+  induction 1; mauto.
+Qed.
 
 #[export]
 Hint Resolve eval_fst_order_sound : mctt.
@@ -159,7 +159,7 @@ with eval_eqrec_order_sound : forall B BR a m1 m2 n p r,
 with eval_sub_order_sound : forall σ p p',
     {{ ⟦ σ ⟧s p ↘ p' }} ->
     eval_sub_order σ p.
-Proof with (econstructor; intros; functional_eval_rewrite_clear; eauto).
+Proof with (econstructor; intros; functional_eval_rewrite_clear; mauto 3).
   - clear eval_exp_order_sound; induction 1...
   - clear eval_natrec_order_sound; induction 1...
   - clear eval_app_order_sound; induction 1...
@@ -169,7 +169,7 @@ Proof with (econstructor; intros; functional_eval_rewrite_clear; eauto).
 Qed.
 
 #[export]
-Hint Resolve eval_exp_order_sound eval_natrec_order_sound eval_app_order_sound eval_eqrec_order_sound eval_sub_order_sound : mctt.
+Hint Resolve eval_exp_order_sound eval_natrec_order_sound eval_app_order_sound eval_snd_order_sound eval_eqrec_order_sound eval_sub_order_sound : mctt.
 
 #[local]
 Ltac impl_obl_tac1 :=
@@ -225,6 +225,10 @@ Equations eval_exp_impl m p (H : eval_exp_order m p) : { d | eval_exp m p d } by
     let (m, Hm) := eval_exp_impl M p _ in
     let (a, Ha) := eval_fst_impl m _ in
     exist _ a _
+| {{{ snd M }}}                                      , p, H =>
+    let (m, Hm) := eval_exp_impl M p _ in
+    let (b, Hb) := eval_snd_impl m _ in
+    exist _ b _
 | {{{ Eq A M1 M2 }}}                                    , p, H =>
     let (a, Ha) := eval_exp_impl A p _ in
     let (m1, Hm1) := eval_exp_impl M1 p _ in
@@ -266,6 +270,12 @@ with eval_app_impl m n (H : eval_app_order m n) : { d | eval_app m n d } by stru
     let (b, Hb) := eval_exp_impl B d{{{ p ↦ n }}} _ in
     exist _ d{{{ ⇑ b (m (⇓ a n)) }}} _
 
+with eval_snd_impl m (H : eval_snd_order m) : { d | eval_snd m d } by struct H :=
+| d{{{ ⟨ a ; b ⟩ }}}, H => exist _ b _
+| d{{{ ⇑ (Σ a ρ B) m }}}, H =>
+    let (b, Hb) := eval_exp_impl B d{{{ ρ ↦ ⇑ a (fst m) }}} _ in
+    exist _ d{{{ ⇑ b (snd m) }}} _
+
 with eval_eqrec_impl a B BR m1 m2 n p (H : eval_eqrec_order a B BR m1 m2 n p) : { d | eval_eqrec a B BR m1 m2 n p d } by struct H :=
 | a, B, BR, m1, m2, d{{{ refl n }}}, p, H =>
     let (r, Hr) := eval_exp_impl BR d{{{ p ↦ n }}} _ in
@@ -289,6 +299,7 @@ with eval_sub_impl s p (H : eval_sub_order s p) : { p' | eval_sub s p p' } by st
 Extraction Inline eval_exp_impl_functional
   eval_natrec_impl_functional
   eval_app_impl_functional
+  eval_snd_impl_functional
   eval_eqrec_impl_functional
   eval_sub_impl_functional.
 
@@ -329,6 +340,20 @@ Qed.
 Lemma eval_app_impl_complete : forall m n r,
     {{ $| m & n |↘ r }} ->
     exists H H', eval_app_impl m n H = exist _ r H'.
+Proof.
+  intros; functional_eval_complete.
+Qed.
+
+Lemma eval_fst_impl_complete : forall m a,
+    {{ π₁ m ↘ a }} ->
+    exists H H', eval_fst_impl m H = exist _ a H'.
+Proof.
+  intros; functional_eval_complete.
+Qed.
+
+Lemma eval_snd_impl_complete : forall n b,
+    {{ π₂ n ↘ b }} ->
+    exists H H', eval_snd_impl n H = exist _ b H'.
 Proof.
   intros; functional_eval_complete.
 Qed.
