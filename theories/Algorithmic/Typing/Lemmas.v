@@ -442,19 +442,10 @@ Proof.
     assert {{ Γ ⊢a N ⟸ B[Id,,M] }} by mauto 2.  
     assert (exists A', {{ Γ ⊢a M ⟹ A' }} /\ {{ Γ ⊢a A' ⊆ A }}) as [A' []] by (inversion_clear_by_head alg_type_check; firstorder).
     assert (exists B', {{ Γ ⊢a N ⟹ B' }} /\ {{ Γ ⊢a B' ⊆ B[Id,,M] }}) as [B' []] by (inversion_clear_by_head alg_type_check; firstorder).
-    eapply atc_ati with (A:=n{{{Σ A' B}}}); mauto 3.
-    econstructor; mauto 3.
-   econstructor; mauto 3.
-   econstructor; mauto 3.
-  
-  assert {{ Γ ⊢a M ⟸ Σ A B }} by mauto 2.
-    assert (exists A' B', {{ Γ ⊢a M ⟹ Π A' B' }} /\ {{ Γ ⊢ A' ≈ A : Type@i }} /\ {{ Γ, A ⊢a B' ⊆ B }}) as [A' [B' [? []]]] by mauto 3.
-
-    econstructor; mauto 3.
-  - assert {{ Γ ⊢a M ⟸ Σ A B }} by mauto 2.
-
-   econstructor; mauto 3. admit.
-  - econstructor. admit.
+    (* this case is false, as A' ⊆ A invalidates the Sigma subtyping which requires A' ≈ A *)
+    admit.
+  - admit.
+  - admit.
   - assert (exists W, nbe_ty Γ A W /\ {{ Γ ⊢ A ≈ W : Type@i }}) as [W []] by (eapply soundness_ty; mauto 3).
     econstructor; mauto 4 using alg_subtyping_complete.
   - assert (exists j, {{ Γ ⊢a A ⟹ Type@j }} /\ j <= i) as [j []] by mauto 3.
@@ -477,7 +468,7 @@ Proof.
     assert {{ Γ ⊢ B[Id,,M1,,M2,,N] : Type@j }} by mauto 2.
     assert (exists C, nbe_ty Γ {{{ B[Id,,M1,,M2,,N] }}} C /\ {{ Γ ⊢ B[Id,,M1,,M2,,N] ≈ C : Type@j }}) as [C []] by mauto 3 using soundness_ty.
     econstructor; [econstructor |]; mauto 4 using alg_subtyping_complete.
-Admitted.
+Abort.
 
 #[export]
 Hint Resolve alg_type_check_complete : mctt.
