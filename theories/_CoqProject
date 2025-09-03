@@ -5,9 +5,9 @@
 ./Algorithmic/Subtyping.v
 ./Algorithmic/Subtyping/Definitions.v
 ./Algorithmic/Subtyping/Lemmas.v
-# ./Algorithmic/Typing.v
+./Algorithmic/Typing.v
 ./Algorithmic/Typing/Definitions.v
-# ./Algorithmic/Typing/Lemmas.v
+./Algorithmic/Typing/Lemmas.v
 ./Core/Base.v
 ./Core/Completeness.v
 ./Core/Completeness/Consequences/Rules.v

@@ -453,7 +453,7 @@ Corollary wf_pair' : forall {i Γ A M1 M2 B},
     {{ Γ ⊢ M1 : A }} ->
     {{ Γ , A ⊢ B : Type@i }} ->
     {{ Γ ⊢ M2 : B[Id,,M1] }} ->
-    {{ Γ ⊢ ⟨ M1 ; M2 : B ⟩ : Σ A B }}.
+    {{ Γ ⊢ ⟨ M1 : A ; M2 : B ⟩ : Σ A B }}.
 Proof.
   intros. gen_presups.
   eapply wf_pair with (i:=(max i2 i)); mauto 3 using lift_exp_max_left, lift_exp_max_right.
