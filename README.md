@@ -102,20 +102,26 @@ type = term;
 term = 'forall' , {parameter} , '->' , term
      (* function *)
      | 'fun' , {parameter} , '->' , term
+     (* pair type *)
+     | 'exists' , {parameter} , '->' , term
      (* application *)
      | application term
      (* let expression *)
      | 'let' , {let definition} , 'in' , term
      (* successor of a natural number *)
-     | 'succ' , term
+     | 'succ' , atomic term
      (* natural number eliminator *)
      | 'rec' , term , nat scrutinee type? , 'return' , nat motive , zero branch , succ branch , 'end';
      (* propositional equality type *)
-     | application term , '=' , '<' , type , '>' , application term
+     | application term , '=' , '{' , type , '}' , application term
      (* reflexivity for propositional equality *)
      | 'refl' , atomic type , atomic term
      (* propositional equality eliminator *)
      | 'rec' , term , equality scrutinee type , 'return' , equality motive , refl branch , 'end';
+     (* first projection of a pair *)
+     | 'fst' , atomic term
+     (* second projection of a pair *)
+     | 'snd' , atomic term
 
 application term = {atomic term};
 
@@ -130,6 +136,8 @@ atomic term = 'Type', '@' , nat
             | nat
             (* variable *)
             | id
+            (* pair term *)
+            | '<' , term , ':' , type , ',' , term , ':' id , '.' , type '>'
             (* parenthesized term *)
             | '(' , term , ')';
 
@@ -149,7 +157,7 @@ zero branch = '|', 'zero' , '=>' , term;
    and the second id is the result of the recursive call *)
 succ branch = '|', 'succ' , id , id , '=>' , term;
 
-equality scrutinee type = 'as' , '(' , application term , '=' , '<' , type , '>' , application term , ')';
+equality scrutinee type = 'as' , '(' , application term , '=' , '{' , type , '}' , application term , ')';
 
 (* This describes the return type of the equality eliminator
    when the first id is bound to the LHS of the type of the scrutinee;

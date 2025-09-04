@@ -45,9 +45,14 @@
     | IN _ -> "in"
     | DEF _ -> ":="
     | EQ _ -> "="
+    | LCURLY _ -> "{"
+    | RCURLY _ -> "}"
+    | REFL _ -> "refl"
+    | SIGMA _ -> "exists"
     | LANGLE _ -> "<"
     | RANGLE _ -> ">"
-    | REFL _ -> "refl"
+    | FST _ -> "fst"
+    | SND _ -> "snd"
     | AS _ -> "as"
 
   let get_range_of_token : token -> (position * position) =
@@ -76,9 +81,14 @@
     | IN r
     | DEF r
     | EQ r
+    | LCURLY r
+    | RCURLY r
+    | REFL r
+    | SIGMA r
     | LANGLE r
     | RANGLE r
-    | REFL r
+    | FST r
+    | SND r
     | AS r
     | VAR (r, _) -> r
 
@@ -121,9 +131,14 @@ rule read =
   | "in" {IN (get_range lexbuf) }
   | ":=" {DEF (get_range lexbuf) }
   | "=" {EQ (get_range lexbuf) }
+  | "{" {LCURLY (get_range lexbuf) }
+  | "}" {RCURLY (get_range lexbuf) }
+  | "refl" {REFL (get_range lexbuf) }
+  | "exists" { SIGMA (get_range lexbuf) }
   | "<" {LANGLE (get_range lexbuf) }
   | ">" {RANGLE (get_range lexbuf) }
-  | "refl" {REFL (get_range lexbuf) }
+  | "fst" {FST (get_range lexbuf) }
+  | "snd" {SND (get_range lexbuf) }
   | "as" {AS (get_range lexbuf) }
   | string { VAR (get_range lexbuf, Lexing.lexeme lexbuf) }
   | _ as c { failwith (Format.asprintf "@[<v 2>Lexer error:@ @[<v 2>Unexpected character %C@ at %a@]@]@." c format_position lexbuf.lex_start_p) }

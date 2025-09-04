@@ -1,6 +1,6 @@
 prog: INT COLON INT SUCC
 ##
-## Ends in an error in state: 93.
+## Ends in an error in state: 109.
 ##
 ## prog -> obj COLON obj . EOF [ # ]
 ##
@@ -11,8 +11,8 @@ prog: INT COLON INT SUCC
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Either an expression or the end of file is expected.
@@ -34,7 +34,7 @@ prog: TYPE ZERO
 ##
 ## Ends in an error in state: 3.
 ##
-## atomic_obj -> TYPE . AT INT [ ZERO VAR TYPE RPAREN RETURN RANGLE NAT LPAREN INT EQ EOF END COLON BAR AS ]
+## atomic_obj -> TYPE . AT INT [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## TYPE
@@ -46,7 +46,7 @@ prog: TYPE AT ZERO
 ##
 ## Ends in an error in state: 4.
 ##
-## atomic_obj -> TYPE AT . INT [ ZERO VAR TYPE RPAREN RETURN RANGLE NAT LPAREN INT EQ EOF END COLON BAR AS ]
+## atomic_obj -> TYPE AT . INT [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## TYPE AT
@@ -58,7 +58,7 @@ prog: SUCC RPAREN
 ##
 ## Ends in an error in state: 6.
 ##
-## obj -> SUCC . atomic_obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> SUCC . atomic_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## SUCC
@@ -68,10 +68,10 @@ An expression is expected after "succ".
 
 prog: REC RPAREN
 ##
-## Ends in an error in state: 13.
+## Ends in an error in state: 16.
 ##
-## obj -> REC . obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-## obj -> REC . obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC . obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+## obj -> REC . obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC
@@ -82,21 +82,21 @@ This token is invalid for the beginning of an expression.
 
 prog: LAMBDA ZERO
 ##
-## Ends in an error in state: 23.
+## Ends in an error in state: 28.
 ##
-## obj -> fnbinder . params ARROW obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> fnbinder . params ARROW obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## fnbinder
 ##
 
-"forall" requires a list of parenthesized parameters.
+A list of parenthesized parameters is expected.
 For example,
   "(x : Nat) (y : Nat)" in "forall (x : Nat) (y : Nat) -> Nat"
 
 prog: LAMBDA LPAREN ZERO
 ##
-## Ends in an error in state: 17.
+## Ends in an error in state: 20.
 ##
 ## param -> LPAREN . VAR COLON obj RPAREN [ LPAREN DEF ARROW ]
 ##
@@ -108,7 +108,7 @@ A parameter should start with a valid identifier.
 
 prog: LAMBDA LPAREN VAR ZERO
 ##
-## Ends in an error in state: 18.
+## Ends in an error in state: 21.
 ##
 ## param -> LPAREN VAR . COLON obj RPAREN [ LPAREN DEF ARROW ]
 ##
@@ -121,7 +121,7 @@ where "?type" is the type of the parameter.
 
 prog: LAMBDA LPAREN VAR COLON RPAREN
 ##
-## Ends in an error in state: 19.
+## Ends in an error in state: 22.
 ##
 ## param -> LPAREN VAR COLON . obj RPAREN [ LPAREN DEF ARROW ]
 ##
@@ -136,7 +136,7 @@ prog: LPAREN RPAREN
 ##
 ## Ends in an error in state: 8.
 ##
-## atomic_obj -> LPAREN . obj RPAREN [ ZERO VAR TYPE RPAREN RETURN RANGLE NAT LPAREN INT EQ EOF END COLON BAR AS ]
+## atomic_obj -> LPAREN . obj RPAREN [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## LPAREN
@@ -147,9 +147,9 @@ prog: LPAREN RPAREN
 
 prog: LPAREN INT DARROW
 ##
-## Ends in an error in state: 87.
+## Ends in an error in state: 103.
 ##
-## atomic_obj -> LPAREN obj . RPAREN [ ZERO VAR TYPE RPAREN RETURN RANGLE NAT LPAREN INT EQ EOF END COLON BAR AS ]
+## atomic_obj -> LPAREN obj . RPAREN [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## LPAREN obj
@@ -158,8 +158,8 @@ prog: LPAREN INT DARROW
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Either an expression or ")" is expected.
@@ -167,7 +167,7 @@ This token is invalid for the beginning of an expression.
 
 prog: LAMBDA LPAREN VAR COLON INT DARROW
 ##
-## Ends in an error in state: 21.
+## Ends in an error in state: 26.
 ##
 ## param -> LPAREN VAR COLON obj . RPAREN [ LPAREN DEF ARROW ]
 ##
@@ -178,8 +178,8 @@ prog: LAMBDA LPAREN VAR COLON INT DARROW
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Either an expression or ")" is expected.
@@ -187,22 +187,22 @@ This token is invalid for the beginning of an expression.
 
 prog: LAMBDA LPAREN VAR COLON INT RPAREN ZERO
 ##
-## Ends in an error in state: 24.
+## Ends in an error in state: 29.
 ##
-## obj -> fnbinder params . ARROW obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> fnbinder params . ARROW obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ## params -> params . param [ LPAREN ARROW ]
 ##
 ## The known suffix of the stack is as follows:
 ## fnbinder params
 ##
 
-"->" or another parameter is expected after a list of parameters for "fun".
+"->" or another parameter is expected after a list of parameters.
 
 prog: LAMBDA LPAREN VAR COLON INT RPAREN ARROW RPAREN
 ##
-## Ends in an error in state: 25.
+## Ends in an error in state: 30.
 ##
-## obj -> fnbinder params ARROW . obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> fnbinder params ARROW . obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## fnbinder params ARROW
@@ -213,10 +213,10 @@ This token is invalid for the beginning of an expression.
 
 prog: REC INT DARROW
 ##
-## Ends in an error in state: 47.
+## Ends in an error in state: 52.
 ##
-## obj -> REC obj . optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-## obj -> REC obj . AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj . optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+## obj -> REC obj . AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj
@@ -225,8 +225,8 @@ prog: REC INT DARROW
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Either an expression or "return" keyword is expected.
@@ -234,9 +234,9 @@ This token is invalid for the beginning of an expression.
 
 prog: REC INT RETURN ZERO
 ##
-## Ends in an error in state: 71.
+## Ends in an error in state: 76.
 ##
-## obj -> REC obj optional_as_nat RETURN . VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN . VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN
@@ -246,9 +246,9 @@ A variable is expected for the motif of a natural number recursion.
 
 prog: REC INT RETURN VAR ZERO
 ##
-## Ends in an error in state: 72.
+## Ends in an error in state: 77.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR . DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR . DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR
@@ -258,9 +258,9 @@ prog: REC INT RETURN VAR ZERO
 
 prog: REC INT RETURN VAR DOT RPAREN
 ##
-## Ends in an error in state: 73.
+## Ends in an error in state: 78.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT . obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT . obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT
@@ -271,9 +271,9 @@ This token is invalid for the beginning of an expression.
 
 prog: REC INT RETURN VAR DOT INT DARROW
 ##
-## Ends in an error in state: 74.
+## Ends in an error in state: 79.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj . BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj . BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj
@@ -282,8 +282,8 @@ prog: REC INT RETURN VAR DOT INT DARROW
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Either an expression or "|" is expected.
@@ -291,9 +291,9 @@ This token is invalid for the beginning of an expression.
 
 prog: REC INT RETURN VAR DOT INT BAR VAR
 ##
-## Ends in an error in state: 75.
+## Ends in an error in state: 80.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR . ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR . ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR
@@ -303,9 +303,9 @@ The "zero" pattern is expected for the first branch of the natural number recurs
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO ZERO
 ##
-## Ends in an error in state: 76.
+## Ends in an error in state: 81.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO . DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO . DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO
@@ -315,9 +315,9 @@ prog: REC INT RETURN VAR DOT INT BAR ZERO ZERO
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW RPAREN
 ##
-## Ends in an error in state: 77.
+## Ends in an error in state: 82.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW . obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW . obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW
@@ -328,9 +328,9 @@ This token is invalid for the beginning of an expression.
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT DARROW
 ##
-## Ends in an error in state: 78.
+## Ends in an error in state: 83.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj . BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj . BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj
@@ -339,8 +339,8 @@ prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT DARROW
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Either an expression or "|" is expected.
@@ -348,9 +348,9 @@ This token is invalid for the beginning of an expression.
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR ZERO
 ##
-## Ends in an error in state: 79.
+## Ends in an error in state: 84.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR . SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR . SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR
@@ -360,9 +360,9 @@ The "succ" pattern is expected for the second branch of the natural number recur
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC ZERO
 ##
-## Ends in an error in state: 80.
+## Ends in an error in state: 85.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC . VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC . VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC
@@ -372,9 +372,9 @@ Two comma-separated pattern variables are expected for the "succ" pattern.
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC VAR ZERO
 ##
-## Ends in an error in state: 81.
+## Ends in an error in state: 86.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR . COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR . COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR
@@ -384,9 +384,9 @@ prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC VAR ZERO
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC VAR COMMA ZERO
 ##
-## Ends in an error in state: 82.
+## Ends in an error in state: 87.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA . VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA . VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA
@@ -396,9 +396,9 @@ An identifier for the recursion result is expected.
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC VAR COMMA VAR ZERO
 ##
-## Ends in an error in state: 83.
+## Ends in an error in state: 88.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR . DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR . DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR
@@ -408,9 +408,9 @@ prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC VAR COMMA VAR ZERO
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC VAR COMMA VAR DARROW RPAREN
 ##
-## Ends in an error in state: 84.
+## Ends in an error in state: 89.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW . obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW . obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW
@@ -421,9 +421,9 @@ This token is invalid for the beginning of an expression.
 
 prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC VAR COMMA VAR DARROW INT DARROW
 ##
-## Ends in an error in state: 85.
+## Ends in an error in state: 90.
 ##
-## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj . END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj . END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj
@@ -432,8 +432,8 @@ prog: REC INT RETURN VAR DOT INT BAR ZERO DARROW INT BAR SUCC VAR COMMA VAR DARR
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Either an expression or "end" is expected.
@@ -441,7 +441,7 @@ This token is invalid for the beginning of an expression.
 
 prog: INT DARROW
 ##
-## Ends in an error in state: 91.
+## Ends in an error in state: 107.
 ##
 ## prog -> obj . COLON obj EOF [ # ]
 ##
@@ -452,8 +452,8 @@ prog: INT DARROW
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Either an expression or ":" is expected.
@@ -461,7 +461,7 @@ This token is invalid for the beginning of an expression.
 
 prog: INT COLON RPAREN
 ##
-## Ends in an error in state: 92.
+## Ends in an error in state: 108.
 ##
 ## prog -> obj COLON . obj EOF [ # ]
 ##
@@ -474,9 +474,9 @@ This token is invalid for the beginning of an expression.
 
 prog: LET ZERO
 ##
-## Ends in an error in state: 15.
+## Ends in an error in state: 18.
 ##
-## obj -> LET . let_defns IN obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> LET . let_defns IN obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## LET
@@ -486,7 +486,7 @@ At least one variable binding is expected after a "let"
 
 prog: LET LPAREN ZERO
 ##
-## Ends in an error in state: 16.
+## Ends in an error in state: 19.
 ##
 ## let_defn -> LPAREN . param DEF obj RPAREN [ LPAREN IN ]
 ##
@@ -498,7 +498,7 @@ A variable "(x : ?A)" is expected after "let (", where "?A" is a type.
 
 prog: LET LPAREN LPAREN VAR COLON INT RPAREN ZERO
 ##
-## Ends in an error in state: 38.
+## Ends in an error in state: 43.
 ##
 ## let_defn -> LPAREN param . DEF obj RPAREN [ LPAREN IN ]
 ##
@@ -510,7 +510,7 @@ Expected symbol ":=".
 
 prog: LET LPAREN LPAREN VAR COLON INT RPAREN DEF RPAREN
 ##
-## Ends in an error in state: 39.
+## Ends in an error in state: 44.
 ##
 ## let_defn -> LPAREN param DEF . obj RPAREN [ LPAREN IN ]
 ##
@@ -522,7 +522,7 @@ Expected a value for the variable.
 
 prog: LET LPAREN LPAREN VAR COLON INT RPAREN DEF INT SUCC
 ##
-## Ends in an error in state: 40.
+## Ends in an error in state: 45.
 ##
 ## let_defn -> LPAREN param DEF obj . RPAREN [ LPAREN IN ]
 ##
@@ -533,18 +533,18 @@ prog: LET LPAREN LPAREN VAR COLON INT RPAREN DEF INT SUCC
 ## This implies that, although the LR(1) items shown above provide an
 ## accurate view of the past (what has been recognized so far), they
 ## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
 ##
 
 Expected ")".
 
 prog: LET LPAREN LPAREN VAR COLON INT RPAREN DEF INT RPAREN ZERO
 ##
-## Ends in an error in state: 42.
+## Ends in an error in state: 47.
 ##
 ## let_defns -> let_defns . let_defn [ LPAREN IN ]
-## obj -> LET let_defns . IN obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> LET let_defns . IN obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## LET let_defns
@@ -554,9 +554,9 @@ Expected keyword "in".
 
 prog: LET LPAREN LPAREN VAR COLON INT RPAREN DEF INT RPAREN IN RPAREN
 ##
-## Ends in an error in state: 43.
+## Ends in an error in state: 48.
 ##
-## obj -> LET let_defns IN . obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> LET let_defns IN . obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## LET let_defns IN
@@ -566,65 +566,22 @@ Expected an expression after "in".
 
 prog: INT EQ ZERO
 ##
-## Ends in an error in state: 30.
+## Ends in an error in state: 35.
 ##
-## eq_obj -> app_obj EQ . LANGLE obj RANGLE app_obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## eq_obj -> app_obj EQ . LCURLY obj RCURLY app_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## app_obj EQ
 ##
 
-"<", a type, and ">" are expected for a propositional equality type.
-This type between "<" and ">" is the type of LHS and RHS.
-
-prog: INT EQ LANGLE RPAREN
-##
-## Ends in an error in state: 31.
-##
-## eq_obj -> app_obj EQ LANGLE . obj RANGLE app_obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## app_obj EQ LANGLE
-##
-
-Expected an expression between "<" and ">".
-
-prog: INT EQ LANGLE INT SUCC
-##
-## Ends in an error in state: 32.
-##
-## eq_obj -> app_obj EQ LANGLE obj . RANGLE app_obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## app_obj EQ LANGLE obj
-##
-## WARNING: This example involves spurious reductions.
-## This implies that, although the LR(1) items shown above provide an
-## accurate view of the past (what has been recognized so far), they
-## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
-##
-
-Expected ">" after a type for a propositional equality type.
-
-prog: INT EQ LANGLE INT RANGLE SUCC
-##
-## Ends in an error in state: 33.
-##
-## eq_obj -> app_obj EQ LANGLE obj RANGLE . app_obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## app_obj EQ LANGLE obj RANGLE
-##
-
-Expected RHS for a propositional equality type.
+"{", a type, and "}" are expected for a propositional equality type.
+This type between "{" and "}" is the type of LHS and RHS.
 
 prog: REC INT AS ZERO
 ##
-## Ends in an error in state: 48.
+## Ends in an error in state: 53.
 ##
-## obj -> REC obj AS . LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj AS . LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ## optional_as_nat -> AS . NAT [ RETURN ]
 ##
 ## The known suffix of the stack is as follows:
@@ -635,9 +592,9 @@ Expected "(" for the scrutinee type of a propositional equality recursion.
 
 prog: REC INT AS LPAREN SUCC
 ##
-## Ends in an error in state: 50.
+## Ends in an error in state: 55.
 ##
-## obj -> REC obj AS LPAREN . app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj AS LPAREN . app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj AS LPAREN
@@ -647,10 +604,10 @@ Expected LHS for the scrutinee type of a propositional equality recursion.
 
 prog: REC INT AS LPAREN INT SUCC
 ##
-## Ends in an error in state: 51.
+## Ends in an error in state: 56.
 ##
-## app_obj -> app_obj . atomic_obj [ ZERO VAR TYPE NAT LPAREN INT EQ ]
-## obj -> REC obj AS LPAREN app_obj . EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## app_obj -> app_obj . atomic_obj [ ZERO VAR TYPE NAT LPAREN LANGLE INT EQ ]
+## obj -> REC obj AS LPAREN app_obj . EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj AS LPAREN app_obj
@@ -660,240 +617,22 @@ Either an expression or "=" after LHS for the scrutinee type of a propositional 
 
 prog: REC INT AS LPAREN INT EQ ZERO
 ##
-## Ends in an error in state: 52.
+## Ends in an error in state: 57.
 ##
-## obj -> REC obj AS LPAREN app_obj EQ . LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj AS LPAREN app_obj EQ . LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj AS LPAREN app_obj EQ
 ##
 
-"<", a type, and ">" are expected for a propositional equality type.
-This type between "<" and ">" is the type of LHS and RHS.
-
-prog: REC INT AS LPAREN INT EQ LANGLE RPAREN
-##
-## Ends in an error in state: 53.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE . obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE
-##
-
-Expected an expression between "<" and ">".
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT SUCC
-##
-## Ends in an error in state: 54.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj . RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj
-##
-## WARNING: This example involves spurious reductions.
-## This implies that, although the LR(1) items shown above provide an
-## accurate view of the past (what has been recognized so far), they
-## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
-##
-
-Expected ">" after a type for a propositional equality type.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE SUCC
-##
-## Ends in an error in state: 55.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE . app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE
-##
-
-Expected RHS for the scrutinee type of a propositional equality recursion.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT SUCC
-##
-## Ends in an error in state: 56.
-##
-## app_obj -> app_obj . atomic_obj [ ZERO VAR TYPE RPAREN NAT LPAREN INT ]
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj . RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj
-##
-
-Either an expression or ")" after RHS for the scrutinee type of a propositional equality recursion is expected.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN ZERO
-##
-## Ends in an error in state: 57.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN . RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN
-##
-
-"return" keyword is expected.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN ZERO
-##
-## Ends in an error in state: 58.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN . VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN
-##
-
-Three variables are expected for the motif of a propositional equality recursion.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR ZERO
-##
-## Ends in an error in state: 59.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR . VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR
-##
-
-Two more identifiers are expected for the motif of a propositional equality recursion.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR ZERO
-##
-## Ends in an error in state: 60.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR . VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR
-##
-
-One more identifier is expected for the motif of a propositional equality recursion.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR VAR ZERO
-##
-## Ends in an error in state: 61.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR . DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR
-##
-
-"." is expected after the scrutinee name of the motif of a propositional equality recursion.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR VAR DOT RPAREN
-##
-## Ends in an error in state: 62.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT . obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT
-##
-
-An expression is expected for the motif of a propositional equality recursion.
-This token is invalid for the beginning of an expression.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR VAR DOT INT SUCC
-##
-## Ends in an error in state: 63.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj . BAR REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj
-##
-## WARNING: This example involves spurious reductions.
-## This implies that, although the LR(1) items shown above provide an
-## accurate view of the past (what has been recognized so far), they
-## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
-##
-
-Either an expression or "|" is expected.
-This token is invalid for the beginning of an expression.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR VAR DOT INT BAR ZERO
-##
-## Ends in an error in state: 64.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR . REFL VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR
-##
-
-The "refl" pattern is expected for the branch of a propositional equality recursion.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR VAR DOT INT BAR REFL ZERO
-##
-## Ends in an error in state: 65.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL . VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL
-##
-
-A pattern variable is expected for the "refl" pattern.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR VAR DOT INT BAR REFL VAR ZERO
-##
-## Ends in an error in state: 66.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR . DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR
-##
-
-"=>" is expected after a pattern.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR VAR DOT INT BAR REFL VAR DARROW RPAREN
-##
-## Ends in an error in state: 67.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW . obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW
-##
-
-An expression is expected.
-This token is invalid for the beginning of an expression.
-
-prog: REC INT AS LPAREN INT EQ LANGLE INT RANGLE INT RPAREN RETURN VAR VAR VAR DOT INT BAR REFL VAR DARROW INT SUCC
-##
-## Ends in an error in state: 68.
-##
-## obj -> REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj . END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
-##
-## The known suffix of the stack is as follows:
-## REC obj AS LPAREN app_obj EQ LANGLE obj RANGLE app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj
-##
-## WARNING: This example involves spurious reductions.
-## This implies that, although the LR(1) items shown above provide an
-## accurate view of the past (what has been recognized so far), they
-## may provide an INCOMPLETE view of the future (what was expected next).
-## In state 29, spurious reduction of production eq_obj -> app_obj
-## In state 27, spurious reduction of production obj -> eq_obj
-##
-
-Either an expression or "end" is expected.
-This token is invalid for the beginning of an expression.
+"{", a type, and "}" are expected for a propositional equality type.
+This type between "{" and "}" is the type of LHS and RHS.
 
 prog: REC INT AS NAT ZERO
 ##
-## Ends in an error in state: 70.
+## Ends in an error in state: 75.
 ##
-## obj -> REC obj optional_as_nat . RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REC obj optional_as_nat . RETURN VAR DOT obj BAR ZERO DARROW obj BAR SUCC VAR COMMA VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REC obj optional_as_nat
@@ -903,9 +642,9 @@ prog: REC INT AS NAT ZERO
 
 prog: REFL SUCC
 ##
-## Ends in an error in state: 9.
+## Ends in an error in state: 12.
 ##
-## obj -> REFL . atomic_obj atomic_obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REFL . atomic_obj atomic_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REFL
@@ -915,12 +654,447 @@ An expression is expected.
 
 prog: REFL INT SUCC
 ##
-## Ends in an error in state: 11.
+## Ends in an error in state: 14.
 ##
-## obj -> REFL atomic_obj . atomic_obj [ RPAREN RETURN RANGLE EOF END COLON BAR AS ]
+## obj -> REFL atomic_obj . atomic_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
 ##
 ## The known suffix of the stack is as follows:
 ## REFL atomic_obj
 ##
 
 An expression is expected.
+
+prog: INT EQ LCURLY RPAREN
+##
+## Ends in an error in state: 36.
+##
+## eq_obj -> app_obj EQ LCURLY . obj RCURLY app_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## app_obj EQ LCURLY
+##
+
+Expected an expression between "{" and "}".
+
+prog: INT EQ LCURLY INT SUCC
+##
+## Ends in an error in state: 37.
+##
+## eq_obj -> app_obj EQ LCURLY obj . RCURLY app_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## app_obj EQ LCURLY obj
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
+##
+
+Expected "}" after a type for a propositional equality type.
+
+prog: INT EQ LCURLY INT RCURLY SUCC
+##
+## Ends in an error in state: 38.
+##
+## eq_obj -> app_obj EQ LCURLY obj RCURLY . app_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## app_obj EQ LCURLY obj RCURLY
+##
+
+Expected RHS for a propositional equality type.
+
+prog: REC INT AS LPAREN INT EQ LCURLY RPAREN
+##
+## Ends in an error in state: 58.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY . obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY
+##
+
+Expected an expression between "{" and "}".
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT SUCC
+##
+## Ends in an error in state: 59.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj . RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
+##
+
+Expected "}" after a type for a propositional equality type.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY SUCC
+##
+## Ends in an error in state: 60.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY . app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY
+##
+
+Expected RHS for the scrutinee type of a propositional equality recursion.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT SUCC
+##
+## Ends in an error in state: 61.
+##
+## app_obj -> app_obj . atomic_obj [ ZERO VAR TYPE RPAREN NAT LPAREN LANGLE INT ]
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj . RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj
+##
+
+Either an expression or ")" after RHS for the scrutinee type of a propositional equality recursion is expected.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN ZERO
+##
+## Ends in an error in state: 62.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN . RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN
+##
+
+"return" keyword is expected.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN ZERO
+##
+## Ends in an error in state: 63.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN . VAR VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN
+##
+
+Three variables are expected for the motif of a propositional equality recursion.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR ZERO
+##
+## Ends in an error in state: 64.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR . VAR VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR
+##
+
+Two more identifiers are expected for the motif of a propositional equality recursion.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR ZERO
+##
+## Ends in an error in state: 65.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR . VAR DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR
+##
+
+One more identifier is expected for the motif of a propositional equality recursion.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR VAR ZERO
+##
+## Ends in an error in state: 66.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR . DOT obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR
+##
+
+"." is expected after the scrutinee name of the motif of a propositional equality recursion.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR VAR DOT RPAREN
+##
+## Ends in an error in state: 67.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT . obj BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT
+##
+
+An expression is expected for the motif of a propositional equality recursion.
+This token is invalid for the beginning of an expression.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR VAR DOT INT SUCC
+##
+## Ends in an error in state: 68.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj . BAR REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
+##
+
+Either an expression or "|" is expected.
+This token is invalid for the beginning of an expression.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR VAR DOT INT BAR ZERO
+##
+## Ends in an error in state: 69.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR . REFL VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR
+##
+
+The "refl" pattern is expected for the branch of a propositional equality recursion.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR VAR DOT INT BAR REFL ZERO
+##
+## Ends in an error in state: 70.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL . VAR DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL
+##
+
+A pattern variable is expected for the "refl" pattern.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR VAR DOT INT BAR REFL VAR ZERO
+##
+## Ends in an error in state: 71.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR . DARROW obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR
+##
+
+"=>" is expected after a pattern.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR VAR DOT INT BAR REFL VAR DARROW RPAREN
+##
+## Ends in an error in state: 72.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW . obj END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW
+##
+
+An expression is expected.
+This token is invalid for the beginning of an expression.
+
+prog: REC INT AS LPAREN INT EQ LCURLY INT RCURLY INT RPAREN RETURN VAR VAR VAR DOT INT BAR REFL VAR DARROW INT SUCC
+##
+## Ends in an error in state: 73.
+##
+## obj -> REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj . END [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## REC obj AS LPAREN app_obj EQ LCURLY obj RCURLY app_obj RPAREN RETURN VAR VAR VAR DOT obj BAR REFL VAR DARROW obj
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
+##
+
+Either an expression or "end" is expected.
+This token is invalid for the beginning of an expression.
+
+prog: SND SUCC
+##
+## Ends in an error in state: 9.
+##
+## obj -> SND . atomic_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## SND
+##
+
+An expression is expected after "snd".
+
+prog: LANGLE RPAREN
+##
+## Ends in an error in state: 10.
+##
+## atomic_obj -> LANGLE . obj COLON obj COMMA obj COLON VAR DOT obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE
+##
+
+An expression is expected after "<".
+
+prog: FST SUCC
+##
+## Ends in an error in state: 24.
+##
+## obj -> FST . atomic_obj [ RPAREN RETURN RCURLY RANGLE EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## FST
+##
+
+An expression is expected after "fst".
+
+prog: LANGLE INT SUCC
+##
+## Ends in an error in state: 92.
+##
+## atomic_obj -> LANGLE obj . COLON obj COMMA obj COLON VAR DOT obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
+##
+
+The first entry of a pair should be followed by ":" and then its type.
+
+prog: LANGLE INT COLON RPAREN
+##
+## Ends in an error in state: 93.
+##
+## atomic_obj -> LANGLE obj COLON . obj COMMA obj COLON VAR DOT obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj COLON
+##
+
+An expression is expected after ":".
+
+prog: LANGLE INT COLON INT SUCC
+##
+## Ends in an error in state: 94.
+##
+## atomic_obj -> LANGLE obj COLON obj . COMMA obj COLON VAR DOT obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj COLON obj
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
+##
+
+The second entry of a pair should come after the entry separator ",".
+
+prog: LANGLE INT COLON INT COMMA RPAREN
+##
+## Ends in an error in state: 95.
+##
+## atomic_obj -> LANGLE obj COLON obj COMMA . obj COLON VAR DOT obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj COLON obj COMMA
+##
+
+An expression is expected after ",".
+
+prog: LANGLE INT COLON INT COMMA INT SUCC
+##
+## Ends in an error in state: 96.
+##
+## atomic_obj -> LANGLE obj COLON obj COMMA obj . COLON VAR DOT obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj COLON obj COMMA obj
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
+##
+
+The second entry of a pair should be followed by ":" and then its type.
+
+prog: LANGLE INT COLON INT COMMA INT COLON ZERO
+##
+## Ends in an error in state: 97.
+##
+## atomic_obj -> LANGLE obj COLON obj COMMA obj COLON . VAR DOT obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj COLON obj COMMA obj COLON
+##
+
+The second entry type of a pair should start with an identifier,
+representing a binder to the first entry.
+
+prog: LANGLE INT COLON INT COMMA INT COLON VAR ZERO
+##
+## Ends in an error in state: 98.
+##
+## atomic_obj -> LANGLE obj COLON obj COMMA obj COLON VAR . DOT obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj COLON obj COMMA obj COLON VAR
+##
+
+The second entry type of a pair should separate a binder and
+body using ".".
+
+prog: LANGLE INT COLON INT COMMA INT COLON VAR DOT RPAREN
+##
+## Ends in an error in state: 99.
+##
+## atomic_obj -> LANGLE obj COLON obj COMMA obj COLON VAR DOT . obj RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj COLON obj COMMA obj COLON VAR DOT
+##
+
+An expression is expected after ".".
+
+prog: LANGLE INT COLON INT COMMA INT COLON VAR DOT INT SUCC
+##
+## Ends in an error in state: 100.
+##
+## atomic_obj -> LANGLE obj COLON obj COMMA obj COLON VAR DOT obj . RANGLE [ ZERO VAR TYPE RPAREN RETURN RCURLY RANGLE NAT LPAREN LANGLE INT EQ EOF END COMMA COLON BAR AS ]
+##
+## The known suffix of the stack is as follows:
+## LANGLE obj COLON obj COMMA obj COLON VAR DOT obj
+##
+## WARNING: This example involves spurious reductions.
+## This implies that, although the LR(1) items shown above provide an
+## accurate view of the past (what has been recognized so far), they
+## may provide an INCOMPLETE view of the future (what was expected next).
+## In state 34, spurious reduction of production eq_obj -> app_obj
+## In state 32, spurious reduction of production obj -> eq_obj
+##
+
+A pair should be closed with ">".

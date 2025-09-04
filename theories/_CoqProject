@@ -73,7 +73,7 @@
 ./Core/Syntactic/System/Lemmas.v
 ./Core/Syntactic/System/Tactics.v
 ./Core/Syntactic/SystemOpt.v
-# ./Entrypoint.v
+./Entrypoint.v
 ./Extraction/Evaluation.v
 ./Extraction/NbE.v
 ./Extraction/PseudoMonadic.v
@@ -81,5 +81,5 @@
 ./Extraction/Subtyping.v
 ./Extraction/TypeCheck.v
 ./Frontend/Elaborator.v
-# ./Frontend/Parser.v
+./Frontend/Parser.v
 ./LibTactics.v

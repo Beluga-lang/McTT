@@ -1,10 +1,10 @@
-let ((subst : forall (eq : 0 =< Nat > 1) (p : forall (n : Nat) -> Type@0) (prf : p 0) -> p 1) :=
+let ((subst : forall (eq : 0 ={ Nat } 1) (p : forall (n : Nat) -> Type@0) (prf : p 0) -> p 1) :=
      (
-       fun (eq : 0 =< Nat > 1)
+       fun (eq : 0 ={ Nat } 1)
            (p : forall (n : Nat) -> Type@0) ->
-         rec eq as (0 =< Nat > 1) return x y z . forall (prf : p x) -> p y
+         rec eq as (0 ={ Nat } 1) return x y z . forall (prf : p x) -> p y
          | refl v => fun (prf : p v) -> prf
          end
      ))
 in
-subst : forall (eq : 0 =< Nat > 1) (p : forall (n : Nat) -> Type@0) (prf : p 0) -> p 1
+subst : forall (eq : 0 ={ Nat } 1) (p : forall (n : Nat) -> Type@0) (prf : p 0) -> p 1
