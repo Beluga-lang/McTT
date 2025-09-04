@@ -776,7 +776,7 @@ Proof.
 Qed.
 
 Ltac per_univ_elem_econstructor :=
-  (repeat intro; hnf; (eapply per_univ_elem_pi' || eapply per_univ_elem_sigma'  || eapply per_univ_elem_eq')) + basic_per_univ_elem_econstructor.
+  (repeat intro; hnf; (eapply per_univ_elem_pi' || eapply per_univ_elem_sigma' || eapply per_univ_elem_eq')) + basic_per_univ_elem_econstructor.
 
 #[export]
 Hint Resolve per_univ_elem_pi' per_univ_elem_eq' : mctt.
