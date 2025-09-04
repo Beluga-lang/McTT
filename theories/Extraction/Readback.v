@@ -29,6 +29,23 @@ Inductive read_nf_order : nat -> domain_nf -> Prop :=
          {{ ⟦ B ⟧ p ↦ ⇑! a s ↘ b }} ->
          read_nf_order (S s) d{{{ ⇓ b m' }}}) ->
      read_nf_order s d{{{ ⇓ (Π a p B) m }}} )
+| rnf_pair :
+  `( read_typ_order s a ->
+     eval_exp_order B d{{{ p ↦ ⇑! a s }}} ->
+     eval_fst_order m ->
+     eval_snd_order m ->
+     (forall m1,
+         {{ π₁ m ↘ m1 }} ->
+         eval_exp_order B d{{{ p ↦ m1 }}} ) ->
+     (forall m1,
+         {{ π₁ m ↘ m1 }} ->
+         read_nf_order s d{{{ ⇓ a m1 }}}) ->
+     (forall m1 m2 b,
+         {{ π₁ m ↘ m1 }} ->
+         {{ π₂ m ↘ m2 }} ->
+         {{ ⟦ B ⟧ p ↦ m1 ↘ b }} ->
+         read_nf_order s d{{{ ⇓ b m2 }}}) ->
+     read_nf_order s d{{{ ⇓ (Σ a p B) m }}} )
 | rnf_refl :
   `( read_typ_order s a ->
      read_nf_order s d{{{ ⇓ a m' }}} ->
@@ -47,6 +64,12 @@ with read_ne_order : nat -> domain_ne -> Prop :=
   `( read_ne_order s m ->
      read_nf_order s n ->
      read_ne_order s d{{{ m n }}} )
+| rne_fst : 
+  `( read_ne_order s m ->
+     read_ne_order s d{{{ fst m }}} )
+| rne_snd :
+  `( read_ne_order s m ->
+     read_ne_order s d{{{ snd m }}} )
 | rne_natrec :
   `( eval_exp_order B d{{{ p ↦ ⇑! ℕ s }}} ->
      (forall b,
@@ -96,7 +119,14 @@ with read_typ_order : nat -> domain -> Prop :=
          {{ ⟦ B ⟧ p ↦ ⇑! a s ↘ b }} ->
          read_typ_order (S s) b) ->
      read_typ_order s d{{{ Π a p B }}})
-| read_typ_eq :
+| rtyp_sigma :
+  `( read_typ_order s a ->
+     eval_exp_order B d{{{ p ↦ ⇑! a s }}} ->
+     (forall b,
+         {{ ⟦ B ⟧ p ↦ ⇑! a s ↘ b }} ->
+         read_typ_order (S s) b) ->
+     read_typ_order s d{{{ Σ a p B }}})
+| rtyp_eq :
   `( read_typ_order s a ->
      read_nf_order s d{{{ ⇓ a m1 }}} ->
      read_nf_order s d{{{ ⇓ a m2 }}} ->
@@ -117,7 +147,7 @@ with read_ne_order_sound : forall s d m,
 with read_typ_order_sound : forall s d m,
     {{ Rtyp d in s ↘ m }} ->
     read_typ_order s d.
-Proof with (econstructor; intros; functional_eval_rewrite_clear; mauto).
+Proof with try (solve [econstructor; intros; functional_eval_rewrite_clear; mauto 5]).
   - clear read_nf_order_sound; induction 1...
   - clear read_ne_order_sound; induction 1...
   - clear read_typ_order_sound; induction 1...
