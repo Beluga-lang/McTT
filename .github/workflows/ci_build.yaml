@@ -12,15 +12,15 @@ on:
   workflow_dispatch:
       
 jobs:
-  # wf:
-  #   name: Completeness of _CoqProject
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: repo checkout
-  #       uses: actions/checkout@v5
-  #     - name: check
-  #       run: |
-  #         .github/scripts/check_projects.sh theories
+  wf:
+    name: Completeness of _CoqProject
+    runs-on: ubuntu-latest
+    steps:
+      - name: repo checkout
+        uses: actions/checkout@v5
+      - name: check
+        run: |
+          make check_CoqProject
 
   build:
     name: Continuous Intergration

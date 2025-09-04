@@ -1,15 +1,18 @@
-.PHONY: all pretty-timed test coqdoc clean depgraphdoc
+.PHONY: all pretty-timed test check_CoqProject coqdoc clean depgraphdoc
 
 all:
 	@$(MAKE) -C theories
-#	@dune build
+	@dune build
 
 pretty-timed:
 	@$(MAKE) pretty-timed -C theories
-#	@dune build
+	@dune build
 
 test:
-#	@dune runtest
+	@dune runtest
+
+check_CoqProject:
+	scripts/check_projects.sh theories
 
 coqdoc:
 	@$(MAKE) coqdoc -C theories
