@@ -27,7 +27,7 @@ Parameter loc : Type.
 %%
 
 let prog :=
-  exp = obj; ":"; typ = obj; EOF; <>
+  exp = obj; ":"; ty = obj; EOF; <>
 
 let fnbinder :=
   | PI; { Cst.pi }
@@ -43,11 +43,11 @@ let obj :=
     "|"; SUCC; sx = VAR; ","; sr = VAR; "=>"; es = obj;
     END; { Cst.natrec escr (snd mx) em ez (snd sx) (snd sr) es }
 
-  | REC; escr = obj; AS; "("; lhs = app_obj; "="; "{"; typ = obj; "}"; rhs = app_obj; ")"; RETURN; mx = VAR; my = VAR; mz = VAR; "."; em = obj;
+  | REC; escr = obj; AS; "("; lhs = app_obj; "="; "{"; ty = obj; "}"; rhs = app_obj; ")"; RETURN; mx = VAR; my = VAR; mz = VAR; "."; em = obj;
     "|"; REFL; rx = VAR; "=>"; er = obj;
-    END; { Cst.eqrec escr (snd mx) (snd my) (snd mz) em (snd rx) er lhs typ rhs }
+    END; { Cst.eqrec escr (snd mx) (snd my) (snd mz) em (snd rx) er lhs ty rhs }
 
-  | REFL; typ = atomic_obj; e = atomic_obj; { Cst.refl typ e }
+  | REFL; ty = atomic_obj; e = atomic_obj; { Cst.refl ty e }
 
   | SUCC; ~ = atomic_obj; { Cst.succ atomic_obj }
 
@@ -57,7 +57,7 @@ let obj :=
   | LET; ds = let_defns; IN; body = obj; { List.fold_left (fun acc arg => Cst.app acc (snd arg)) (List.rev ds) (List.fold_left (fun acc arg => Cst.fn (fst (fst arg)) (snd (fst arg)) acc) ds body) }
 
 let eq_obj :=
-  | lhs = app_obj; "="; "{"; typ = obj; "}"; rhs = app_obj; { Cst.prop_eq lhs typ rhs }
+  | lhs = app_obj; "="; "{"; ty = obj; "}"; rhs = app_obj; { Cst.prop_eq lhs ty rhs }
   | ~ = app_obj; <>
 
 let app_obj :=
@@ -73,7 +73,7 @@ let atomic_obj :=
 
   | x = VAR; { Cst.var (snd x) }
 
-  | "<"; fst = obj; ":"; fst_typ = obj; ","; snd = obj; ":"; x = VAR; "."; snd_typ = obj; ">"; { Cst.pair fst fst_typ snd x snd_typ }
+  | "<"; fst_tm = obj; ":"; fst_ty = obj; ","; snd_tm = obj; ":"; x = VAR; "."; snd_ty = obj; ">"; { Cst.pair fst_tm fst_ty snd_tm (snd x) snd_ty }
 
   | "("; ~ = obj; ")"; <>
 
