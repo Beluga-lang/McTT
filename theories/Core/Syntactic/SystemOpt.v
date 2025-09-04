@@ -437,7 +437,7 @@ Qed.
 
 Corollary wf_exp_eq_sigma_eta' : forall {Γ A B M},
     {{ Γ ⊢ M : Σ A B }} ->
-    {{ Γ ⊢ M ≈ ⟨ fst M ; snd M : B ⟩ : Σ A B }}.
+    {{ Γ ⊢ M ≈ ⟨ fst M : A ; snd M : B ⟩ : Σ A B }}.
 Proof.
   intros.
   gen_presups.

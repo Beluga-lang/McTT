@@ -51,7 +51,7 @@ Inductive eval_exp : exp -> env -> domain -> Prop :=
 | eval_exp_pair :
   `( {{ ⟦ M ⟧ ρ ↘ a }} ->
      {{ ⟦ N ⟧ ρ ↘ b }} ->
-     {{ ⟦ ⟨ M ; N : B ⟩ ⟧ ρ ↘ ⟨ a ; b ⟩ }} )
+     {{ ⟦ ⟨ M : A ; N : B ⟩ ⟧ ρ ↘ ⟨ a ; b ⟩ }} )
 | eval_exp_fst :
   `( {{ ⟦ M ⟧ ρ ↘ m }} ->
      {{ π₁ m ↘ r }}  -> 

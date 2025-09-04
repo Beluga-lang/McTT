@@ -85,11 +85,11 @@ Proof with (solve [try (try (eexists; split); econstructor); mauto]).
     assert {{ Dom ⇑! a s ≈ ⇑! a' s ∈ fst_rel }} by eauto using var_per_bot.
     destruct_rel_mod_eval.
     (* TODO : automate this *)
+    specialize (H3 s).
     specialize (H5 _ _ equiv_b_b' s).
     specialize (H10 (S s)).
     specialize (H18 _ _ H2 s).
-    destruct_all.
-    eexists. split; mauto 3. 
+    destruct_all...
   - intros s.
     destruct_conjs.
     assert {{ Dom ⇓ a m1 ≈ ⇓ a' m1' ∈ per_top }} by mauto 3.
