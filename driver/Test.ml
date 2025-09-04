@@ -142,17 +142,17 @@ let%expect_test "pair.mctt works" =
                           (a : A)
                           (b : B)
                      -> Pair A B)
-           (fst : forall (A : Type@0)
-                         (B : Type@0)
-                         (p : Pair A B)
-                    -> A)
-           (snd : forall (A : Type@0)
-                         (B : Type@0)
-                         (p : Pair A B)
-                    -> B)
+           (fstP : forall (A : Type@0)
+                          (B : Type@0)
+                          (p : Pair A B)
+                     -> A)
+           (sndP : forall (A : Type@0)
+                          (B : Type@0)
+                          (p : Pair A B)
+                     -> B)
         -> (fun (p : Pair Nat (forall (x : Nat) -> Nat))
-             -> snd Nat (forall (x : Nat) -> Nat) p
-                  (fst Nat (forall (x : Nat) -> Nat) p))
+             -> sndP Nat (forall (x : Nat) -> Nat) p
+                  (fstP Nat (forall (x : Nat) -> Nat) p))
              (pair Nat (forall (x : Nat) -> Nat) 3
                (fun (x : Nat) -> succ (succ x))))
         (fun (A : Type@0)
@@ -888,45 +888,45 @@ let%expect_test "let_simple_subst.mctt works" =
   [%expect
     {|
       Parsed:
-        (fun (subst : forall (eq : 0 =<Nat> 1)
+        (fun (subst : forall (eq : 0 ={Nat} 1)
                              (p : forall (n : Nat) -> Type@0)
                              (prf : p 0)
                         -> p 1)
           -> subst)
-          (fun (eq : 0 =<Nat> 1)
+          (fun (eq : 0 ={Nat} 1)
                (p : forall (n : Nat) -> Type@0)
-            -> rec eq as 0 =<Nat> 1 return x y z . forall (prf : p x) -> p y
+            -> rec eq as 0 ={Nat} 1 return x y z . forall (prf : p x) -> p y
                | refl v => fun (prf : p v) -> prf
                end)
-        : forall (eq : 0 =<Nat> 1)
+        : forall (eq : 0 ={Nat} 1)
                  (p : forall (n : Nat) -> Type@0)
                  (prf : p 0)
             -> p 1
       Elaborated:
-        (fun (x1 : forall (x2 : 0 =<Nat> 1)
+        (fun (x1 : forall (x2 : 0 ={Nat} 1)
                           (x3 : forall (x4 : Nat) -> Type@0)
                           (x5 : x3 0)
                      -> x3 1)
           -> x1)
-          (fun (x6 : 0 =<Nat> 1)
+          (fun (x6 : 0 ={Nat} 1)
                (x7 : forall (x8 : Nat) -> Type@0)
-            -> rec x6 as 0 =<Nat> 1
+            -> rec x6 as 0 ={Nat} 1
                  return x9 x10 A1 . forall (x11 : x7 x9) -> x7 x10
                | refl x12 => fun (x13 : x7 x12) -> x13
                end)
-        : forall (x1 : 0 =<Nat> 1)
+        : forall (x1 : 0 ={Nat} 1)
                  (x2 : forall (x3 : Nat) -> Type@0)
                  (x4 : x2 0)
             -> x2 1
       Normalized Result:
-        fun (x1 : 0 =<Nat> 1)
+        fun (x1 : 0 ={Nat} 1)
             (x2 : forall (x3 : Nat) -> Type@0)
             (x4 : x2 0)
-          -> (rec x1 as 0 =<Nat> 1 return x5 x6 A1 . forall (x7 : x2 x5) -> x2 x6
+          -> (rec x1 as 0 ={Nat} 1 return x5 x6 A1 . forall (x7 : x2 x5) -> x2 x6
               | refl x8 => fun (x9 : x2 x8) -> x9
               end)
                x4
-        : forall (x1 : 0 =<Nat> 1)
+        : forall (x1 : 0 ={Nat} 1)
                  (x2 : forall (x3 : Nat) -> Type@0)
                  (x4 : x2 0)
             -> x2 1
@@ -955,15 +955,15 @@ let%expect_test "let_simple_inequality.mctt works" =
                                (f : Nary p (succ n))
                                (arg : p)
                           -> Nary p n)
-             (subst : forall (eq : 0 =<Nat> 1)
+             (subst : forall (eq : 0 ={Nat} 1)
                              (p : forall (n : Nat) -> Type@0)
                              (prf : p 1)
                         -> p 0)
           -> (fun (bottom : Type@1)
-                  (inequality : forall (eq : 0 =<Nat> 1) -> bottom)
+                  (inequality : forall (eq : 0 ={Nat} 1) -> bottom)
                -> inequality)
                (forall (p : Type@0) -> p)
-               (fun (eq : 0 =<Nat> 1)
+               (fun (eq : 0 ={Nat} 1)
                     (p : Type@0)
                  -> toP p
                       (subst eq (Nary p)
@@ -996,12 +996,12 @@ let%expect_test "let_simple_inequality.mctt works" =
                     end)
                (arg : p)
             -> f arg)
-          (fun (eq : 0 =<Nat> 1)
+          (fun (eq : 0 ={Nat} 1)
                (p : forall (n : Nat) -> Type@0)
-            -> rec eq as 0 =<Nat> 1 return x y z . forall (prf : p y) -> p x
+            -> rec eq as 0 ={Nat} 1 return x y z . forall (prf : p y) -> p x
                | refl v => fun (prf : p v) -> prf
                end)
-        : forall (eq : 0 =<Nat> 1)
+        : forall (eq : 0 ={Nat} 1)
                  (p : Type@0)
             -> p
       Elaborated:
@@ -1023,15 +1023,15 @@ let%expect_test "let_simple_inequality.mctt works" =
                            (x13 : x1 A5 (succ x12))
                            (x14 : A5)
                       -> x1 A5 x12)
-             (x15 : forall (x16 : 0 =<Nat> 1)
+             (x15 : forall (x16 : 0 ={Nat} 1)
                            (x17 : forall (x18 : Nat) -> Type@0)
                            (x19 : x17 1)
                       -> x17 0)
           -> (fun (A6 : Type@1)
-                  (x20 : forall (x21 : 0 =<Nat> 1) -> A6)
+                  (x20 : forall (x21 : 0 ={Nat} 1) -> A6)
                -> x20)
                (forall (A7 : Type@0) -> A7)
-               (fun (x22 : 0 =<Nat> 1)
+               (fun (x22 : 0 ={Nat} 1)
                     (A8 : Type@0)
                  -> x9 A8 (x15 x22 (x1 A8) (x5 A8 0 (fun (x23 : A8) -> x3 A8 x23)))))
           (fun (A9 : Type@0)
@@ -1062,19 +1062,19 @@ let%expect_test "let_simple_inequality.mctt works" =
                       end)
                (x41 : A15)
             -> x37 x41)
-          (fun (x42 : 0 =<Nat> 1)
+          (fun (x42 : 0 ={Nat} 1)
                (x43 : forall (x44 : Nat) -> Type@0)
-            -> rec x42 as 0 =<Nat> 1
+            -> rec x42 as 0 ={Nat} 1
                  return x45 x46 A17 . forall (x47 : x43 x46) -> x43 x45
                | refl x48 => fun (x49 : x43 x48) -> x49
                end)
-        : forall (x1 : 0 =<Nat> 1)
+        : forall (x1 : 0 ={Nat} 1)
                  (A1 : Type@0)
             -> A1
       Normalized Result:
-        fun (x1 : 0 =<Nat> 1)
+        fun (x1 : 0 ={Nat} 1)
             (A1 : Type@0)
-          -> (rec x1 as 0 =<Nat> 1
+          -> (rec x1 as 0 ={Nat} 1
                 return x2 x3 A2 . forall (x4 : rec x3 return x5 . Type@0
                                                | zero => A1
                                                | succ x6, A3 =>
@@ -1092,7 +1092,7 @@ let%expect_test "let_simple_inequality.mctt works" =
                   -> x12
               end)
                (fun (x16 : A1) -> x16)
-        : forall (x1 : 0 =<Nat> 1)
+        : forall (x1 : 0 ={Nat} 1)
                  (A1 : Type@0)
             -> A1
   |}]
