@@ -102,29 +102,6 @@ Proof.
   mauto 4.
 Qed.
 
-Lemma exp_eq_elim_q_compse : forall {Γ σ Δ τ Δ' M A B i},
-    {{ Γ ⊢s τ : Δ }} ->
-    {{ Δ ⊢s σ : Δ' }} ->
-    {{ Δ', A ⊢ B : Type@i }} ->
-    {{ Δ ⊢ M : A[σ] }} ->
-    {{ Γ ⊢ B[q σ][τ,,M[τ]] ≈ B[σ∘τ,,M[τ]] : Type@i }}.
-Proof.
-  intros.
-  assert (exists j, {{ Δ' ⊢ A : Type@j }}) by mauto. destruct_all.  
-  assert {{ Δ ⊢ A[σ] : Type@j }} by mauto 3.
-  assert {{ ⊢ Δ, A[σ] }} by mauto 3.  
-  symmetry; eapply @exp_eq_compose_typ_twice with 
-    (Ψ:= {{{ Δ', A }}}) (Δ:={{{ Δ, A[σ] }}}); mauto 3.
-  etransitivity ; [ |symmetry; eapply wf_sub_eq_extend_compose ]; mauto 3.
-  eapply wf_sub_eq_extend_cong; mauto 3.
-  transitivity {{{ σ∘(Wk∘(τ,,M[τ])) }}}; mauto 3.
-  eapply wf_sub_eq_compose_cong; [| mauto 3].
-  symmetry; eapply wf_sub_eq_p_extend; mauto 3.
-  symmetry; eapply wf_sub_eq_compose_assoc; mauto 3.
-  symmetry. eapply wf_exp_eq_conv'; 
-    [ eapply wf_exp_eq_var_0_sub | ]; mauto 3.
-Qed.
-
 Lemma glu_rel_exp_pair : forall {Γ M N A B i},
     {{ Γ ⊩ A : Type@i }} ->
     {{ Γ, A ⊩ B : Type@i }} ->
@@ -161,7 +138,6 @@ Proof.
     apply_predicate_equivalence.
     unfold univ_glu_exp_pred' in *.
     destruct_conjs.
-    match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
     handle_functional_glu_univ_elem.
     inversion_clear_by_head sigma_glu_exp_pred.
     match goal with
@@ -206,7 +182,8 @@ Proof.
       assert {{ Δ0 ⊢s (σ∘σ0),,M' ® ρ ↦ m' ∈ SbΓA }} as HSbΓA by (unfold SbΓA; mauto 2).
       (on_all_hyp: fun H => destruct (H _ _ _ HSbΓA)).
       simplify_evals.
-      match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H).
+      match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
+      apply_predicate_equivalence.
       destruct_all.
       unfold univ_glu_exp_pred' in *.
       destruct_all. handle_functional_glu_univ_elem.
@@ -223,8 +200,7 @@ Proof.
       }
       (on_all_hyp: fun H => destruct (H _ _ _ HSbΓA)).
       simplify_evals.
-      match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H).
-      rewrite H29 in H30.
+      match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
       unfold univ_glu_exp_pred' in *.
       destruct_all. handle_functional_glu_univ_elem.
       assert {{ Δ ⊢ B[q σ][Id,,(fst (⟨ M : A ; N : B ⟩)[σ])] ≈ B[Id,,M][σ] : Type@i }} as ->.
@@ -249,9 +225,9 @@ Proof.
           eapply wf_sub_eq_extend_cong; mauto 3.
           symmetry; eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3.
         } 
-        rewrite <- H9.
+        rewrite <- H11.
         etransitivity; [symmetry; eapply wf_exp_eq_snd_sub | ]; mauto 3.
-        rewrite H9.
+        rewrite H11.
         eapply wf_exp_eq_sub_cong; mauto 3.
       }
       auto.
@@ -279,13 +255,13 @@ Proof.
   destruct_glu_rel_exp_with_sub.
   simplify_evals.
   rename m into a. rename m0 into m.
-  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H).
+  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
   apply_predicate_equivalence.
   unfold univ_glu_exp_pred' in *.
   destruct_all. handle_functional_glu_univ_elem.
-  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).  
+  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem_nouip H).  
   apply_predicate_equivalence.
-  dependent destruction H16. simplify_evals.
+  dependent destruction H12. simplify_evals.
   econstructor; mauto 3.
   assert (FP Γ0 {{{ FT }}}) by eauto.
   assert {{ Γ0 ⊢ (fst M)[σ] ≈ ((fst M[σ]))[Id] : A[σ] }} as ->.
@@ -325,13 +301,13 @@ Proof.
   eexists. intros.  
   destruct_glu_rel_exp_with_sub.
   simplify_evals.
-  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H).
+  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
   apply_predicate_equivalence.
   unfold univ_glu_exp_pred' in *.
   destruct_all. handle_functional_glu_univ_elem.
-  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).  
+  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem_nouip H).  
   apply_predicate_equivalence.
-  dependent destruction H17. simplify_evals.
+  dependent destruction H13. simplify_evals.
   rename m into a. rename m0 into m.
   destruct_rel_mod_eval. simplify_evals.
   rename a0 into b.
@@ -368,7 +344,7 @@ Proof.
   assert (glu_univ_elem i (SP m1 equiv_m) (SEl m1 equiv_m) b) by mauto 3.
   (on_all_hyp: fun H => destruct (H _ _ _ HSbΓA)).
   simplify_evals. rename m0 into b.
-  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem H).
+  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
   apply_predicate_equivalence.
   destruct_all. unfold univ_glu_exp_pred' in *. destruct_all.
   handle_functional_glu_univ_elem.
@@ -380,9 +356,9 @@ Proof.
     eapply wf_eq_typ_exp_sub_cong; mauto 3.
     eapply wf_sub_eq_extend_cong; mauto 3.
   }
-  rewrite H40. rewrite H39. 
+  rewrite H46. rewrite H45. 
   eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
-  rewrite <- H39.
+  rewrite <- H45.
   assert {{ Γ0 ⊢ (snd M[σ]) ≈ snd M[σ] :B[σ,,fst M[σ]] }}. {
     assert {{ Γ0 ⊢ B[q σ][Id,,fst M[σ]] ≈ B[σ,,fst M[σ]] : Type@i }} as <- by mauto 3.
     eapply exp_eq_refl.
