@@ -2,12 +2,12 @@
 
 -arg -w -arg -cast-in-pattern,-notation-overridden
 
-# ./Algorithmic/Subtyping.v
-# ./Algorithmic/Subtyping/Definitions.v
-# ./Algorithmic/Subtyping/Lemmas.v
-# ./Algorithmic/Typing.v
-# ./Algorithmic/Typing/Definitions.v
-# ./Algorithmic/Typing/Lemmas.v
+./Algorithmic/Subtyping.v
+./Algorithmic/Subtyping/Definitions.v
+./Algorithmic/Subtyping/Lemmas.v
+./Algorithmic/Typing.v
+./Algorithmic/Typing/Definitions.v
+./Algorithmic/Typing/Lemmas.v
 ./Core/Base.v
 ./Core/Completeness.v
 ./Core/Completeness/Consequences/Rules.v
@@ -74,12 +74,12 @@
 ./Core/Syntactic/System/Tactics.v
 ./Core/Syntactic/SystemOpt.v
 # ./Entrypoint.v
-# ./Extraction/Evaluation.v
-# ./Extraction/NbE.v
-# ./Extraction/PseudoMonadic.v
-# ./Extraction/Readback.v
-# ./Extraction/Subtyping.v
-# ./Extraction/TypeCheck.v
-# ./Frontend/Elaborator.v
+./Extraction/Evaluation.v
+./Extraction/NbE.v
+./Extraction/PseudoMonadic.v
+./Extraction/Readback.v
+./Extraction/Subtyping.v
+./Extraction/TypeCheck.v
+./Frontend/Elaborator.v
 # ./Frontend/Parser.v
 ./LibTactics.v
