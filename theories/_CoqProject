@@ -74,12 +74,12 @@
 ./Core/Syntactic/System/Tactics.v
 ./Core/Syntactic/SystemOpt.v
 # ./Entrypoint.v
-# ./Extraction/Evaluation.v
-# ./Extraction/NbE.v
-# ./Extraction/PseudoMonadic.v
-# ./Extraction/Readback.v
-# ./Extraction/Subtyping.v
-# ./Extraction/TypeCheck.v
+./Extraction/Evaluation.v
+./Extraction/NbE.v
+./Extraction/PseudoMonadic.v
+./Extraction/Readback.v
+./Extraction/Subtyping.v
+./Extraction/TypeCheck.v
 ./Frontend/Elaborator.v
 # ./Frontend/Parser.v
 ./LibTactics.v
