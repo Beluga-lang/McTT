@@ -10,9 +10,10 @@ import uuid
 from pathlib import Path
 from typing import List, Tuple, Optional
 
+# "loc" is used by the frontend for token locations
 expected_axioms = ["functional_extensionality_dep","loc"]
 
-# get the last name of the axiom, thus not affected by module scope
+# get the lcoal name of the axiom, thus not affected by the module scope
 def local_axiom_name(s: str) -> str:
     parts = s.rsplit('.', 1)
     if len(parts) > 1:
