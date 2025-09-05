@@ -10,8 +10,14 @@ import uuid
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-expected_axioms = ["FunctionalExtensionality.functional_extensionality_dep"]
+expected_axioms = ["functional_extensionality_dep","loc"]
 
+# get the last name of the axiom, thus not affected by module scope
+def local_axiom_name(s: str) -> str:
+    parts = s.rsplit('.', 1)
+    if len(parts) > 1:
+        return parts[1]
+    return s
 
 def gather_lemmas(file_path: Path, project_dir: Path):
     content = file_path.read_text(encoding="utf-8")
@@ -94,7 +100,7 @@ def get_assumptions(check_file_dir: Path, project_dir: Path):
 
 def extract_assumptions(assumption_outputs: List[str]) -> Tuple[List, set, List]:
     marker_pattern = re.compile(r"^<<<(.+?) : (.+?)>>>$")
-    axiom_name_pattern = re.compile(r"^(\S+) :$")
+    axiom_name_pattern = re.compile(r"^(\S+) :(.*)$")
 
     current_name = None
     expected_assumptions = []
@@ -135,7 +141,7 @@ def extract_assumptions(assumption_outputs: List[str]) -> Tuple[List, set, List]
 
         axiom_name_match = axiom_name_pattern.match(assumption_output)
         if in_assumption_block and axiom_name_match:
-            axiom_name: str = axiom_name_match.group(1)
+            axiom_name: str = local_axiom_name(axiom_name_match.group(1))
             if axiom_name in expected_axioms:
                 current_expected_assumptions.append(axiom_name)
             else:
