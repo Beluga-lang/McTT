@@ -2,16 +2,16 @@ From Coq Require Import Morphisms_Relations Relation_Definitions.
 
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
-From Mctt.Core.Completeness Require Import LogicalRelation TermStructureCases UniverseCases.
+From Mctt.Core.WCompleteness Require Import LogicalRelation TermStructureCases UniverseCases.
 Import Domain_Notations.
 
 Lemma rel_exp_of_pi_inversion : forall {Γ M M' A B},
     {{ Γ ⊨ M ≈ M' : Π A B }} ->
-    exists env_rel (_ : {{ EF Γ ≈ Γ ∈ per_ctx_env ↘ env_rel }}) i,
-    forall ρ ρ' (equiv_ρ_ρ' : {{ Dom ρ ≈ ρ' ∈ env_rel }}),
+    exists env_rel (_ : {{ EF Γ ≈≈ Γ ∈ per_ctx_env ↘ env_rel }}) i,
+    forall ρ ρ' (equiv_ρ_ρ' : {{ Dom ρ ≈≈ ρ' ∈ env_rel }}),
     exists in_rel out_rel,
       rel_typ i A ρ A ρ' in_rel /\
-        (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), rel_typ i B d{{{ ρ ↦ c }}} B d{{{ ρ' ↦ c' }}} (out_rel c c' equiv_c_c')) /\
+        (forall c c' (equiv_c_c' : {{ Dom c ≈≈ c' ∈ in_rel }}), rel_typ i B d{{{ ρ ↦ c }}} B d{{{ ρ' ↦ c' }}} (out_rel c c' equiv_c_c')) /\
         rel_exp M ρ M' ρ'
           (fun f f' : domain => forall (c c' : domain) (equiv_c_c' : in_rel c c'), rel_mod_app f c f' c' (out_rel c c' equiv_c_c')).
 Proof.
@@ -26,11 +26,11 @@ Proof.
 Qed.
 
 Lemma rel_exp_of_pi : forall {Γ M M' A B},
-    (exists env_rel (_ : {{ EF Γ ≈ Γ ∈ per_ctx_env ↘ env_rel }}) i j,
-      forall ρ ρ' (equiv_ρ_ρ' : {{ Dom ρ ≈ ρ' ∈ env_rel }}),
+    (exists env_rel (_ : {{ EF Γ ≈≈ Γ ∈ per_ctx_env ↘ env_rel }}) i j,
+      forall ρ ρ' (equiv_ρ_ρ' : {{ Dom ρ ≈≈ ρ' ∈ env_rel }}),
       exists in_rel out_rel,
         rel_typ i A ρ A ρ' in_rel /\
-          (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ in_rel }}), rel_typ j B d{{{ ρ ↦ c }}} B d{{{ ρ' ↦ c' }}} (out_rel c c' equiv_c_c')) /\
+          (forall c c' (equiv_c_c' : {{ Dom c ≈≈ c' ∈ in_rel }}), rel_typ j B d{{{ ρ ↦ c }}} B d{{{ ρ' ↦ c' }}} (out_rel c c' equiv_c_c')) /\
           rel_exp M ρ M' ρ'
             (fun f f' : domain => forall (c c' : domain) (equiv_c_c' : in_rel c c'), rel_mod_app f c f' c' (out_rel c c' equiv_c_c'))) ->
     {{ Γ ⊨ M ≈ M' : Π A B }}.
@@ -59,7 +59,7 @@ Ltac eexists_rel_exp_of_pi :=
 #[local]
 Ltac extract_output_info_with ρ c ρ' c' env_rel :=
   let Hequiv := fresh "equiv" in
-  (assert (Hequiv : {{ Dom ρ ↦ c ≈ ρ' ↦ c' ∈ env_rel }}) by (apply_relation_equivalence; mauto 4);
+  (assert (Hequiv : {{ Dom ρ ↦ c ≈≈ ρ' ↦ c' ∈ env_rel }}) by (apply_relation_equivalence; mauto 4);
    apply_relation_equivalence;
    (on_all_hyp: fun H => destruct (H _ _ Hequiv));
    destruct_conjs;
@@ -129,7 +129,7 @@ Proof with mautosolve.
   eexists_rel_exp_of_typ.
   intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
-  assert {{ Dom ρ'σ' ≈ ρ'σ' ∈ env_relΔ }} by (etransitivity; [symmetry |]; eassumption).
+  assert {{ Dom ρ'σ' ≈≈ ρ'σ' ∈ env_relΔ }} by (etransitivity; [symmetry |]; eassumption).
   (on_all_hyp: destruct_rel_by_assumption env_relΔ).
   destruct_by_head per_univ.
   handle_per_univ_elem_irrel.

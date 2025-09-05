@@ -130,3 +130,16 @@ Proof.
   intros.
   eapply per_bot_then_per_elem; mauto.
 Qed.
+
+(** cannot induction on subtyping. probably need a weaker notion of PER
+   that subsumers subtyping. *)
+Lemma realize_per_sub_elem_gen : forall {i a a' R},
+    {{ Sub a <: a' at i }} ->
+    {{ DF a' ≈ a' ∈ per_univ_elem i ↘ R }} ->
+    (forall {c c'}, {{ Dom c ≈ c' ∈ per_bot }} -> {{ Dom ⇑ a c ≈ ⇑ a' c' ∈ R }})
+    /\ (forall {b b'}, {{ Dom b ≈ b' ∈ R }} -> {{ Dom ⇓ a b ≈ ⇓ a' b' ∈ per_top }}).
+Proof.
+  intros * Hunivelem. simpl in Hunivelem.
+  induction Hunivelem; repeat split; intros;
+    apply_relation_equivalence; mauto.
+Abort.

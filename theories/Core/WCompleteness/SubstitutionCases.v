@@ -2,7 +2,7 @@ From Coq Require Import Morphisms_Relations RelationClasses.
 
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
-From Mctt.Core.Completeness Require Import ContextCases LogicalRelation UniverseCases.
+From Mctt.Core.WCompleteness Require Import ContextCases LogicalRelation UniverseCases.
 Import Domain_Notations.
 
 Lemma rel_sub_id : forall {Γ},
@@ -71,8 +71,8 @@ Proof with mautosolve.
   (on_all_hyp: destruct_rel_by_assumption env_relΔ).
   destruct_by_head rel_typ.
   invert_rel_typ_body_nouip.
-  destruct_by_head rel_exp.
-  econstructor; mauto 3.
+  handle_per_univ_elem_irrel.
+  destruct_by_head rel_exp...
 Qed.
 
 #[export]
@@ -151,6 +151,7 @@ Proof with mautosolve.
   destruct_by_head rel_typ.
   invert_rel_typ_body_nouip.
   destruct_by_head rel_exp.
+  handle_per_univ_elem_irrel.
   econstructor...
 Qed.
 
@@ -249,7 +250,7 @@ Proof with mautosolve.
   destruct_conjs.
   pose env_relΔ.
   handle_per_ctx_env_irrel.
-  assert {{ EF Δ' ≈ Δ' ∈ per_ctx_env ↘ env_relΔ }} by (etransitivity; [symmetry |]; eassumption).
+  assert {{ EF Δ' ≈≈ Δ' ∈ per_ctx_env ↘ env_relΔ }} by (etransitivity; [symmetry |]; eassumption).
   eexists_rel_sub...
 Qed.
 

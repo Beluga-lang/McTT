@@ -341,7 +341,7 @@ with wf_subtyp : ctx -> typ -> typ -> Prop :=
 | wf_subtyp_pi :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ ⊢ A' : Type@i }} ->
-     {{ Γ ⊢ A ≈ A' : Type@i }} ->
+     {{ Γ ⊢ A' ⊆ A }} ->
      {{ Γ , A ⊢ B : Type@i }} ->
      {{ Γ , A' ⊢ B' : Type@i }} ->
      {{ Γ , A' ⊢ B ⊆ B' }} ->
@@ -557,3 +557,5 @@ Instance wf_sub_eq_per_elem Γ Δ : PERElem _ (wf_sub Γ Δ) (wf_sub_eq Γ Δ).
 Proof.
   intros a Ha. mauto.
 Qed.
+
+

@@ -58,7 +58,8 @@ with read_ne : nat -> domain_ne -> ne -> Prop :=
      (** Neutral form of m *)
      {{ Rne m in s ↘ M }} ->
 
-     {{ Rne rec m under ρ return B | zero -> mz | succ -> MS end in s ↘ rec M return B' | zero -> MZ | succ -> MS' end }} )
+     {{ Rne rec m under ρ return B | zero -> mz | succ -> MS end in s ↘ 
+          rec M return B' | zero -> MZ | succ -> MS' end }} )
 where "'Rne' m 'in' s ↘ M" := (read_ne s m M) (in custom judg) : type_scope
 with read_typ : nat -> domain -> nf -> Prop :=
 | read_typ_univ :

@@ -3,7 +3,7 @@ From Equations Require Import Equations.
 
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
-From Mctt.Core.Semantic Require Import PER.Definitions.
+From Mctt.Core.Semantic Require Import WPER.Definitions.
 Import Domain_Notations.
 
 Hint Extern 1 (?R <~> ?R) => reflexivity : mctt.
@@ -22,7 +22,7 @@ Ltac deex_destruct_rel H H' :=
 Ltac destruct_rel_by_assumption in_rel H :=
   repeat
     match goal with
-    | H' : {{ Dom ^?c ≈ ^?c' ∈ ?in_rel0 }} |- _ =>
+    | H' : {{ Dom ^?c ≈≈ ^?c' ∈ ?in_rel0 }} |- _ =>
         unify in_rel0 in_rel;
         deex_destruct_rel H H';
         destruct_all;
@@ -33,7 +33,7 @@ Ltac destruct_rel_by_assumption in_rel H :=
 Ltac destruct_rel_mod_eval :=
   repeat
     match goal with
-    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ ?in_rel }}), rel_mod_eval _ _ _ _ _ _) |- _ =>
+    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈≈ c' ∈ ?in_rel }}), rel_mod_eval _ _ _ _ _ _) |- _ =>
         destruct_rel_by_assumption in_rel H; mark H
     | H : rel_mod_eval _ _ _ _ _ _ |- _ =>
         dependent destruction H
@@ -42,7 +42,7 @@ Ltac destruct_rel_mod_eval :=
 Ltac destruct_rel_mod_app :=
   repeat
     match goal with
-    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ ?in_rel }}), rel_mod_app _ _ _ _ _) |- _ =>
+    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈≈ c' ∈ ?in_rel }}), rel_mod_app _ _ _ _ _) |- _ =>
         destruct_rel_by_assumption in_rel H; mark H
     | H : rel_mod_app _ _ _ _ _ |- _ =>
         dependent destruction H
@@ -52,7 +52,7 @@ Ltac destruct_rel_mod_app :=
 Ltac destruct_rel_mod_eval_nouip :=
   repeat
     match goal with
-    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ ?in_rel }}), rel_mod_eval _ _ _ _ _ _) |- _ =>
+    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈≈ c' ∈ ?in_rel }}), rel_mod_eval _ _ _ _ _ _) |- _ =>
         destruct_rel_by_assumption in_rel H; mark H
     | H : rel_mod_eval _ _ _ _ _ _ |- _ =>
         dependent inversion_clear H
@@ -62,7 +62,7 @@ Ltac destruct_rel_mod_eval_nouip :=
 Ltac destruct_rel_mod_app_nouip :=
   repeat
     match goal with
-    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ ?in_rel }}), rel_mod_app _ _ _ _ _) |- _ =>
+    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈≈ c' ∈ ?in_rel }}), rel_mod_app _ _ _ _ _) |- _ =>
         destruct_rel_by_assumption in_rel H; mark H
     | H : rel_mod_app _ _ _ _ _ |- _ =>
         dependent inversion_clear H
@@ -71,7 +71,7 @@ Ltac destruct_rel_mod_app_nouip :=
 Ltac destruct_rel_typ :=
   repeat
     match goal with
-    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ ?in_rel }}), rel_typ _ _ _ _ _ _) |- _ =>
+    | H : (forall c c' (equiv_c_c' : {{ Dom c ≈≈ c' ∈ ?in_rel }}), rel_typ _ _ _ _ _ _) |- _ =>
         destruct_rel_by_assumption in_rel H; mark H
     | H : rel_typ _ _ _ _ _ _ |- _ =>
         dependent destruction H

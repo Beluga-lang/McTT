@@ -380,15 +380,14 @@ Hint Resolve wf_exp_eq_pi_eta' : mctt.
 Remove Hints wf_exp_eq_pi_eta : mctt.
 
 Lemma wf_subtyp_pi' : forall Γ A A' B B' i,
-    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    {{ Γ ⊢ A' ⊆ A }} ->
+    {{ Γ, A ⊢ B : Type@i }} ->
     {{ Γ, A' ⊢ B ⊆ B' }} ->
     {{ Γ ⊢ Π A B ⊆ Π A' B' }}.
 Proof.
   intros. gen_presups.
-  eapply wf_subtyp_pi with (i := max i i0);
+  eapply wf_subtyp_pi with (i := max i2 (max i i0));
     mauto 3 using lift_exp_max_left, lift_exp_max_right, lift_exp_eq_max_left.
-  eapply ctxeq_exp; [ | mauto 3 using lift_exp_max_right].
-  mauto 4.
 Qed.
 
 #[export]

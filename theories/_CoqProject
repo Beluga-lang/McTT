@@ -2,12 +2,12 @@
 
 -arg -w -arg -cast-in-pattern,-notation-overridden
 
-./Algorithmic/Subtyping.v
-./Algorithmic/Subtyping/Definitions.v
-./Algorithmic/Subtyping/Lemmas.v
-./Algorithmic/Typing.v
-./Algorithmic/Typing/Definitions.v
-./Algorithmic/Typing/Lemmas.v
+# ./Algorithmic/Subtyping.v
+# ./Algorithmic/Subtyping/Definitions.v
+# ./Algorithmic/Subtyping/Lemmas.v
+# ./Algorithmic/Typing.v
+# ./Algorithmic/Typing/Definitions.v
+# ./Algorithmic/Typing/Lemmas.v
 ./Core/Base.v
 ./Core/Completeness.v
 ./Core/Completeness/Consequences/Rules.v
@@ -25,7 +25,22 @@
 ./Core/Completeness/TermStructureCases.v
 ./Core/Completeness/UniverseCases.v
 ./Core/Completeness/VariableCases.v
-./Core/Semantic/Consequences.v
+
+./Core/WCompleteness/ContextCases.v
+./Core/WCompleteness/FunctionCases.v
+./Core/WCompleteness/FundamentalTheorem.v
+./Core/WCompleteness/LogicalRelation.v
+./Core/WCompleteness/LogicalRelation/Definitions.v
+./Core/WCompleteness/LogicalRelation/Lemmas.v
+./Core/WCompleteness/LogicalRelation/Tactics.v
+./Core/WCompleteness/NatCases.v
+./Core/WCompleteness/SubstitutionCases.v
+./Core/WCompleteness/SubtypingCases.v
+./Core/WCompleteness/TermStructureCases.v
+./Core/WCompleteness/UniverseCases.v
+./Core/WCompleteness/VariableCases.v
+
+# ./Core/Semantic/Consequences.v
 ./Core/Semantic/Domain.v
 ./Core/Semantic/Evaluation.v
 ./Core/Semantic/Evaluation/Definitions.v
@@ -33,31 +48,37 @@
 ./Core/Semantic/Evaluation/Tactics.v
 ./Core/Semantic/NbE.v
 ./Core/Semantic/PER.v
+./Core/Semantic/WPER.v
 ./Core/Semantic/PER/CoreTactics.v
 ./Core/Semantic/PER/Definitions.v
 ./Core/Semantic/PER/Lemmas.v
+./Core/Semantic/WPER/CoreTactics.v
+./Core/Semantic/WPER/Definitions.v
+./Core/Semantic/WPER/Lemmas.v
 ./Core/Semantic/Readback.v
 ./Core/Semantic/Readback/Definitions.v
 ./Core/Semantic/Readback/Lemmas.v
 ./Core/Semantic/Realizability.v
-./Core/Soundness.v
-./Core/Soundness/ContextCases.v
-./Core/Soundness/FunctionCases.v
-./Core/Soundness/FundamentalTheorem.v
-./Core/Soundness/LogicalRelation.v
-./Core/Soundness/LogicalRelation/Core.v
-./Core/Soundness/LogicalRelation/CoreLemmas.v
-./Core/Soundness/LogicalRelation/CoreTactics.v
-./Core/Soundness/LogicalRelation/Definitions.v
-./Core/Soundness/LogicalRelation/Lemmas.v
-./Core/Soundness/NatCases.v
-./Core/Soundness/Realizability.v
-./Core/Soundness/SubstitutionCases.v
-./Core/Soundness/SubtypingCases.v
-./Core/Soundness/TermStructureCases.v
-./Core/Soundness/UniverseCases.v
-./Core/Soundness/Weakening/Definitions.v
-./Core/Soundness/Weakening/Lemmas.v
+./Core/Semantic/WRealizability.v
+
+# ./Core/Soundness.v
+# ./Core/Soundness/ContextCases.v
+# ./Core/Soundness/FunctionCases.v
+# ./Core/Soundness/FundamentalTheorem.v
+# ./Core/Soundness/LogicalRelation.v
+# ./Core/Soundness/LogicalRelation/Core.v
+# ./Core/Soundness/LogicalRelation/CoreLemmas.v
+# ./Core/Soundness/LogicalRelation/CoreTactics.v
+# ./Core/Soundness/LogicalRelation/Definitions.v
+# ./Core/Soundness/LogicalRelation/Lemmas.v
+# ./Core/Soundness/NatCases.v
+# ./Core/Soundness/Realizability.v
+# ./Core/Soundness/SubstitutionCases.v
+# ./Core/Soundness/SubtypingCases.v
+# ./Core/Soundness/TermStructureCases.v
+# ./Core/Soundness/UniverseCases.v
+# ./Core/Soundness/Weakening/Definitions.v
+# ./Core/Soundness/Weakening/Lemmas.v
 ./Core/Syntactic/CoreInversions.v
 ./Core/Syntactic/Corollaries.v
 ./Core/Syntactic/CtxEq.v
@@ -68,14 +89,16 @@
 ./Core/Syntactic/System/Definitions.v
 ./Core/Syntactic/System/Lemmas.v
 ./Core/Syntactic/System/Tactics.v
+./Core/Syntactic/WCong/Definitions.v
+./Core/Syntactic/WCong/Lemmas.v
 ./Core/Syntactic/SystemOpt.v
-./Entrypoint.v
-./Extraction/Evaluation.v
-./Extraction/NbE.v
-./Extraction/PseudoMonadic.v
-./Extraction/Readback.v
-./Extraction/Subtyping.v
-./Extraction/TypeCheck.v
-./Frontend/Elaborator.v
-./Frontend/Parser.v
+# ./Entrypoint.v
+# ./Extraction/Evaluation.v
+# ./Extraction/NbE.v
+# ./Extraction/PseudoMonadic.v
+# ./Extraction/Readback.v
+# ./Extraction/Subtyping.v
+# ./Extraction/TypeCheck.v
+# ./Frontend/Elaborator.v
+# ./Frontend/Parser.v
 ./LibTactics.v
