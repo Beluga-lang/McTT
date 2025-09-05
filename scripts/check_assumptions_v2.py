@@ -63,18 +63,27 @@ def create_assumption_file(all_files_lemma_names: List[Tuple[str, List[str]]], p
 
 def get_assumptions(check_file_dir: Path, project_dir: Path):
     outputs = []
+    errors = []
     try:
         with subprocess.Popen(
             ["coqc", "-R", ".", "Mctt", f"{check_file_dir}"],
             cwd=project_dir,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.PIPE,
         ) as process:
             assert process.stdout is not None
             for line in process.stdout:
                 output = line.decode("utf8")
                 outputs.append(output)
-                # print(output, end='')
+            if process.stderr is not None:
+                for line in process.stderr:
+                    error = line.decode("utf8")
+                    errors.append(error)
+                if len(errors) > 0:
+                    print("Errors from `coqc`:")
+                    for error in errors:
+                        print(error, end='')
+                    sys.exit(1)
     except Exception as e:
         print(f"Error running `coqc`: {e}")
         sys.exit(1)
@@ -159,6 +168,7 @@ def main(project_dir: str, output_dir: Optional[str] = None):
         print("\nDetailed usage:")
         for unexpected_assumption in unexpected_assumptions:
             print(unexpected_assumption)
+        sys.exit(1)
     else:
         print(f"Allowed axioms are {expected_axioms}.")
         print("No unexpected axiom usage.")
