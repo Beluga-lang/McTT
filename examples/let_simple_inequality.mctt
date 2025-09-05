@@ -41,11 +41,11 @@ let ((Nary : forall (p : Type@0) (n : Nat) -> Type@0) :=
          -> f arg
      ))
 
-    ((subst : forall (eq : 0 =< Nat > 1) (p : forall (n : Nat) -> Type@0) (prf : p 1) -> p 0) :=
+    ((subst : forall (eq : 0 ={ Nat } 1) (p : forall (n : Nat) -> Type@0) (prf : p 1) -> p 0) :=
      (
-       fun (eq : 0 =< Nat > 1)
+       fun (eq : 0 ={ Nat } 1)
            (p : forall (n : Nat) -> Type@0) ->
-         rec eq as (0 =< Nat > 1) return x y z . forall (prf : p y) -> p x
+         rec eq as (0 ={ Nat } 1) return x y z . forall (prf : p y) -> p x
          | refl v => fun (prf : p v) -> prf
          end
      ))
@@ -53,10 +53,10 @@ in
 let
     ((bottom : Type@1) := (forall (p : Type@0) -> p))
 
-    ((inequality : forall (eq : 0 =< Nat > 1) -> bottom) :=
+    ((inequality : forall (eq : 0 ={ Nat } 1) -> bottom) :=
      (
-       fun (eq : 0 =< Nat > 1) (p : Type@0) ->
+       fun (eq : 0 ={ Nat } 1) (p : Type@0) ->
          toP p (subst eq (Nary p) (buildNaryS p 0 (fun (arg : p) -> buildNaryZ p arg)))
      ))
 in
-inequality : forall (eq : 0 =< Nat > 1) -> forall (p : Type@0) -> p
+inequality : forall (eq : 0 ={ Nat } 1) -> forall (p : Type@0) -> p

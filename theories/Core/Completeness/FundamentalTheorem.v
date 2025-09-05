@@ -3,6 +3,7 @@ From Mctt.Core.Completeness Require Import
   ContextCases
   EqualityCases
   FunctionCases
+  PairCases
   NatCases
   SubstitutionCases
   TermStructureCases
@@ -25,8 +26,7 @@ Section completeness_fundamental.
   Proof.
     apply syntactic_wf_mut_ind;
       mauto 3.
-    intros.
-    apply valid_exp_var;
+    - intros. apply valid_exp_var;
       mauto.
   Qed.
 

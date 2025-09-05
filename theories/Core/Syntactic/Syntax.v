@@ -13,6 +13,10 @@ Inductive obj : Set :=
 | pi : string -> obj -> obj -> obj
 | fn : string -> obj -> obj -> obj
 | app : obj -> obj -> obj
+| sigma : string -> obj -> obj -> obj
+| pair : obj -> obj -> obj -> string -> obj -> obj
+| fst : obj -> obj
+| snd : obj -> obj
 | prop_eq : obj -> obj -> obj -> obj
 | refl : obj -> obj -> obj
 | eqrec : obj ->                 (** A : eq domain type *)
@@ -23,22 +27,28 @@ Inductive obj : Set :=
 End Cst.
 
 (** * Abstract Syntac Tree *)
+Reserved Notation "'typ'".
 Inductive exp : Set :=
 (** Universe *)
-| a_typ : nat -> exp
+| a_typ : nat -> typ
 (** Natural numbers *)
-| a_nat : exp
+| a_nat : typ
 | a_zero : exp
 | a_succ : exp -> exp
-| a_natrec : exp -> exp -> exp -> exp -> exp
+| a_natrec : exp -> typ -> exp -> exp -> exp
 (** Functions *)
-| a_pi : exp -> exp -> exp
-| a_fn : exp -> exp -> exp
+| a_pi : typ -> typ -> exp
+| a_fn : typ -> exp -> exp
 | a_app : exp -> exp -> exp
+(** Pairs *)
+| a_sigma : exp -> exp -> exp
+| a_pair : exp -> typ -> exp -> typ -> exp
+| a_fst : exp -> exp
+| a_snd : exp -> exp
 (** Propositional equality *)
-| a_eq : exp -> exp -> exp -> exp
-| a_refl : exp -> exp -> exp
-| a_eqrec : exp -> exp -> exp -> exp -> exp -> exp -> exp
+| a_eq : typ -> exp -> exp -> exp
+| a_refl : typ -> exp -> exp
+| a_eqrec : exp -> typ -> exp -> exp -> typ -> exp -> exp
 (** Variable *)
 | a_var : nat -> exp
 (** Substitution Application *)
@@ -47,10 +57,10 @@ with sub : Set :=
 | a_id : sub
 | a_weaken : sub
 | a_compose : sub -> sub -> sub
-| a_extend : sub -> exp -> sub.
+| a_extend : sub -> exp -> sub
+where "'typ'" := exp.
 
 Notation ctx := (list exp).
-Notation typ := exp.
 
 Fixpoint nat_to_exp n : exp :=
   match n with
@@ -83,12 +93,16 @@ Inductive nf : Set :=
 | nf_succ : nf -> nf
 | nf_pi : nf -> nf -> nf
 | nf_fn : nf -> nf -> nf
+| nf_sigma : nf -> nf -> nf
+| nf_pair : nf -> nf -> nf -> nf -> nf
 | nf_eq : nf -> nf -> nf -> nf
 | nf_refl : nf -> nf -> nf
 | nf_neut : ne -> nf
 with ne : Set :=
 | ne_natrec : nf -> nf -> nf -> ne -> ne
 | ne_app : ne -> nf -> ne
+| ne_fst : ne -> ne
+| ne_snd : ne -> ne
 | ne_var : nat -> ne
 | ne_eqrec : nf -> nf -> nf -> nf -> nf -> ne -> ne
 .
@@ -101,6 +115,8 @@ Fixpoint nf_to_exp (M : nf) : exp :=
   | nf_succ M => a_succ (nf_to_exp M)
   | nf_pi A B => a_pi (nf_to_exp A) (nf_to_exp B)
   | nf_fn A M => a_fn (nf_to_exp A) (nf_to_exp M)
+  | nf_sigma A B => a_sigma (nf_to_exp A) (nf_to_exp B)
+  | nf_pair M A N B => a_pair (nf_to_exp M) (nf_to_exp A) (nf_to_exp N) (nf_to_exp B)
   | nf_eq A M N => a_eq (nf_to_exp A) (nf_to_exp M) (nf_to_exp N)
   | nf_refl A M => a_refl (nf_to_exp A) (nf_to_exp M)
   | nf_neut M => ne_to_exp M
@@ -109,6 +125,8 @@ with ne_to_exp (M : ne) : exp :=
   match M with
   | ne_natrec A MZ MS M => a_natrec (nf_to_exp A) (nf_to_exp MZ) (nf_to_exp MS) (ne_to_exp M)
   | ne_app M N => a_app (ne_to_exp M) (nf_to_exp N)
+  | ne_fst M => a_fst (ne_to_exp M)
+  | ne_snd M => a_snd (ne_to_exp M)
   | ne_var x => a_var x
   | ne_eqrec A B BR M M' N =>
       a_eqrec (nf_to_exp A) (nf_to_exp B) (nf_to_exp BR) (nf_to_exp M) (nf_to_exp M') (ne_to_exp N)
@@ -157,6 +175,10 @@ Module Syntax_Notations.
   Notation "'rec' e 'return' A | 'zero' -> ez | 'succ' -> es 'end'" := (a_natrec A ez es e) (in custom exp at level 0, A custom exp at level 60, ez custom exp at level 60, es custom exp at level 60, e custom exp at level 60) : mctt_scope.
   Notation "'Π' A B" := (a_pi A B) (in custom exp at level 1, A custom exp at level 0, B custom exp at level 60) : mctt_scope.
   Notation "'λ' A e" := (a_fn A e) (in custom exp at level 1, A custom exp at level 0, e custom exp at level 60) : mctt_scope.
+  Notation "'Σ' A B" := (a_sigma A B) (in custom exp at level 1, A custom exp at level 0, B custom exp at level 60) : mctt_scope.
+  Notation "⟨ M : A ; N : B ⟩" := (a_pair M A N B) (in custom exp at level 1, M custom exp at next level, A custom exp at next level, N custom exp at next level, B custom exp at next level) : mctt_scope.
+  Notation "'fst' M" := (a_fst M) (in custom exp at level 1, M custom exp at level 0) : mctt_scope.
+  Notation "'snd' M" := (a_snd M) (in custom exp at level 1, M custom exp at level 0) : mctt_scope.
   Notation "f x .. y" := (a_app .. (a_app f x) .. y) (in custom exp at level 40, f custom exp, x custom exp at next level, y custom exp at next level) : mctt_scope.
   Notation "'Eq' A M N" := (a_eq A M N) (in custom exp at level 1, A custom exp at level 30, M custom exp at level 35, N custom exp at level 40) : mctt_scope.
   Notation "'refl' A M" := (a_refl A M) (in custom exp at level 1, A custom exp at level 30, M custom exp at level 40) : mctt_scope.
@@ -185,7 +207,11 @@ Module Syntax_Notations.
   Notation "'rec' M 'return' A | 'zero' -> MZ | 'succ' -> MS 'end'" := (ne_natrec A MZ MS M) (in custom nf at level 0, A custom nf at level 60, MZ custom nf at level 60, MS custom nf at level 60, M custom nf at level 60) : mctt_scope.
   Notation "'Π' A B" := (nf_pi A B) (in custom nf at level 2, A custom nf at level 1, B custom nf at level 60) : mctt_scope.
   Notation "'λ' A e" := (nf_fn A e) (in custom nf at level 2, A custom nf at level 1, e custom nf at level 60) : mctt_scope.
+  Notation "'Σ' A B" := (nf_sigma A B) (in custom nf at level 2, A custom nf at level 1, B custom nf at level 60) : mctt_scope.
+  Notation "⟨ M : A ; N : B ⟩" := (nf_pair M A N B) (in custom nf at level 2, M custom nf at level 1, A custom nf at level 60, N custom nf at level 60, B custom nf at level 60) : mctt_scope.
   Notation "f x .. y" := (ne_app .. (ne_app f x) .. y) (in custom nf at level 40, f custom nf, x custom nf at next level, y custom nf at next level) : mctt_scope.
+  Notation "'fst' M" := (ne_fst M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
+  Notation "'snd' M" := (ne_snd M) (in custom nf at level 2, M custom nf at level 1) : mctt_scope.
   Notation "'Eq' A M N" := (nf_eq A M N) (in custom nf at level 1, A custom nf at level 30, M custom nf at level 35, N custom nf at level 40) : mctt_scope.
   Notation "'refl' A M" := (nf_refl A M) (in custom nf at level 1, A custom nf at level 30, M custom nf at level 40) : mctt_scope.
   Notation "'eqrec' N 'as' 'Eq' A M1 M2 'return' B | 'refl' -> BR 'end'" := (ne_eqrec A B BR M1 M2 N) (in custom nf at level 0, A custom nf at level 30, B custom nf at level 60, BR custom nf at level 60, M1 custom nf at level 35, M2 custom nf at level 40, N custom nf at level 60) : mctt_scope.

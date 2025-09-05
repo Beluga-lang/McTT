@@ -3,12 +3,12 @@
   (
     fun (Pair : forall (A : Type@0) (B : Type@0) -> Type@1)
         (pair : forall (A : Type@0) (B : Type@0) (a : A) (b : B) -> Pair A B)
-        (fst : forall (A : Type@0) (B : Type@0) (p : Pair A B) -> A)
-        (snd : forall (A : Type@0) (B : Type@0) (p : Pair A B) -> B) ->
+        (fstP : forall (A : Type@0) (B : Type@0) (p : Pair A B) -> A)
+        (sndP : forall (A : Type@0) (B : Type@0) (p : Pair A B) -> B) ->
       (
         fun (p : Pair Nat (forall (x : Nat) -> Nat)) ->
-          snd Nat (forall (x : Nat) -> Nat) p
-            (fst Nat (forall (x : Nat) -> Nat) p)
+          sndP Nat (forall (x : Nat) -> Nat) p
+            (fstP Nat (forall (x : Nat) -> Nat) p)
       )
       (pair Nat (forall (x : Nat) -> Nat) 3 (fun (x : Nat) -> succ (succ x)))
   )
@@ -16,8 +16,8 @@
   (fun (A : Type@0) (B : Type@0) -> forall (C : Type@0) (pair : forall (a : A) (b : B) -> C) -> C)
   (* Church pair constructor *)
   (fun (A : Type@0) (B : Type@0) (a : A) (b : B) (C : Type@0) (pair : forall (a : A) (b : B) -> C) -> pair a b)
-  (* Church pair fst *)
+  (* Church pair fstP *)
   (fun (A : Type@0) (B : Type@0) (p : forall (C : Type@0) (pair : forall (a : A) (b : B) -> C) -> C) -> p A (fun (a : A) (b : B) -> a))
-  (* Church pair snd *)
+  (* Church pair sndP *)
   (fun (A : Type@0) (B : Type@0) (p : forall (C : Type@0) (pair : forall (a : A) (b : B) -> C) -> C) -> p B (fun (a : A) (b : B) -> b))
 ) : Nat

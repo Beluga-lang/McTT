@@ -10,8 +10,8 @@ Parameter loc : Type.
 
 %token <loc*string> VAR
 %token <loc*nat> INT
-%token <loc> END LAMBDA NAT PI REC RETURN SUCC TYPE ZERO LET IN REFL AS (* keywords *)
-%token <loc> ARROW "->" AT "@" BAR "|" COLON ":" COMMA "," DARROW "=>" LPAREN "(" RPAREN ")" DOT "." DEF ":=" EQ "=" LANGLE "<" RANGLE ">" EOF (* symbols *)
+%token <loc> END LAMBDA NAT PI REC RETURN SUCC TYPE ZERO LET IN REFL SIGMA FST SND AS (* keywords *)
+%token <loc> ARROW "->" AT "@" BAR "|" COLON ":" COMMA "," DARROW "=>" LPAREN "(" RPAREN ")" DOT "." DEF ":=" EQ "=" LCURLY "{" RCURLY "}" LANGLE "<" RANGLE ">" EOF (* symbols *)
 
 %start <Cst.obj * Cst.obj> prog
 %type <Cst.obj> obj eq_obj app_obj atomic_obj
@@ -27,11 +27,12 @@ Parameter loc : Type.
 %%
 
 let prog :=
-  exp = obj; ":"; typ = obj; EOF; <>
+  exp = obj; ":"; ty = obj; EOF; <>
 
 let fnbinder :=
   | PI; { Cst.pi }
   | LAMBDA; { Cst.fn }
+  | SIGMA; { Cst.sigma }
 
 let obj :=
   | ~ = fnbinder; ~ = params; "->"; ~ = obj; { List.fold_left (fun acc arg => fnbinder (fst arg) (snd arg) acc) params obj }
@@ -42,18 +43,21 @@ let obj :=
     "|"; SUCC; sx = VAR; ","; sr = VAR; "=>"; es = obj;
     END; { Cst.natrec escr (snd mx) em ez (snd sx) (snd sr) es }
 
-  | REC; escr = obj; AS; "("; lhs = app_obj; "="; "<"; typ = obj; ">"; rhs = app_obj; ")"; RETURN; mx = VAR; my = VAR; mz = VAR; "."; em = obj;
+  | REC; escr = obj; AS; "("; lhs = app_obj; "="; "{"; ty = obj; "}"; rhs = app_obj; ")"; RETURN; mx = VAR; my = VAR; mz = VAR; "."; em = obj;
     "|"; REFL; rx = VAR; "=>"; er = obj;
-    END; { Cst.eqrec escr (snd mx) (snd my) (snd mz) em (snd rx) er lhs typ rhs }
+    END; { Cst.eqrec escr (snd mx) (snd my) (snd mz) em (snd rx) er lhs ty rhs }
 
-  | REFL; typ = atomic_obj; e = atomic_obj; { Cst.refl typ e }
+  | REFL; ty = atomic_obj; e = atomic_obj; { Cst.refl ty e }
 
   | SUCC; ~ = atomic_obj; { Cst.succ atomic_obj }
+
+  | FST; ~ = atomic_obj; { Cst.fst atomic_obj }
+  | SND; ~ = atomic_obj; { Cst.snd atomic_obj }
   
   | LET; ds = let_defns; IN; body = obj; { List.fold_left (fun acc arg => Cst.app acc (snd arg)) (List.rev ds) (List.fold_left (fun acc arg => Cst.fn (fst (fst arg)) (snd (fst arg)) acc) ds body) }
 
 let eq_obj :=
-  | lhs = app_obj; "="; "<"; typ = obj; ">"; rhs = app_obj; { Cst.prop_eq lhs typ rhs }
+  | lhs = app_obj; "="; "{"; ty = obj; "}"; rhs = app_obj; { Cst.prop_eq lhs ty rhs }
   | ~ = app_obj; <>
 
 let app_obj :=
@@ -68,6 +72,8 @@ let atomic_obj :=
   | n = INT; { nat_rect (fun _ => Cst.obj) Cst.zero (fun _ => Cst.succ) (snd n) }
 
   | x = VAR; { Cst.var (snd x) }
+
+  | "<"; fst_tm = obj; ":"; fst_ty = obj; ","; snd_tm = obj; ":"; x = VAR; "."; snd_ty = obj; ">"; { Cst.pair fst_tm fst_ty snd_tm (snd x) snd_ty }
 
   | "("; ~ = obj; ")"; <>
 

@@ -10,16 +10,14 @@ Lemma rel_exp_sub_cong : forall {Δ M M' A σ σ' Γ},
     {{ Γ ⊨s σ ≈ σ' : Δ }} ->
     {{ Γ ⊨ M[σ] ≈ M'[σ'] : A[σ] }}.
 Proof with mautosolve.
-  intros * [env_relΔ] [env_relΓ].
-  destruct_conjs.
-  pose env_relΔ.
-  handle_per_ctx_env_irrel.
+  intros * HM [env_relΓ [? [env_relΔ []]]].
+  invert_rel_exp HM.
   eexists_rel_exp.
   intros.
   assert (env_relΓ ρ' ρ) by (symmetry; eassumption).
   assert (env_relΓ ρ ρ) by (etransitivity; eassumption).
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
-  handle_per_univ_elem_irrel.
+  simplify_evals.
   match goal with
   | _: {{ ⟦ σ ⟧s ρ ↘ ^?ρ0 }},
       _: {{ ⟦ σ ⟧s ρ' ↘ ^?ρ'0 }} |- _ =>
@@ -30,7 +28,7 @@ Proof with mautosolve.
   (on_all_hyp: destruct_rel_by_assumption env_relΔ).
   destruct_by_head rel_typ.
   destruct_by_head rel_exp.
-  handle_per_univ_elem_irrel.
+  invert_rel_typ_body_nouip.
   eexists.
   split...
 Qed.
@@ -42,8 +40,8 @@ Lemma rel_exp_sub_id : forall {Γ M A},
     {{ Γ ⊨ M : A }} ->
     {{ Γ ⊨ M[Id] ≈ M : A }}.
 Proof with mautosolve.
-  intros * [env_relΓ].
-  destruct_conjs.
+  intros * HM.
+  invert_rel_exp HM env_relΓ.
   eexists_rel_exp.
   intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
@@ -62,19 +60,17 @@ Lemma rel_exp_sub_compose : forall {Γ τ Γ' σ Γ'' M A},
     {{ Γ'' ⊨ M : A }} ->
     {{ Γ ⊨ M[σ ∘ τ] ≈ M[σ][τ] : A[σ ∘ τ] }}.
 Proof with mautosolve.
-  intros * [env_relΓ [? [env_relΓ']]] [? [? [env_relΓ'']]] HM.
-  destruct_conjs.
+  intros * Hτ [env_relΓ' [? [env_relΓ'' []]]] HM.
+  invert_rel_sub Hτ.
   invert_rel_exp HM.
-  pose env_relΓ'.
-  handle_per_ctx_env_irrel.
   eexists_rel_exp.
   intros.
   assert (env_relΓ ρ' ρ) by (symmetry; eassumption).
   assert (env_relΓ ρ ρ) by (etransitivity; eassumption).
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
-  handle_per_univ_elem_irrel.
+  simplify_evals.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ').
-  handle_per_univ_elem_irrel.
+  simplify_evals.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ'').
   destruct_by_head rel_typ.
   destruct_by_head rel_exp.
@@ -91,8 +87,8 @@ Lemma rel_exp_conv : forall {Γ M M' A A' i},
     {{ Γ ⊨ A ≈ A' : Type@i }} ->
     {{ Γ ⊨ M ≈ M' : A' }}.
 Proof with mautosolve.
-  intros * [env_relΓ] HA.
-  destruct_conjs.
+  intros * HM HA.
+  invert_rel_exp HM env_relΓ.
   invert_rel_exp_of_typ HA.
   eexists_rel_exp.
   intros.
@@ -100,8 +96,8 @@ Proof with mautosolve.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   destruct_by_head per_univ.
   destruct_by_head rel_typ.
-  destruct_by_head rel_exp.
   handle_per_univ_elem_irrel.
+  destruct_by_head rel_exp.
   eexists.
   split; econstructor; mauto.
   etransitivity; [symmetry |]...
@@ -114,8 +110,8 @@ Lemma rel_exp_sym : forall {Γ M M' A},
     {{ Γ ⊨ M ≈ M' : A }} ->
     {{ Γ ⊨ M' ≈ M : A }}.
 Proof with mautosolve.
-  intros * [env_relΓ].
-  destruct_conjs.
+  intros * HM.
+  invert_rel_exp HM env_relΓ.
   eexists_rel_exp.
   intros.
   assert (env_relΓ ρ' ρ) by (symmetry; eauto).
@@ -136,17 +132,18 @@ Lemma rel_exp_trans : forall {Γ M1 M2 M3 A},
     {{ Γ ⊨ M2 ≈ M3 : A }} ->
     {{ Γ ⊨ M1 ≈ M3 : A }}.
 Proof with mautosolve.
-  intros * [env_relΓ] HM2M3.
-  destruct_conjs.
+  intros * HM1M2 HM2M3.
+  invert_rel_exp HM1M2 env_relΓ.
   invert_rel_exp HM2M3.
   eexists_rel_exp.
   intros.
   assert (env_relΓ ρ' ρ) by (symmetry; eauto).
   assert (env_relΓ ρ' ρ') by (etransitivity; eauto).
-  (on_all_hyp: destruct_rel_by_assumption env_relΓ); destruct_conjs.
+  (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   destruct_by_head rel_typ.
-  destruct_by_head rel_exp.
   handle_per_univ_elem_irrel.
+  destruct_by_head rel_exp.
+  simplify_evals.
   eexists.
   split; econstructor; mauto.
   etransitivity...
@@ -170,14 +167,10 @@ Proof.
     by (split; unfold valid_exp_under_ctx; etransitivity; [|symmetry|symmetry|]; eassumption).
   intros Hrel; repeat split;
     try solve [intuition]; clear Hpart;
-    destruct Hrel as [env_relΓ];
-    destruct_conjs.
+    invert_rel_exp Hrel env_relΓ.
   - eexists; eassumption.
-  - destruct_by_head valid_exp_under_ctx.
-    destruct_conjs.
-    eexists.
+  - eexists.
     eexists_rel_exp_of_typ.
-    intros.
     (on_all_hyp: destruct_rel_by_assumption env_relΓ).
     eapply rel_typ_implies_rel_exp; eauto.
 Qed.
@@ -187,10 +180,12 @@ Lemma rel_exp_eq_subtyp : forall Γ M M' A A',
     {{ Γ ⊨ A ⊆ A' }} ->
     {{ Γ ⊨ M ≈ M' : A' }}.
 Proof.
-  intros * [env_relΓ [? [i]]] [? [? [j]]].
-  pose env_relΓ.
-  handle_per_ctx_env_irrel.
-  eexists_rel_exp_with (max i j).
+  intros * HM [env_relΓ [? [j]]].
+  invert_rel_exp HM.
+  match goal with
+  | _: forall _ _ _, exists _, rel_typ ?i A _ A _ _ /\ _ |- _ =>
+      eexists_rel_exp_with (max i j)
+  end.
   intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   destruct_by_head rel_typ.
@@ -199,10 +194,11 @@ Proof.
   eexists.
   split; econstructor; eauto using per_univ_elem_cumu_max_right.
   handle_per_univ_elem_irrel.
-  eapply per_elem_subtyping_gen with (i := max i j); try eassumption.
+  eapply per_elem_subtyping_gen; [| | | try eassumption].
   - eauto using per_subtyp_cumu_right.
   - eauto using per_univ_elem_cumu_max_right.
-  - symmetry. eauto using per_univ_elem_cumu_max_right.
+  - symmetry.
+    eauto using per_univ_elem_cumu_max_right.
 Qed.
 
 #[export]

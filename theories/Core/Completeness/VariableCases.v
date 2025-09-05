@@ -20,7 +20,7 @@ Proof with solve [split; mauto].
   remember A as A' eqn:HAA' in HxinΓ' |- * at 2. clear HAA'.
   gen Δ A' env_rel.
   induction HxinΓ; intros * equiv_Γ_Δ HxinΓ0; inversion HxinΓ0; subst; clear HxinΓ0; inversion_clear equiv_Γ_Δ; subst;
-    [| specialize (IHHxinΓ _ _ _ equiv_Γ_Γ' H0) as [j ?]; destruct_conjs];
+    [| specialize (IHHxinΓ _ _ _ equiv_Γ_Γ' ltac:(eassumption)) as [j ?]; destruct_conjs];
     apply_relation_equivalence;
     eexists; intros ? ? [];
     (on_all_hyp: destruct_rel_by_assumption tail_rel); destruct_conjs;
@@ -49,9 +49,8 @@ Lemma rel_exp_var_0_sub : forall {Γ M σ Δ A},
   {{ Γ ⊨ M : A[σ] }} ->
   {{ Γ ⊨ #0[σ ,, M] ≈ M : A[σ] }}.
 Proof with mautosolve.
-  intros * [env_relΓ [? [env_relΔ]]] HM.
+  intros * [env_relΓ [? [env_relΔ []]]] HM.
   invert_rel_exp HM.
-  destruct_conjs.
   eexists_rel_exp.
   intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
@@ -72,9 +71,8 @@ Lemma rel_exp_var_S_sub : forall {Γ M σ Δ A x B},
   {{ #x : B ∈ Δ }} ->
   {{ Γ ⊨ #(S x)[σ ,, M] ≈ #x[σ] : B[σ] }}.
 Proof with mautosolve.
-  intros * [env_relΓ [? [env_relΔ]]] HM HxinΓ.
+  intros * [env_relΓ [? [env_relΔ []]]] HM HxinΓ.
   invert_rel_exp HM.
-  destruct_conjs.
   pose proof (valid_lookup ltac:(eassumption) HxinΓ).
   destruct_conjs.
   eexists_rel_exp.
@@ -99,10 +97,10 @@ Lemma rel_exp_var_weaken : forall {Γ B x A},
 Proof with mautosolve.
   intros * [env_relΓB] HxinΓ.
   invert_per_ctx_envs.
+  apply_relation_equivalence.
   pose proof (valid_lookup ltac:(eassumption) HxinΓ).
   destruct_conjs.
   eexists_rel_exp.
-  apply_relation_equivalence.
   intros.
   destruct_by_head cons_per_ctx_env.
   rename tail_rel into env_relΓ.

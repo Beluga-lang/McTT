@@ -64,6 +64,32 @@ Qed.
 #[export]
 Hint Resolve var_per_bot : mctt.
 
+Lemma fst_bot_per_bot : forall m n,
+    {{ Dom m ≈ n ∈ per_bot }} ->
+    {{ Dom fst m ≈ fst n ∈ per_bot }}.
+Proof.
+  intros* H s.
+  specialize (H s).
+  destruct_all.
+  eexists; mauto.
+Qed.
+  
+#[export]
+Hint Resolve fst_bot_per_bot : mctt.
+
+Lemma snd_bot_per_bot : forall m n,
+    {{ Dom m ≈ n ∈ per_bot }} ->
+    {{ Dom snd m ≈ snd n ∈ per_bot }}.
+Proof.
+  intros* H s.
+  specialize (H s).
+  destruct_all.
+  eexists; mauto.
+Qed.
+
+#[export]
+Hint Resolve snd_bot_per_bot : mctt.
+
 Lemma per_top_sym : forall m n,
     {{ Dom m ≈ n ∈ per_top }} ->
     {{ Dom n ≈ m ∈ per_top }}.
@@ -385,6 +411,22 @@ Proof with (destruct_rel_mod_eval; destruct_rel_mod_app; functional_eval_rewrite
   - rename equiv_c_c' into equiv0_c_c'.
     assert (equiv_c_c' : in_rel c c') by firstorder...
   - assert (equiv0_c_c' : in_rel0 c c') by firstorder...
+  - split. 
+    + intros.
+      dependent destruction H2.
+      assert (fst_rel <~> fst_rel0) by mauto 3.
+      assert (equiv0_b_b' : fst_rel0 b b') by firstorder.
+      destruct_rel_mod_eval.
+      functional_eval_rewrite_clear.
+      econstructor; mauto 3.
+      intuition.
+    + intros. dependent destruction H2.
+      assert (fst_rel <~> fst_rel0) by mauto 3.
+      assert (equiv0_b_b' : fst_rel b b') by firstorder.
+      destruct_rel_mod_eval.
+      functional_eval_rewrite_clear.
+      econstructor; mauto 3.
+      intuition.
   - assert (point_rel <~> point_rel0) by mauto 3.
     etransitivity; [apply per_eq_morphism_relation_equivalence3 | apply per_eq_morphism_relation_equivalence1]; eauto.
     etransitivity; [symmetry |]; intuition.
@@ -446,6 +488,30 @@ Proof with mautosolve.
       per_univ_elem_right_irrel_assert.
       intuition.
   - destruct_conjs.
+    split.
+    + basic_per_univ_elem_econstructor; eauto.
+      intros.
+      assert (fst_rel c' c) by eauto.
+      assert (fst_rel c c) by (etransitivity; eassumption).
+      destruct_all.
+      destruct_rel_mod_eval.
+      functional_eval_rewrite_clear.
+      econstructor; eauto.
+      per_univ_elem_right_irrel_assert.
+      apply_relation_equivalence.
+      eassumption.
+    + apply_relation_equivalence.
+      intros.
+      dependent destruction H2.
+      assert (fst_rel b' b) by eauto.
+      assert (fst_rel b b) by (etransitivity; eassumption).
+      destruct_rel_mod_eval.
+      destruct_all.
+      functional_eval_rewrite_clear.
+      per_univ_elem_right_irrel_assert.
+      econstructor; eauto.
+      intuition.
+  - destruct_conjs.
     split; [basic_per_univ_elem_econstructor | apply_relation_equivalence]; mauto 3.
     apply_relation_equivalence.
     etransitivity; [apply per_eq_morphism_relation_equivalence2 | apply per_eq_morphism_relation_equivalence3]; mauto 3.
@@ -495,6 +561,7 @@ Proof.
   eauto using per_univ_elem_right_irrel.
 Qed.
 
+(* TODO : R1 <~> R2 shouldn't be added if R1 <~> R2 can be solved by intuition *)
 Ltac do_per_univ_elem_irrel_assert1 :=
   let tactic_error o1 o2 := fail 2 "per_univ_elem_irrel biconditional between" o1 "and" o2 "cannot be solved" in
   match goal with
@@ -579,6 +646,26 @@ Proof with (basic_per_univ_elem_econstructor; mautosolve 4).
     handle_per_univ_elem_irrel.
     econstructor; eauto.
     intuition.
+  - destruct_conjs.
+    basic_per_univ_elem_econstructor; eauto.
+    + handle_per_univ_elem_irrel.
+      intuition.
+    + intros.
+      handle_per_univ_elem_irrel.
+      assert (fst_rel c c') by firstorder.
+      assert (fst_rel c c) by intuition.
+      assert (fst_rel0 c c) by intuition.
+      destruct_rel_mod_eval.
+      functional_eval_rewrite_clear.
+      handle_per_univ_elem_irrel...
+  - destruct_by_head rel_mod_proj. 
+    functional_eval_rewrite_clear.
+    assert (fst_rel b0 b') by intuition.
+    destruct_rel_mod_eval.
+    functional_eval_rewrite_clear.
+    handle_per_univ_elem_irrel.
+    econstructor; mauto 3.
+    intuition.
   - (* eq case *)
     destruct_conjs.
     handle_per_univ_elem_irrel.
@@ -659,6 +746,22 @@ Proof.
   typeclasses eauto.
 Qed.
 
+Lemma per_univ_elem_sigma' : 
+  forall i a a' ρ B ρ' B'
+    (fst_rel : relation domain)
+    (snd_rel : forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}), relation domain)
+    (elem_rel : relation domain)
+    (equiv_a_a' : {{ DF a ≈ a' ∈ (per_univ_elem i) ↘ fst_rel }}),
+    (forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}),
+        rel_mod_eval (per_univ_elem i) B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (snd_rel equiv_c_c')) ->
+    (elem_rel <~> fun b b' => rel_mod_proj b b' fst_rel (fun c c' => snd_rel) ) ->
+    {{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }}.
+Proof.
+  intros.
+  basic_per_univ_elem_econstructor; eauto.
+  typeclasses eauto.
+Qed.
+
 Lemma per_univ_elem_eq' :
   forall (i : nat) {a a' m1 m1' m2 m2' : domain} (point_rel elem_rel : relation domain),
     {{ DF a ≈ a' ∈ per_univ_elem i ↘ point_rel }} ->
@@ -672,9 +775,8 @@ Proof.
   typeclasses eauto.
 Qed.
 
-
 Ltac per_univ_elem_econstructor :=
-  (repeat intro; hnf; (eapply per_univ_elem_pi' || eapply per_univ_elem_eq')) + basic_per_univ_elem_econstructor.
+  (repeat intro; hnf; (eapply per_univ_elem_pi' || eapply per_univ_elem_sigma' || eapply per_univ_elem_eq')) + basic_per_univ_elem_econstructor.
 
 #[export]
 Hint Resolve per_univ_elem_pi' per_univ_elem_eq' : mctt.
@@ -706,7 +808,7 @@ Proof.
     handle_per_univ_elem_irrel.
     intuition.
   - split; intros;
-      [assert (in_rel0 c c') by intuition; (on_all_hyp: destruct_rel_by_assumption in_rel0)
+      [ assert (in_rel0 c c') by intuition; (on_all_hyp: destruct_rel_by_assumption in_rel0)
       | assert (in_rel c c') by intuition; (on_all_hyp: destruct_rel_by_assumption in_rel)];
       econstructor; intuition.
     destruct_by_head rel_typ.
@@ -714,8 +816,48 @@ Proof.
     intuition.
 Qed.
 
+Lemma per_univ_elem_sigma_clean_inversion : forall {i j a a' fst_rel ρ ρ' B B' elem_rel},
+    {{ DF a ≈ a' ∈ per_univ_elem i ↘ fst_rel }} ->
+    {{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem j ↘ elem_rel }} ->
+    exists (snd_rel : forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}), relation domain),
+      (forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}),
+          rel_mod_eval (per_univ_elem j) B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (snd_rel equiv_c_c')) /\
+        (elem_rel <~> fun b b' => rel_mod_proj b b' fst_rel (fun c c' => snd_rel)).
+Proof.
+  intros * Ha HΣ.
+  basic_invert_per_univ_elem HΣ.
+  handle_per_univ_elem_irrel.
+  eexists.
+  split.
+  - instantiate (1 := fun c c' (equiv_c_c' : fst_rel c c') m m' =>
+                        forall R,
+                          rel_typ j B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} R ->
+                          R m m').
+    intros.
+    assert (fst_rel0 c c') by intuition.
+    (on_all_hyp: destruct_rel_by_assumption fst_rel0).
+    econstructor; eauto.
+    apply -> per_univ_elem_morphism_iff; eauto.
+    split; intuition.
+    destruct_by_head rel_typ.
+    handle_per_univ_elem_irrel.
+    intuition.
+  - split; intros; destruct_by_head rel_mod_proj.
+    + destruct_rel_mod_eval.
+      econstructor; intuition.
+      destruct_by_head rel_typ.
+      simplify_evals.
+      handle_per_univ_elem_irrel.
+      intuition.
+    + assert (fst_rel0 b b') by intuition.
+      destruct_rel_mod_eval.
+      econstructor; intuition.
+      eapply H1; econstructor; mauto 3.
+Qed.
+
 Ltac invert_per_univ_elem H :=
   (unshelve eapply (per_univ_elem_pi_clean_inversion _) in H; shelve_unifiable; [eassumption |]; destruct H as [? []])
+  + (unshelve eapply (per_univ_elem_sigma_clean_inversion _) in H; shelve_unifiable; [eassumption |]; destruct H as [? []])
   + basic_invert_per_univ_elem H.
 
 Ltac invert_per_univ_elems := match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem H).
@@ -723,6 +865,7 @@ Ltac invert_per_univ_elems := match_by_head per_univ_elem ltac:(fun H => directe
 (* TODO: unify with the uip version above *)
 Ltac invert_per_univ_elem_nouip H :=
   (unshelve eapply (per_univ_elem_pi_clean_inversion _) in H; shelve_unifiable; [eassumption |]; destruct H as [? []])
+  + (unshelve eapply (per_univ_elem_sigma_clean_inversion _) in H; shelve_unifiable; [eassumption |]; destruct H as [? []])
   + basic_invert_per_univ_elem_nouip H.
 
 Lemma per_univ_elem_cumu : forall i a0 a1 R,
@@ -732,9 +875,14 @@ Proof with solve [eauto].
   simpl.
   induction 1 using per_univ_elem_ind; subst;
     per_univ_elem_econstructor; eauto.
-  intros.
-  destruct_rel_mod_eval.
-  econstructor...
+  (* Pi case *)
+  - intros.
+    destruct_rel_mod_eval.
+    econstructor...
+  (* Sigma case *)
+  - intros.
+    destruct_rel_mod_eval.
+    econstructor...
 Qed.
 
 #[export]
@@ -778,7 +926,6 @@ Proof.
     try (etransitivity; try eassumption; symmetry; eassumption);
     per_univ_elem_econstructor; mauto 3;
     try apply Equivalence_Reflexive.
-
   lia.
 Qed.
 
@@ -804,8 +951,12 @@ Proof.
     saturate_refl_for per_univ_elem.
     destruct_rel_mod_app_nouip.
     simplify_evals.
-    econstructor; eauto.
-    intuition.
+    econstructor; intuition.
+  - destruct_by_head rel_mod_proj.
+    simplify_evals.
+    destruct_rel_mod_eval_nouip.
+    handle_per_univ_elem_irrel.
+    econstructor; intuition.
 Qed.
 
 Lemma per_elem_subtyping_gen : forall a b i a' b' R R' m n,
@@ -827,8 +978,16 @@ Proof.
     subst;
     mauto;
     destruct_all.
-    assert ({{ DF Π a ρ B ≈ Π a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }})
+  - assert ({{ DF Π a ρ B ≈ Π a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }})
       by (per_univ_elem_econstructor; intuition; destruct_rel_mod_eval; mauto).
+    saturate_refl_for per_univ_elem.
+    econstructor; eauto.
+    intros;
+      destruct_rel_mod_eval;
+      functional_eval_rewrite_clear;
+      trivial.
+  - assert ({{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }}) by 
+    (per_univ_elem_econstructor; intuition; destruct_rel_mod_eval; mauto).
     saturate_refl_for per_univ_elem.
     econstructor; eauto.
     intros;
@@ -859,7 +1018,8 @@ Lemma per_subtyp_trans : forall a1 a2 i,
       {{ Sub a1 <: a3 at i }}.
 Proof.
   induction 1; intros ? Hsub; simpl in *.
-  1,2,5: progressive_inversion; mauto.
+  (* Universe, nat and neutral cases *)
+  1,2,6: progressive_inversion; mauto.
   - econstructor; lia.
   - inversion Hsub; subst.
     handle_per_univ_elem_irrel.
@@ -872,6 +1032,19 @@ Proof.
       destruct_rel_mod_eval_nouip.
       handle_per_univ_elem_irrel.
       saturate_refl_for in_rel1.
+      destruct_rel_mod_eval.
+      intuition.
+  - inversion Hsub; subst.
+    handle_per_univ_elem_irrel.
+    econstructor; eauto.
+    + etransitivity; eassumption.
+    + intros.
+      saturate_refl_for per_univ_elem.
+      saturate_refl_for fst_rel0.
+      (on_all_hyp: fun H => directed invert_per_univ_elem_nouip H).
+      destruct_rel_mod_eval_nouip.
+      handle_per_univ_elem_irrel.
+      saturate_refl_for fst_rel.
       destruct_rel_mod_eval.
       intuition.
   - dependent destruction Hsub.

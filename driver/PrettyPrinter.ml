@@ -38,6 +38,13 @@ let rec get_pi_params_of_obj : Cst.obj -> (string * Cst.obj) list * Cst.obj =
      ((px, ep) :: params, eret')
   | eret -> ([], eret)
 
+let rec get_sigma_params_of_obj : Cst.obj -> (string * Cst.obj) list * Cst.obj =
+  function
+  | Cst.Coq_sigma (px, ep, es) ->
+     let params, es' = get_sigma_params_of_obj es in
+     ((px, ep) :: params, es')
+  | es -> ([], es)
+
 let rec format_obj_prec (p : int) (f : Format.formatter) : Cst.obj -> unit =
   let open Format in
   function
@@ -107,7 +114,7 @@ let rec format_obj_prec (p : int) (f : Format.formatter) : Cst.obj -> unit =
      pp_close_box f ()
   | Cst.Coq_prop_eq (e1, et, e2) ->
      let impl f () =
-       fprintf f "%a@ =<%a>@ %a" (format_obj_prec 1) e1 (format_obj_prec 0) et (format_obj_prec 1) e2
+       fprintf f "%a@ ={%a}@ %a" (format_obj_prec 1) e1 (format_obj_prec 0) et (format_obj_prec 1) e2
      in
      pp_open_hvbox f 2;
      pp_print_paren_if (p >= 1) impl f ();
@@ -122,7 +129,7 @@ let rec format_obj_prec (p : int) (f : Format.formatter) : Cst.obj -> unit =
   | Cst.Coq_eqrec (escr, mx, my, mz, em, rx, er, e1, ea, e2) ->
      let impl f () =
        fprintf f
-         "@[<hv 0>@[<hov 2>rec %a@ as %a =<%a> %a@ return %s %s %s . %a@]@ @[<hov 2>| refl %s =>@ \
+         "@[<hv 0>@[<hov 2>rec %a@ as %a ={%a} %a@ return %s %s %s . %a@]@ @[<hov 2>| refl %s =>@ \
           %a@]@ end@]"
          format_obj escr
          format_obj e1
@@ -136,6 +143,46 @@ let rec format_obj_prec (p : int) (f : Format.formatter) : Cst.obj -> unit =
          format_obj er
      in
      pp_print_paren_if (p >= 1) impl f ()
+  | Cst.Coq_sigma (px , ep, es) ->
+     let params, es' = get_sigma_params_of_obj es in
+     let impl f () =
+       pp_print_string f "exists ";
+       pp_open_tbox f ();
+       pp_set_tab f ();
+       pp_print_list ~pp_sep:pp_print_tab format_obj_param f ((px, ep) :: params);
+       pp_close_tbox f ();
+       begin
+         if List.compare_length_with params 0 = 0
+         then pp_print_space f ()
+         else pp_force_newline f ()
+       end;
+       fprintf f "-> @[<hov 2>%a@]" format_obj es'
+     in
+     pp_open_hvbox f 2;
+     pp_print_paren_if (p >= 1) impl f ();
+     pp_close_box f ()
+  | Cst.Coq_pair (ef, eft, es, fx, est) ->
+     let impl f () =
+       fprintf f "<@[<hov 2>%a@ : %a,@]@ @[<hov 2>%a@ : %s . %a@]>"
+         format_obj ef
+         format_obj eft
+         format_obj es
+         fx
+         format_obj est
+     in
+     pp_open_hvbox f 0;
+     impl f ();
+     pp_close_box f ()
+  | Cst.Coq_fst e ->
+      let impl f () = fprintf f "fst@ %a" (format_obj_prec 2) e in
+      pp_open_hovbox f 2;
+      pp_print_paren_if (p >= 2) impl f ();
+      pp_close_box f ()
+  | Cst.Coq_snd e ->
+      let impl f () = fprintf f "snd@ %a" (format_obj_prec 2) e in
+      pp_open_hovbox f 2;
+      pp_print_paren_if (p >= 2) impl f ();
+      pp_close_box f ()
 
 and format_obj_param f (px, ep) = Format.fprintf f "(%s : %a)" px format_obj ep
 and format_obj f = format_obj_prec 0 f
@@ -208,6 +255,20 @@ let exp_to_obj =
        let e2' = impl ctx e2 in
        let escr' = impl ctx escr in
        Cst.Coq_eqrec (escr', mx, my, mz, em', rx, er', e1', ea', e2')
+    | Coq_a_sigma (ep, es) ->
+       let px = match ep with Coq_a_typ _ -> new_tyvar () | _ -> new_var () in
+       let ep' = impl ctx ep in
+       let es' = impl (px :: ctx) es in
+       Cst.Coq_sigma (px, ep', es')
+    | Coq_a_pair (ef, eft, es, est) ->
+       let ef' = impl ctx ef in
+       let eft' = impl ctx eft in
+       let fx = match eft with Coq_a_typ _ -> new_tyvar () | _ -> new_var () in
+       let es' = impl ctx es in
+       let est' = impl (fx :: ctx) est in
+       Cst.Coq_pair (ef', eft', es', fx, est')
+    | Coq_a_fst e -> Cst.Coq_fst (impl ctx e)
+    | Coq_a_snd e -> Cst.Coq_snd (impl ctx e)
     | Coq_a_sub _ -> failwith "Invalid internal language construct"
   in
   fun exp ->

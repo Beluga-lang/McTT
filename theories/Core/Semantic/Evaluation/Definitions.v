@@ -5,10 +5,19 @@ Import Domain_Notations.
 Reserved Notation "'⟦' M '⟧' ρ '↘' r" (in custom judg at level 80, M custom exp at level 99, ρ custom domain at level 99, r custom domain at level 99).
 Reserved Notation "'rec' m '⟦return' A | 'zero' -> MZ | 'succ' -> MS 'end⟧' ρ '↘' r" (in custom judg at level 80, m custom domain at level 99, A custom exp at level 99, MZ custom exp at level 99, MS custom exp at level 99, ρ custom domain at level 99, r custom domain at level 99).
 Reserved Notation "'$|' m '&' n '|↘' r" (in custom judg at level 80, m custom domain at level 99, n custom domain at level 99, r custom domain at level 99).
+Reserved Notation "'π₁' n ↘ r" (in custom judg at level 80, n custom domain at level 99, r custom domain at level 99).
+Reserved Notation "'π₂' n ↘ r" (in custom judg at level 80, n custom domain at level 99, r custom domain at level 99).
 Reserved Notation "'eqrec' n 'as' 'Eq' a m1 m2 '⟦return' B | 'refl' -> BR 'end⟧' ρ '↘' r" (in custom judg at level 80, n custom domain at level 99, a custom domain at level 30, m1 custom domain at level 35, m2 custom domain at level 40, B custom exp at level 99, BR custom exp at level 99, ρ custom domain at level 99, r custom domain at level 99).
 Reserved Notation "'⟦' σ '⟧s' ρ '↘' ρσ" (in custom judg at level 80, σ custom exp at level 99, ρ custom domain at level 99, ρσ custom domain at level 99).
 
 Generalizable All Variables.
+
+Variant eval_fst : domain -> domain -> Prop :=
+| eval_fst_pair :
+  `( {{ π₁ ⟨ a ; b ⟩ ↘ a }} )
+| eval_fst_neut : 
+  `( {{ π₁ ⇑ (Σ a ρ B) m ↘ ⇑ a (fst m) }} )
+where "'π₁' n '↘' r" := (eval_fst n r) (in custom judg).
 
 Inductive eval_exp : exp -> env -> domain -> Prop :=
 | eval_exp_typ :
@@ -36,6 +45,21 @@ Inductive eval_exp : exp -> env -> domain -> Prop :=
      {{ ⟦ N ⟧ ρ ↘ n }} ->
      {{ $| m & n |↘ r }} ->
      {{ ⟦ M N ⟧ ρ ↘ r }} )
+| eval_exp_sigma :
+  `( {{ ⟦ A ⟧ ρ ↘ a }} ->
+     {{ ⟦ Σ A B ⟧ ρ ↘ Σ a ρ B }} )
+| eval_exp_pair :
+  `( {{ ⟦ M ⟧ ρ ↘ a }} ->
+     {{ ⟦ N ⟧ ρ ↘ b }} ->
+     {{ ⟦ ⟨ M : A ; N : B ⟩ ⟧ ρ ↘ ⟨ a ; b ⟩ }} )
+| eval_exp_fst :
+  `( {{ ⟦ M ⟧ ρ ↘ m }} ->
+     {{ π₁ m ↘ r }}  -> 
+     {{ ⟦ fst M ⟧ ρ ↘ r }} )
+| eval_exp_snd :
+  `( {{ ⟦ M ⟧ ρ ↘ m }} ->
+     {{ π₂ m ↘ r }}  -> 
+     {{ ⟦ snd M ⟧ ρ ↘ r }} )
 | eval_exp_eq :
   `( {{ ⟦ A ⟧ ρ ↘ a }} ->
      {{ ⟦ M1 ⟧ ρ ↘ m1 }} ->
@@ -77,6 +101,13 @@ with eval_app : domain -> domain -> domain -> Prop :=
   `( {{ ⟦ B ⟧ ρ ↦ n ↘ b }} ->
      {{ $| ⇑ (Π a ρ B) m & n |↘ ⇑ b (m (⇓ a n)) }} )
 where "'$|' m '&' n '|↘' r" := (eval_app m n r) (in custom judg)
+with eval_snd : domain -> domain -> Prop :=
+| eval_snd_pair :
+  `( {{ π₂ ⟨ a ; b ⟩ ↘ b }} )
+| eval_snd_neut : 
+  `( {{ ⟦ B ⟧ ρ ↦ ⇑ a (fst m) ↘ b }} ->
+     {{ π₂ ⇑ (Σ a ρ B) m ↘ ⇑ b (snd m) }} )
+where "'π₂' n '↘' r" := (eval_snd n r) (in custom judg)
 with eval_eqrec : domain -> exp -> exp -> domain -> domain -> domain -> env -> domain -> Prop :=
 | eval_eqrec_refl :
   `( {{ ⟦ BR ⟧ ρ ↦ n ↘ br }} ->
@@ -104,14 +135,18 @@ where "'⟦' σ '⟧s' ρ '↘' ρσ" := (eval_sub σ ρ ρσ) (in custom judg)
 Scheme eval_exp_mut_ind := Induction for eval_exp Sort Prop
 with eval_natrec_mut_ind := Induction for eval_natrec Sort Prop
 with eval_app_mut_ind := Induction for eval_app Sort Prop
+with eval_snd_mut_ind := Induction for eval_snd Sort Prop
 with eval_eqrec_mut_ind := Induction for eval_eqrec Sort Prop
-with eval_sub_mut_ind := Induction for eval_sub Sort Prop.
+with eval_sub_mut_ind := Induction for eval_sub Sort Prop
+.
+
 Combined Scheme eval_mut_ind from
   eval_exp_mut_ind,
   eval_natrec_mut_ind,
   eval_app_mut_ind,
+  eval_snd_mut_ind,
   eval_eqrec_mut_ind,
   eval_sub_mut_ind.
 
 #[export]
-Hint Constructors eval_exp eval_natrec eval_app eval_eqrec eval_sub : mctt.
+Hint Constructors eval_exp eval_natrec eval_app eval_fst eval_snd eval_eqrec eval_sub : mctt.

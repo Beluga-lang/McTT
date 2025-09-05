@@ -36,6 +36,19 @@ Proof.
     assert {{ Γ, ^(nf_to_exp A') ⊢ B' : Type@(max x x0) }} by mauto using lift_exp_max_left.
     deepexec IHalg_subtyping_nf ltac:(fun H => pose proof H).
     mauto 3.
+  - on_all_hyp: fun H => apply wf_sigma_inversion in H; destruct H as [? ?].
+    destruct_all.
+    gen_presups.
+    repeat match goal with
+           | H : {{ ^?Γ ⊢ ^?A ⊆ ^?B }}, H1: {{ ⊢ ^?Γ , ^_ }} |- _ =>
+               pose proof (wf_subtyp_univ_weaken _ _ _ _ H H1);
+               fail_if_dup
+           end.
+    apply_subtyping.
+    assert {{ Γ, ^(nf_to_exp A') ⊢ B : Type@(max x x0) }} by mauto using lift_exp_max_right.
+    assert {{ Γ, ^(nf_to_exp A') ⊢ B' : Type@(max x x0) }} by mauto using lift_exp_max_left.
+    deepexec IHalg_subtyping_nf ltac:(fun H => pose proof H).
+    mauto 3.
 Qed.
 
 Lemma alg_subtyping_nf_trans : forall A0 A1 A2,
@@ -97,6 +110,20 @@ Proof.
     end.
     assert {{ Γ ⊢ Π A B : Type@i }} as ?%soundness by mauto.
     assert {{ Γ ⊢ Π A' B' : Type@i }} as ?%soundness by mauto.
+    destruct_all.
+    econstructor; mauto 2.
+    progressive_inversion.
+    functional_initial_env_rewrite_clear.
+    simplify_evals.
+    functional_read_rewrite_clear.
+    mauto 2.
+  - assert {{ ⊢ Γ , A ≈ Γ , A' }} by mauto.
+    eapply ctxeq_nbe_eq in H5; [ |eassumption].
+    match goal with
+    | H : _ |- _ => apply completeness in H
+    end.
+    assert {{ Γ ⊢ Σ A B : Type@i }} as ?%soundness by mauto.
+    assert {{ Γ ⊢ Σ A' B' : Type@i }} as ?%soundness by mauto.
     destruct_all.
     econstructor; mauto 2.
     progressive_inversion.

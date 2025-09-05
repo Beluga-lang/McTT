@@ -20,25 +20,13 @@ Lemma rel_ctx_extend : forall {Γ Γ' A A' i},
     {{ Γ ⊨ A ≈ A' : Type@i }} ->
     {{ ⊨ Γ, A ≈ Γ', A' }}.
 Proof with intuition.
-  intros * [] [env_relΓ]%rel_exp_of_typ_inversion1.
-  pose env_relΓ.
-  destruct_conjs.
-  handle_per_ctx_env_irrel.
+  intros * [env_relΓ] HA.
+  invert_rel_exp_of_typ HA.
+  assert (exists (elem_rel : forall {ρ ρ'} (equiv_ρ_ρ' : {{ Dom ρ ≈ ρ' ∈ env_relΓ }}), relation domain), forall ρ ρ' (equiv_ρ_ρ' : {{ Dom ρ ≈ ρ' ∈ env_relΓ }}), rel_typ i A ρ A' ρ' (elem_rel equiv_ρ_ρ')) as []
+    by (saturate_refl_for per_ctx_env; eapply rel_exp_under_ctx_implies_rel_typ_under_ctx; mauto 3).
   eexists.
   per_ctx_env_econstructor; eauto.
-  - instantiate (1 := fun ρ ρ' (equiv_ρ_ρ' : env_relΓ ρ ρ') m m' =>
-                        forall i R,
-                          rel_typ i A ρ A' ρ' R ->
-                          R m m').
-    intros.
-    (on_all_hyp: destruct_rel_by_assumption env_relΓ).
-    match_by_head per_univ ltac:(fun H => destruct H as [elem_relA]).
-    econstructor; eauto.
-    apply -> per_univ_elem_morphism_iff; eauto.
-    split; intros; destruct_by_head rel_typ; handle_per_univ_elem_irrel...
-    assert (rel_typ i A ρ A' ρ' elem_relA) by mauto.
-    intuition.
-  - apply Equivalence_Reflexive.
+  solve_refl.
 Qed.
 
 Lemma rel_ctx_extend' : forall {Γ A i},
@@ -68,7 +56,8 @@ Proof.
   intros * ? []%rel_ctx_extend' []%rel_ctx_extend' [env_relΓ].
   pose env_relΓ.
   destruct_conjs.
-  econstructor; mauto; intros.
+  econstructor; try eassumption.
+  intros.
   (on_all_hyp: destruct_rel_by_assumption env_relΓ).
   destruct_by_head rel_exp.
   simplify_evals.

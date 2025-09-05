@@ -160,6 +160,20 @@ Hint Resolve wf_app' : mctt.
 #[export]
 Remove Hints wf_app : mctt.
 
+Corollary wf_sigma_max : forall {Γ A i B j},
+    {{ Γ ⊢ A : Type@i }} ->
+    {{ Γ, A ⊢ B : Type@j }} ->
+    {{ Γ ⊢ Σ A B : Type@(max i j) }}.
+Proof.
+  intros.
+  assert {{ Γ ⊢ A : Type@(max i j) }} by mauto using lift_exp_max_left.
+  assert {{ Γ, A ⊢ B : Type@(max i j) }} by mauto using lift_exp_max_right.
+  mauto.
+Qed.
+
+#[export]
+Hint Resolve wf_sigma_max : mctt.
+
 Lemma wf_exp_eq_typ_sub' : forall Γ σ Δ i j,
     {{ Γ ⊢s σ : Δ }} ->
     i < j ->
@@ -396,6 +410,102 @@ Hint Resolve wf_subtyp_pi' : mctt.
 #[export]
 Remove Hints wf_subtyp_pi : mctt.
 
+Corollary wf_exp_eq_sigma_cong' : forall {Γ A A' B B' i},
+    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    {{ Γ, A ⊢ B ≈ B' : Type@i }} ->
+    {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@i }}.
+Proof.
+  impl_opt_constructor.
+Qed.
+
+#[export]
+Hint Resolve wf_exp_eq_sigma_cong' : mctt.
+#[export]
+Remove Hints wf_exp_eq_sigma_cong : mctt.
+
+Corollary wf_exp_eq_sigma_cong_max : forall {Γ A A' i B B' j},
+    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    {{ Γ, A ⊢ B ≈ B' : Type@j }} ->
+    {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@(max i j) }}.
+Proof.
+  intros.
+  assert {{ Γ ⊢ A ≈ A' : Type@(max i j) }} by eauto using lift_exp_eq_max_left.
+  assert {{ Γ, A ⊢ B ≈ B' : Type@(max i j) }} by eauto using lift_exp_eq_max_right.
+  mauto.
+Qed.
+
+#[export]
+Hint Resolve wf_exp_eq_pi_cong_max : mctt.
+
+Lemma wf_subtyp_sigma' : forall Γ A A' B B' i,
+    {{ Γ ⊢ A ≈ A' : Type@i }} ->
+    {{ Γ, A' ⊢ B ⊆ B' }} ->
+    {{ Γ ⊢ Σ A B ⊆ Σ A' B' }}.
+Proof.
+  intros. gen_presups.
+  eapply wf_subtyp_sigma with (i := max i i0);
+    mauto 3 using lift_exp_max_left, lift_exp_max_right, lift_exp_eq_max_left.
+  eapply ctxeq_exp; [ | mauto 3 using lift_exp_max_right].
+  mauto 4.
+Qed.
+
+Corollary wf_pair' : forall {i Γ A M1 M2 B},
+    {{ Γ ⊢ M1 : A }} ->
+    {{ Γ , A ⊢ B : Type@i }} ->
+    {{ Γ ⊢ M2 : B[Id,,M1] }} ->
+    {{ Γ ⊢ ⟨ M1 : A ; M2 : B ⟩ : Σ A B }}.
+Proof.
+  intros. gen_presups.
+  eapply wf_pair with (i:=(max i2 i)); mauto 3 using lift_exp_max_left, lift_exp_max_right.
+Qed.
+
+#[export]
+Hint Resolve wf_pair' : mctt.
+#[export]
+Remove Hints wf_pair : mctt.
+
+Corollary wf_fst' : forall {Γ M A B},
+    {{ Γ ⊢ M : Σ A B }} ->
+    {{ Γ ⊢ fst M : A }}.
+Proof.
+  intros. gen_presups.
+  apply wf_sigma_inversion' in HA.
+  destruct_all. mauto 3.
+Qed.
+
+#[export]
+Hint Resolve wf_fst' : mctt.
+#[export]
+Remove Hints wf_fst : mctt.
+
+Corollary wf_snd' : forall {Γ M A B},
+    {{ Γ ⊢ M : Σ A B }} ->
+    {{ Γ ⊢ snd M : B[Id,,fst M] }}.
+Proof.
+  intros. gen_presups.
+  apply wf_sigma_inversion' in HA.
+  destruct_all. mauto 3.
+Qed.
+
+#[export]
+Hint Resolve wf_snd' : mctt.
+#[export]
+Remove Hints wf_snd : mctt.
+
+Corollary wf_exp_eq_sigma_eta' : forall {Γ A B M},
+    {{ Γ ⊢ M : Σ A B }} ->
+    {{ Γ ⊢ M ≈ ⟨ fst M : A ; snd M : B ⟩ : Σ A B }}.
+Proof.
+  intros.
+  gen_presups.
+  exvar nat ltac:(fun i => assert ({{ Γ ⊢ A : Type@i }} /\ {{ Γ, A ⊢ B : Type@i }}) as [] by eauto using wf_sigma_inversion').
+  mautosolve 3.
+Qed.
+
+#[export]
+Hint Resolve wf_subtyp_sigma' : mctt.
+#[export]
+Remove Hints wf_subtyp_sigma : mctt.
 
 Lemma wf_exp_eq_refl_sub' : forall Γ Δ σ A M,
     {{ Γ ⊢s σ : Δ }} ->
