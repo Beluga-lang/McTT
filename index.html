@@ -51,6 +51,7 @@ Type Theories</title>
   <link rel="stylesheet"
         href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/default.min.css">
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/languages/ebnf.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
@@ -138,20 +139,26 @@ type = term;
 term = &#39;forall&#39; , {parameter} , &#39;-&gt;&#39; , term
      (* function *)
      | &#39;fun&#39; , {parameter} , &#39;-&gt;&#39; , term
+     (* pair type *)
+     | &#39;exists&#39; , {parameter} , &#39;-&gt;&#39; , term
      (* application *)
      | application term
      (* let expression *)
      | &#39;let&#39; , {let definition} , &#39;in&#39; , term
      (* successor of a natural number *)
-     | &#39;succ&#39; , term
+     | &#39;succ&#39; , atomic term
      (* natural number eliminator *)
-     | &#39;rec&#39; , term , nat scrutinee type? , &#39;return&#39; , nat motive , zero branch , succ branch , &#39;end&#39;;
+     | &#39;rec&#39; , term , nat scrutinee type? , &#39;return&#39; , nat motive , zero branch , succ branch , &#39;end&#39;
      (* propositional equality type *)
-     | application term , &#39;=&#39; , &#39;&lt;&#39; , type , &#39;&gt;&#39; , application term
+     | application term , &#39;=&#39; , &#39;{&#39; , type , &#39;}&#39; , application term
      (* reflexivity for propositional equality *)
      | &#39;refl&#39; , atomic type , atomic term
      (* propositional equality eliminator *)
-     | &#39;rec&#39; , term , equality scrutinee type , &#39;return&#39; , equality motive , refl branch , &#39;end&#39;;
+     | &#39;rec&#39; , term , equality scrutinee type , &#39;return&#39; , equality motive , refl branch , &#39;end&#39;
+     (* first projection of a pair *)
+     | &#39;fst&#39; , atomic term
+     (* second projection of a pair *)
+     | &#39;snd&#39; , atomic term;
 
 application term = {atomic term};
 
@@ -166,6 +173,8 @@ atomic term = &#39;Type&#39;, &#39;@&#39; , nat
             | nat
             (* variable *)
             | id
+            (* pair term *)
+            | &#39;&lt;&#39; , term , &#39;:&#39; , type , &#39;,&#39; , term , &#39;:&#39; id , &#39;.&#39; , type &#39;&gt;&#39;
             (* parenthesized term *)
             | &#39;(&#39; , term , &#39;)&#39;;
 
@@ -185,7 +194,7 @@ zero branch = &#39;|&#39;, &#39;zero&#39; , &#39;=&gt;&#39; , term;
    and the second id is the result of the recursive call *)
 succ branch = &#39;|&#39;, &#39;succ&#39; , id , id , &#39;=&gt;&#39; , term;
 
-equality scrutinee type = &#39;as&#39; , &#39;(&#39; , application term , &#39;=&#39; , &#39;&lt;&#39; , type , &#39;&gt;&#39; , application term , &#39;)&#39;;
+equality scrutinee type = &#39;as&#39; , &#39;(&#39; , application term , &#39;=&#39; , &#39;{&#39; , type , &#39;}&#39; , application term , &#39;)&#39;;
 
 (* This describes the return type of the equality eliminator
    when the first id is bound to the LHS of the type of the scrutinee;
