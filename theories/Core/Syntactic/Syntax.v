@@ -49,6 +49,9 @@ Inductive exp : Set :=
 | a_eq : typ -> exp -> exp -> exp
 | a_refl : typ -> exp -> exp
 | a_eqrec : exp -> typ -> exp -> exp -> typ -> exp -> exp
+(** Inductive Types *)
+| a_mu : list typ (* type indicies *) -> list exp (* constructors *) -> exp
+| a_constr : nat (* constructor id *) -> list typ -> exp 
 (** Variable *)
 | a_var : nat -> exp
 (** Substitution Application *)
