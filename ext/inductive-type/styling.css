@@ -599,7 +599,7 @@ form {
  background-image:url(images/vdi_grey.png);
  background-size:cover;
  background-repeat:no-repeat;
- background-position:center center; 
+ background-position:center center;
 }
 .vdi_download_link:hover {
  background-image:url(images/vdi_blue.png);

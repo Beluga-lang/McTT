@@ -16,37 +16,43 @@ Type Theories</title>
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="styling.css" />
-  <script type="text/javascript" src="style.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script>
-   $(function () {
-       $("pre>code").parents("pre").each(function(_) {
-           var pre = this;
-           for (c of pre.children) {
-               c.classList.add(pre.className);
+   window.addEventListener('load', function () {
+       for (node of document.querySelectorAll('pre>code')) {
+           let pre = node.parentNode;
+           for (c of pre.childNodes) {
+               for (cls of pre.classList) {
+                   c.classList.add(cls);
+               }
            }
-       })
-   })
+       }
+   });
 
-   $(function() {
-       var h1elem = $("h1")[0];
-       h1elem.classList.add("project_title");
-       var header = $(`<div id="header_wrap" class="outer">
-          <header class="inner">
-            
-              <a id="forkme_banner" href="https://github.com/Beluga-lang/McTT">Fork on GitHub</a>
-            ${h1elem.outerHTML}
-          </header>
-      </div>`);
-       var body = h1elem.parentNode;
+   window.addEventListener('load', function () {
+       let h1elem = document.querySelector('h1');
+       let body = h1elem.parentNode;
+       h1elem.classList.add('project_title');
        h1elem.remove();
-       var sec = document.createElement("section");
-       sec.classList.add("inner");
-       sec.innerHTML = body.innerHTML;
-       body.innerHTML = '';
-       body.appendChild(header[0]);
-       body.appendChild(sec);
-   })
+
+       let bannerButton = document.createElement('a');
+       bannerButton.id = 'forkme_banner';
+       bannerButton.setAttribute('href', 'https://github.com/Beluga-lang/McTT');
+       bannerButton.innerText = 'Fork on GitHub';
+
+       let header = document.createElement('header');
+       header.className = 'inner';
+       header.append(bannerButton, h1elem);
+
+       let headerDiv = document.createElement('div');
+       headerDiv.id = 'header_wrap';
+       headerDiv.className = 'outer';
+       headerDiv.append(header);
+
+       let sec = document.createElement('section');
+       sec.className = 'inner';
+       sec.append.apply(sec, body.childNodes);
+       body.append(header, sec);
+   });
   </script>
   <link rel="stylesheet"
         href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/default.min.css">
