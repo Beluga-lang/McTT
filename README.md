@@ -6,7 +6,7 @@ program has the specified type. McTT is novel in that it is implemented and veri
 Coq. More specifically, we proved that the typechecking algorithm extracted from Coq is
 sound and complete: a program passes typechecker if and only if it is a well-typed
 program in MLTT. This is the first verified proof assistant (despite being
-elementary) and serves as a basis for future extensions. 
+elementary) and serves as a basis for future extensions.
 
 ## Online Documentation
 
@@ -44,7 +44,7 @@ McTT has the following architecture:
 ```
 
 In this architecture, most code is in Coq, with accompanying theorems to justify the
-implementation. 
+implementation.
 
 
 ## Dependencies

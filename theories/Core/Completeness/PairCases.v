@@ -59,7 +59,7 @@ Qed.
 Ltac eexists_rel_exp_of_sigma :=
   unshelve eapply (rel_exp_of_sigma _); shelve_unifiable; [eassumption |].
 
-(* This is completely symmetrical to rel_exp_pi_cong, 
+(* This is completely symmetrical to rel_exp_pi_cong,
    so we import rel_exp_pi_core from FunctionCases *)
 Lemma rel_exp_sigma_cong : forall {i Γ A A' B B'},
     {{ Γ ⊨ A ≈ A' : Type@i }} ->
@@ -88,7 +88,7 @@ Qed.
 #[export]
 Hint Resolve rel_exp_sigma_cong : mctt.
 
-(* Again, This is completely symmetrical to rel_exp_pi_sub, 
+(* Again, This is completely symmetrical to rel_exp_pi_sub,
    so we import rel_exp_pi_core from FunctionCases *)
 Lemma rel_exp_sigma_sub : forall {i Γ σ Δ A B},
     {{ Γ ⊨s σ : Δ }} ->
@@ -295,10 +295,10 @@ Proof with mautosolve.
   destruct_by_head rel_mod_proj.
   simplify_evals.
   match goal with
-  | _ : {{ ⟦ M ⟧ ρ ↘ ^?m }}, 
-      _ : {{ π₁ ^?m ↘ ^?m1 }}, 
-        _ : {{ ⟦ M ⟧ ρ' ↘ ^?m' }}, 
-          _ : {{ π₁ ^?m' ↘ ^?m'1 }} |- _ => 
+  | _ : {{ ⟦ M ⟧ ρ ↘ ^?m }},
+      _ : {{ π₁ ^?m ↘ ^?m1 }},
+        _ : {{ ⟦ M ⟧ ρ' ↘ ^?m' }},
+          _ : {{ π₁ ^?m' ↘ ^?m'1 }} |- _ =>
       assert {{ Dom ρ ↦ m1 ≈ ρ' ↦ m'1 ∈ env_relΓA }}
       by (unfold env_relΓA; econstructor; simpl; intuition)
   end.
@@ -325,7 +325,7 @@ Proof with mautosolve.
   pose (env_relΔA := cons_per_ctx_env env_relΔ elem_relA).
   assert {{ EF Δ, A ≈ Δ, A ∈ per_ctx_env ↘ env_relΔA }} by (econstructor; mauto 3; try reflexivity; typeclasses eauto).
   invert_rel_exp_of_typ HB.
-  apply rel_exp_of_sigma_inversion in HM. 
+  apply rel_exp_of_sigma_inversion in HM.
   destruct_all.
   handle_per_ctx_env_irrel.
   eexists_rel_exp.

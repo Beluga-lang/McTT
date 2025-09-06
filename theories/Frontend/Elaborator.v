@@ -65,12 +65,12 @@ Fixpoint elaborate (cst : Cst.obj) (ctx : list string) : option exp :=
       | _, None => None
       | Some a1, Some a2 => Some (a_app a1 a2)
       end
-  | Cst.sigma s t c => 
+  | Cst.sigma s t c =>
       match elaborate c (s :: ctx), elaborate t ctx with
       | Some a, Some t => Some (a_sigma t a)
       | _, _ => None
       end
-  | Cst.pair c1 t1 c2 s t2 => 
+  | Cst.pair c1 t1 c2 s t2 =>
       match elaborate c1 ctx,  elaborate t1 ctx, elaborate c2 ctx, elaborate t2 (s::ctx) with
       | Some a1, Some b1, Some a2, Some b2 => Some (a_pair a1 b1 a2 b2)
       | _, _, _, _ => None
@@ -80,7 +80,7 @@ Fixpoint elaborate (cst : Cst.obj) (ctx : list string) : option exp :=
       | Some a => Some (a_fst a)
       | None => None
       end
-  | Cst.snd c => 
+  | Cst.snd c =>
       match elaborate c ctx with
       | Some a => Some (a_snd a)
       | None => None
@@ -135,7 +135,7 @@ Inductive user_exp : exp -> Prop :=
   `( user_exp M ->
      user_exp N ->
      user_exp (a_app M N) )
-| user_exp_sigma : 
+| user_exp_sigma :
   `( user_exp A ->
      user_exp B ->
      user_exp (a_sigma A B) )
@@ -208,7 +208,7 @@ Fixpoint cst_variables (cst : Cst.obj) : StrSet.t :=
   | Cst.app c1 c2 => StrSet.union (cst_variables c1) (cst_variables c2)
   | Cst.sigma s t c => StrSet.union (cst_variables t) (StrSet.remove s (cst_variables c))
   | Cst.pair c1 t1 c2 s t2 => StrSet.union (StrSet.union (cst_variables c1) (cst_variables t1)) (StrSet.union (cst_variables c2) (StrSet.remove s (cst_variables t2)))
-  | Cst.fst c => cst_variables c  
+  | Cst.fst c => cst_variables c
   | Cst.snd c => cst_variables c
   | Cst.prop_eq c1 t c2 => StrSet.union (cst_variables c1) (StrSet.union (cst_variables t) (cst_variables c2))
   | Cst.refl t c => StrSet.union (cst_variables t) (cst_variables c)
@@ -351,7 +351,7 @@ Proof.
     assert (cst_variables cst2 [<=] StrSProp.of_list ctx) by fsetdec.
     assert (cst_variables cst3 [<=] StrSProp.of_list ctx) by fsetdec.
     destruct (IHcst1 _ H0) as [ast [-> ?]];
-      destruct (IHcst2 _ H1) as [ast' [-> ?]]; 
+      destruct (IHcst2 _ H1) as [ast' [-> ?]];
       destruct (IHcst3 _ H2) as [ast'' [-> ?]]; mauto.
   - (* refl *)
     assert (cst_variables cst1 [<=] StrSProp.of_list ctx) by fsetdec.

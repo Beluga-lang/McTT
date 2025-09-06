@@ -75,7 +75,7 @@ Proof.
 Qed.
 
 Ltac invert_rel_exp_clean H :=
-  let H' := fresh "H" in 
+  let H' := fresh "H" in
   (unshelve (epose proof (rel_exp_clean_inversion_left _ H) as H'; deex_in H'); shelve_unifiable; [eassumption |]; clear H)
   + (unshelve (epose proof (rel_exp_clean_inversion_right _ H) as H'; deex_in H'); shelve_unifiable; [eassumption |]; clear H).
 
@@ -204,7 +204,7 @@ Proof.
 Qed.
 
 Ltac invert_rel_sub_clean H :=
-  let H' := fresh "H" in 
+  let H' := fresh "H" in
   (unshelve (epose proof (rel_sub_clean_inversion3_left_left _ _ H) as H'); shelve_unifiable; [eassumption | eassumption |]; clear H)
   + (unshelve (epose proof (rel_sub_clean_inversion3_left_right _ _ H) as H'); shelve_unifiable; [eassumption | eassumption |]; clear H)
   + (unshelve (epose proof (rel_sub_clean_inversion3_right_left _ _ H) as H'); shelve_unifiable; [eassumption | eassumption |]; clear H)

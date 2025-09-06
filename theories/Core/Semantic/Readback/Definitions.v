@@ -29,7 +29,7 @@ Inductive read_nf : nat -> domain_nf -> nf -> Prop :=
      {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↘ b }} ->
      {{ Rnf ⇓ b m' in S s ↘ M }} ->
      {{ Rnf ⇓ (Π a ρ B) m in s ↘ λ A M }} )
-| read_nf_sigma : 
+| read_nf_sigma :
   `( {{ Rtyp a in s ↘ A }} ->
      (** Normal form of snd's type *)
      {{ ⟦ B ⟧ ρ ↦ ⇑! a s ↘ b }} ->
@@ -76,10 +76,10 @@ with read_ne : nat -> domain_ne -> ne -> Prop :=
      {{ Rne m n in s ↘ M N }} )
 | read_ne_fst :
   `( {{ Rne m in s ↘ M }} ->
-     {{ Rne (fst m) in s ↘ fst M }} ) 
+     {{ Rne (fst m) in s ↘ fst M }} )
 | read_ne_snd :
   `( {{ Rne m in s ↘ M }} ->
-     {{ Rne (snd m) in s ↘ snd M }} ) 
+     {{ Rne (snd m) in s ↘ snd M }} )
 | read_ne_eqrec :
   `( (** Normal form of type annotation *)
      {{ Rtyp a in s ↘ A }} ->

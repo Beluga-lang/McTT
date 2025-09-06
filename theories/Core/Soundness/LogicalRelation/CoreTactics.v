@@ -41,8 +41,8 @@ Ltac invert_glu_rel1 :=
       progressive_invert H
   end.
 
-Ltac clear_glu_ctx Δ := 
-  repeat 
+Ltac clear_glu_ctx Δ :=
+  repeat
   match goal with
   | H: ?SbΓ Δ ?σ ?ρ |- _ =>
       match type of SbΓ with

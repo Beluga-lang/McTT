@@ -347,7 +347,7 @@ Proof.
     eapply wf_exp_eq_conv with (i:= 1 + (max i j)); [eapply wf_exp_eq_sub_compose | |]; mauto 4.
     eapply wf_exp_eq_conv with (i:= 1 + (max i j)); [eapply wf_exp_eq_sub_cong | |]; mauto 4.
   }
-  assert {{ Γ ⊢ B[σ,,M[σ]] ≈ B[Id,,M][σ] : Type@(max i j) }} by mauto 4. 
+  assert {{ Γ ⊢ B[σ,,M[σ]] ≈ B[Id,,M][σ] : Type@(max i j) }} by mauto 4.
   eapply wf_conv; mauto 3.
   eapply wf_pair; mauto 4.
   eapply wf_conv; mauto 3.
@@ -458,7 +458,7 @@ Proof.
   assert {{ Γ ⊢s (Id,,fst M)∘σ : Δ , A }} by mauto 4.
   assert {{ Γ ⊢ (fst M)[σ]: A[σ] }} by mauto 3.
   assert {{ Γ ⊢ (fst M[σ]): A[σ] }} by mauto 3.
-  assert {{ Γ ⊢ (fst M)[σ] ≈ (fst M[σ]) : A[σ] }} by mauto 3. 
+  assert {{ Γ ⊢ (fst M)[σ] ≈ (fst M[σ]) : A[σ] }} by mauto 3.
   assert {{ Γ ⊢s (Id,,fst M)∘σ ≈ Id∘σ,,(fst M)[σ] : Δ, A }} by (eapply wf_sub_eq_extend_compose; mauto 3).
   assert {{ Γ ⊢s (Id,,fst M)∘σ ≈ σ,,(fst M)[σ] : Δ, A }} by mauto 3.
   assert {{ Γ ⊢s σ,,(fst M)[σ] ≈ σ,,(fst M[σ]) : Δ, A  }} by mauto 3.

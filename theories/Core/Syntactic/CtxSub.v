@@ -71,11 +71,11 @@ Module ctxsub_judg.
       assert {{ Δ, B, B[Wk] ⊢ Eq B[Wk∘Wk] #1 #0 : Type@i }} by (econstructor; mauto 3; eapply wf_conv; mauto 4);
       assert {{ ⊢ Δ, B, B[Wk], Eq B[Wk∘Wk] #1 #0 ⊆ Γ, B, B[Wk], Eq B[Wk∘Wk] #1 #0 }} by mauto 3;
       econstructor; mauto 2.
-    
+
     (* sigma type case *)
-    1-10: 
-      match goal with 
-      | _ : context [ {{{ ^?Γ , ^?A }}} ] , _ : {{ ⊢ ^?Δ ⊆ ^?Γ }} |- _ => 
+    1-10:
+      match goal with
+      | _ : context [ {{{ ^?Γ , ^?A }}} ] , _ : {{ ⊢ ^?Δ ⊆ ^?Γ }} |- _ =>
         assert {{ ⊢ Δ, A ⊆ Γ, A }} by (econstructor; mautosolve 3)
       end; econstructor; mauto 3.
 

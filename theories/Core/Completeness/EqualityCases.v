@@ -487,7 +487,7 @@ Proof.
                 _: {{ ⟦ M2' ⟧ ^?ρ0' ↘ ^?m20' }},
                   _: {{ ⟦ N ⟧ ^?ρ0 ↘ refl ^?n10 }},
                     _: {{ ⟦ N ⟧ ^?ρ0' ↘ refl ^?n10' }},
-                      _: {{ ⟦ N' ⟧ ^?ρ0' ↘ refl ^?n10'' }} |- _ => 
+                      _: {{ ⟦ N' ⟧ ^?ρ0' ↘ refl ^?n10'' }} |- _ =>
       rename ρ0' into ρ';
       rename a0' into a';
       rename m10 into m1';

@@ -96,7 +96,7 @@ Lemma glu_rel_sub_extend_helper : forall {Γ Δ0 m ρ0 σ0 Δ σ M A i a SbΔ P 
     {{ Δ ⊢ A : Type@i }} ->
     {{ Γ ⊢ M : A[σ] }} ->
     {{ ⟦ A ⟧ ρ0 ↘ a }} ->
-    {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }}  -> 
+    {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }}  ->
     {{ EG Δ ∈ glu_ctx_env ↘ SbΔ }} ->
     {{ Δ0 ⊢s σ∘σ0 ® ρ0 ∈ SbΔ }} ->
     {{ Δ0 ⊢ M[σ0] : A[σ][σ0] ® m ∈ El }} ->
@@ -157,7 +157,7 @@ Proof.
     rename m0 into a.
     assert {{ Δ0 ⊢s σ0 : Γ }} by mauto 4.
     econstructor; mauto 3.
-    eapply glu_rel_sub_extend_helper; mauto 4.  
+    eapply glu_rel_sub_extend_helper; mauto 4.
 Qed.
 
 #[export]

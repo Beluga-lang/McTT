@@ -38,7 +38,7 @@ Inductive is_typ_constr : typ -> Prop :=
 .
 
 #[export]
-Hint Constructors is_typ_constr : mctt.  
+Hint Constructors is_typ_constr : mctt.
 
 Theorem is_typ_constr_and_exp_eq_var_implies_eq_var : forall Γ A x i,
     is_typ_constr A ->

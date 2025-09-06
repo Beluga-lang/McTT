@@ -15,7 +15,7 @@ Generalizable All Variables.
 Variant eval_fst : domain -> domain -> Prop :=
 | eval_fst_pair :
   `( {{ π₁ ⟨ a ; b ⟩ ↘ a }} )
-| eval_fst_neut : 
+| eval_fst_neut :
   `( {{ π₁ ⇑ (Σ a ρ B) m ↘ ⇑ a (fst m) }} )
 where "'π₁' n '↘' r" := (eval_fst n r) (in custom judg).
 
@@ -54,11 +54,11 @@ Inductive eval_exp : exp -> env -> domain -> Prop :=
      {{ ⟦ ⟨ M : A ; N : B ⟩ ⟧ ρ ↘ ⟨ a ; b ⟩ }} )
 | eval_exp_fst :
   `( {{ ⟦ M ⟧ ρ ↘ m }} ->
-     {{ π₁ m ↘ r }}  -> 
+     {{ π₁ m ↘ r }}  ->
      {{ ⟦ fst M ⟧ ρ ↘ r }} )
 | eval_exp_snd :
   `( {{ ⟦ M ⟧ ρ ↘ m }} ->
-     {{ π₂ m ↘ r }}  -> 
+     {{ π₂ m ↘ r }}  ->
      {{ ⟦ snd M ⟧ ρ ↘ r }} )
 | eval_exp_eq :
   `( {{ ⟦ A ⟧ ρ ↘ a }} ->
@@ -104,7 +104,7 @@ where "'$|' m '&' n '|↘' r" := (eval_app m n r) (in custom judg)
 with eval_snd : domain -> domain -> Prop :=
 | eval_snd_pair :
   `( {{ π₂ ⟨ a ; b ⟩ ↘ b }} )
-| eval_snd_neut : 
+| eval_snd_neut :
   `( {{ ⟦ B ⟧ ρ ↦ ⇑ a (fst m) ↘ b }} ->
      {{ π₂ ⇑ (Σ a ρ B) m ↘ ⇑ b (snd m) }} )
 where "'π₂' n '↘' r" := (eval_snd n r) (in custom judg)

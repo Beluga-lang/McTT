@@ -261,12 +261,12 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ⊢ A : Type@i }} ->
      {{ Δ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ (Σ A B)[σ] ≈ Σ A[σ] B[q σ] : Type@i }} )
-| wf_exp_eq_sigma_cong : 
+| wf_exp_eq_sigma_cong :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ ⊢ A ≈ A' : Type@i }} ->
      {{ Γ, A ⊢ B ≈ B' : Type@i }} ->
      {{ Γ ⊢ Σ A B ≈ Σ A' B' : Type@i }} )
-| wf_exp_eq_pair_cong : 
+| wf_exp_eq_pair_cong :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ ⊢ A ≈ A' : Type@i }} ->
      {{ Γ, A ⊢ B ≈ B' : Type@i }} ->
@@ -280,7 +280,7 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ⊢ M : A }} ->
      {{ Δ ⊢ N : B[Id,,M] }} ->
      {{ Γ ⊢ ⟨ M : A ; N : B ⟩[σ] ≈ ⟨ M[σ] : A[σ] ; N[σ] : B[q σ] ⟩ : (Σ A B)[σ] }} )
-| wf_exp_eq_fst_cong : 
+| wf_exp_eq_fst_cong :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ M ≈ M' : Σ A B }} ->
@@ -291,7 +291,7 @@ with wf_exp_eq : ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ, A ⊢ B : Type@i }} ->
      {{ Δ ⊢ M : Σ A B }} ->
      {{ Γ ⊢ (fst M)[σ] ≈ fst (M[σ]) : A[σ] }} )
-| wf_exp_eq_snd_cong : 
+| wf_exp_eq_snd_cong :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ, A ⊢ B : Type@i }} ->
      {{ Γ ⊢ M ≈ M' : Σ A B }} ->
@@ -509,7 +509,7 @@ with wf_subtyp : ctx -> typ -> typ -> Prop :=
      {{ Γ, A' ⊢ B' : Type@i }} ->
      {{ Γ, A' ⊢ B ⊆ B' }} ->
      {{ Γ ⊢ Π A B ⊆ Π A' B' }} )
-| wf_subtyp_sigma : 
+| wf_subtyp_sigma :
   `( {{ Γ ⊢ A : Type@i }} ->
      {{ Γ ⊢ A' : Type@i }} ->
      {{ Γ ⊢ A ≈ A' : Type@i }} ->
@@ -519,7 +519,7 @@ with wf_subtyp : ctx -> typ -> typ -> Prop :=
         use Γ, A ⊢ B ⊆ B'. but Γ, A' ⊢ B ⊆ B', on the other hand,
         can reuse some properties proved for the Π case *)
      {{ Γ, A' ⊢ B ⊆ B' }} ->
-     {{ Γ ⊢ Σ A B ⊆ Σ A' B' }} )  
+     {{ Γ ⊢ Σ A B ⊆ Σ A' B' }} )
 where "Γ ⊢ A ⊆ A'" := (wf_subtyp Γ A A') (in custom judg) : type_scope.
 
 Scheme wf_ctx_mut_ind := Induction for wf_ctx Sort Prop

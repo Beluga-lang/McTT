@@ -18,4 +18,4 @@ Inductive weakening : ctx -> sub -> ctx -> Prop :=
 where "Γ ⊢w σ : Δ" := (weakening Γ σ Δ) (in custom judg) : type_scope.
 
 #[export]
- Hint Constructors weakening : mctt.
+Hint Constructors weakening : mctt.

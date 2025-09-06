@@ -380,7 +380,7 @@ Proof.
   invert_glu_rel_exp HA.
   pose (SbΓℕA := cons_glu_sub_pred i {{{ Γ, ℕ }}} A SbΓℕ).
   assert {{ EG Γ, ℕ, A ∈ glu_ctx_env ↘ SbΓℕA }} by (econstructor; mauto 3; reflexivity).
-  assert {{ Δ ⊢s σ,,M ® ρ ↦ ⇑ a m ∈ SbΓℕ }} by (unfold SbΓℕ; mauto 3).
+  assert {{ Δ ⊢s σ,,M ® ρ ↦ ⇑ a m ∈ SbΓℕ }} by (unfold SbΓℕ; mauto 4).
   assert {{ Γ, ℕ, A ⊢ MS : A[Wk∘Wk,,succ #1] }} by mauto 2.
   invert_glu_rel_exp HMS.
   destruct_glu_rel_exp_with_sub.
@@ -418,7 +418,7 @@ Proof.
   assert {{ Δ, ℕ, A[q σ] ⊢ MS[q (q σ)] : A[q σ][Wk∘Wk,,succ #1] }} by (rewrite @exp_eq_typ_q_sigma_then_weak_weak_extend_succ_var_1; mauto 3).
   pose (R := {{{ rec M return A[q σ] | zero -> MZ[σ] | succ -> MS[q (q σ)] end }}}).
   enough {{ Δ ⊢ R : A[σ,,M] ® rec m under ρ return A | zero -> mz | succ -> MS end ∈ glu_elem_bot i am }} by (eapply realize_glu_elem_bot; mauto 3).
-  econstructor; mauto 3.
+  econstructor; mauto 3; [| econstructor].
   - erewrite <- @exp_eq_elim_sub_rhs_typ; mauto 3.
   - assert {{ Δ ⊢ MZ[σ] : A[Id,,zero][σ] ® mz ∈ glu_elem_top i az }} as [] by (eapply realize_glu_elem_top; eassumption).
     handle_functional_glu_univ_elem.
@@ -429,6 +429,7 @@ Proof.
     pose env_relΓℕA.
     match_by_head (per_ctx_env env_relΓℕA) ltac:(fun H => invert_per_ctx_env H).
     match_by_head (per_ctx_env env_relΓℕ) ltac:(fun H => invert_per_ctx_env H).
+
     intros s.
     enough (exists r, {{ Rne rec m under ρ return A | zero -> mz | succ -> MS end in s ↘ r }}) as [] by (eexists; split; eassumption).
     assert {{ Dom ρ ≈ ρ ∈ env_relΓ }} by (eapply glu_ctx_env_per_env; revgoals; eassumption).
@@ -617,6 +618,7 @@ Proof.
   - (** [glu_nat_succ] *)
     mauto 3 using glu_rel_exp_natrec_succ_helper.
   - (** [glu_nat_neut] *)
+    invert_glu_bots.
     mauto 3 using glu_rel_exp_natrec_neut_helper.
 Qed.
 

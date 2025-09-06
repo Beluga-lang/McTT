@@ -67,7 +67,7 @@ with read_ne_order : nat -> domain_ne -> Prop :=
   `( read_ne_order s m ->
      read_nf_order s n ->
      read_ne_order s d{{{ m n }}} )
-| rne_fst : 
+| rne_fst :
   `( read_ne_order s m ->
      read_ne_order s d{{{ fst m }}} )
 | rne_snd :

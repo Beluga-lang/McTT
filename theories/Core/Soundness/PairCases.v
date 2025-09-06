@@ -57,7 +57,7 @@ Proof.
     match goal with
     | _: {{ ⟦ B ⟧ ρ ↦ m ↘ ^?a }} |- _ =>
         rename a into b
-    end. 
+    end.
     assert {{ Δ' ⊢ M : A[σ][τ] }} by mauto 3 using glu_univ_elem_trm_escape.
     assert {{ DG b ∈ glu_univ_elem i ↘ SP m equiv_m ↘ SEl m equiv_m }} by mauto 2.
     erewrite <- @sub_decompose_q_typ; mauto 3.
@@ -68,7 +68,7 @@ Proof.
     apply_predicate_equivalence.
     unfold univ_glu_exp_pred' in *.
     destruct_conjs.
-    handle_functional_glu_univ_elem. 
+    handle_functional_glu_univ_elem.
     auto.
 Qed.
 
@@ -83,7 +83,7 @@ Lemma glu_rel_exp_of_sigma : forall {Γ M A B i Sb},
         exists a m,
           {{ ⟦ A ⟧ ρ ↘ a }} /\
             {{ ⟦ M ⟧ ρ ↘ m }} /\
-            forall (P : glu_typ_pred) (El : glu_exp_pred), {{ DG Σ a ρ B ∈ glu_univ_elem i ↘ P ↘ El }} -> 
+            forall (P : glu_typ_pred) (El : glu_exp_pred), {{ DG Σ a ρ B ∈ glu_univ_elem i ↘ P ↘ El }} ->
               {{ Δ ⊢ M[σ] : (Σ A B)[σ] ® m ∈ El }}) ->
     {{ Γ ⊩ M : Σ A B }}.
 Proof.
@@ -128,7 +128,7 @@ Proof.
   assert {{ Γ, A ⊢ B : Type@i }} by mauto 2.
   invert_glu_rel_exp HB.
   destruct_conjs.
-    
+
   eapply glu_rel_exp_of_sigma; mauto 3.
   - eapply completeness_fundamental_exp; mauto 3.
   - intros.
@@ -144,7 +144,7 @@ Proof.
     | _: glu_univ_elem i ?P' ?El' ?a',
       _: glu_univ_elem i ?P1' ?El1' ?b',
         _: {{ ⟦ A ⟧ ρ ↘ ^?a' }}, _: {{ ⟦ N ⟧ ρ ↘ ^?n' }},
-        _: {{ ⟦ M ⟧ ρ ↘ ^?m' }}, _: {{ ⟦ B ⟧ ρ ↦ ^?m' ↘ ^?b' }} 
+        _: {{ ⟦ M ⟧ ρ ↘ ^?m' }}, _: {{ ⟦ B ⟧ ρ ↦ ^?m' ↘ ^?b' }}
         |- _ =>
         rename a' into a; rename n' into n;
         rename b' into b; rename m' into m;
@@ -161,7 +161,7 @@ Proof.
         rename El' into Ela
     end.
     assert (equiv_m : {{ Dom m ≈ m ∈ fst_rel }}). {
-      eapply glu_univ_elem_per_elem with (P:=Pa) (El:=Ela); mauto 3. 
+      eapply glu_univ_elem_per_elem with (P:=Pa) (El:=Ela); mauto 3.
     }
     assert {{ Δ ⊢ fst (⟨ M : A ; N : B ⟩)[σ] ≈ M[σ] : A[σ] }}. {
       assert {{ Δ ⊢ (fst (⟨ M : A ; N : B ⟩))[σ] ≈ fst (⟨ M : A ; N : B ⟩)[σ] : A[σ] }} as <- by (eapply wf_exp_eq_fst_sub; mauto 3).
@@ -175,7 +175,7 @@ Proof.
       eapply mk_rel_mod_proj with (equiv_b_b':=equiv_m); mauto 3.
       eapply glu_univ_elem_per_elem  with (P:=Pb) (El:=Elb) (a:=b); mauto 3.
     + intros.
-      invert_per_univ_elem H24. destruct_rel_mod_eval. simplify_evals.  
+      invert_per_univ_elem H24. destruct_rel_mod_eval. simplify_evals.
       rename a0 into b'.
       assert {{ DG b' ∈ glu_univ_elem i ↘ SP m' equiv_m' ↘ SEl m' equiv_m' }} by mauto 3.
       assert {{ Δ0 ⊢s σ0 : Δ }} by mauto 3.
@@ -215,16 +215,16 @@ Proof.
         eapply wf_sub_eq_extend_cong; mauto 3.
         eapply exp_eq_compose_typ_twice; mauto 3.
         etransitivity; [|symmetry; eapply wf_sub_eq_extend_compose]; mauto 3.
-        eapply wf_sub_eq_extend_cong; mauto 3. symmetry; mauto 3. 
+        eapply wf_sub_eq_extend_cong; mauto 3. symmetry; mauto 3.
       }
-      assert {{ Δ ⊢ (snd (⟨ M : A ; N : B ⟩)[σ]) ≈ N[σ] : B[Id,,M][σ] }} as ->. 
+      assert {{ Δ ⊢ (snd (⟨ M : A ; N : B ⟩)[σ]) ≈ N[σ] : B[Id,,M][σ] }} as ->.
       {
         assert {{ Δ ⊢ B[σ,,fst (⟨ M : A ; N : B ⟩)[σ]] ≈ B[Id,,M][σ] : Type@i }}. {
           transitivity {{{B[σ,, M[σ]]}}}.
           eapply exp_eq_sub_cong_typ2; mauto 3.
           eapply wf_sub_eq_extend_cong; mauto 3.
           symmetry; eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3.
-        } 
+        }
         rewrite <- H11.
         etransitivity; [symmetry; eapply wf_exp_eq_snd_sub | ]; mauto 3.
         rewrite H11.
@@ -259,11 +259,11 @@ Proof.
   apply_predicate_equivalence.
   unfold univ_glu_exp_pred' in *.
   destruct_all. handle_functional_glu_univ_elem.
-  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem_nouip H).  
+  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem_nouip H).
   apply_predicate_equivalence.
   dependent destruction H12. simplify_evals.
   econstructor; mauto 3.
-  assert (FP Γ0 {{{ FT }}}) by eauto.
+  assert (P Γ0 {{{ FT }}}) by eauto.
   assert {{ Γ0 ⊢ (fst M)[σ] ≈ ((fst M[σ]))[Id] : A[σ] }} as ->.
   {
     transitivity {{{ (fst M)[σ][Id] }}}; mauto 3.
@@ -298,14 +298,14 @@ Proof.
   invert_glu_rel_exp HB.
   destruct_conjs.
   eexists; split; mauto 3.
-  eexists. intros.  
+  eexists. intros.
   destruct_glu_rel_exp_with_sub.
   simplify_evals.
   match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
   apply_predicate_equivalence.
   unfold univ_glu_exp_pred' in *.
   destruct_all. handle_functional_glu_univ_elem.
-  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem_nouip H).  
+  match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem_nouip H).
   apply_predicate_equivalence.
   dependent destruction H13. simplify_evals.
   rename m into a. rename m0 into m.
@@ -317,7 +317,7 @@ Proof.
   assert {{ ⟦ B[Id,,fst M] ⟧ ρ ↘ b }} by mauto 4.
   eapply mk_glu_rel_exp_with_sub with (El:=SEl m1 equiv_m); mauto 3.
   assert {{ Γ0 ⊢w Id : Γ0 }} by mauto.
-  assert (FP Γ0 {{{ FT }}}) by eauto.
+  assert (P Γ0 {{{ FT }}}) by eauto.
   assert {{ Γ0 ⊢ (fst M)[σ] ≈ ((fst M[σ]))[Id] : A[σ] }}.
   {
     transitivity {{{ (fst M)[σ][Id] }}}; mauto 3.
@@ -336,11 +336,11 @@ Proof.
     econstructor; mauto 3.
   }
   assert (
-    FEl Γ0 {{{ FT }}} {{{ (fst M[σ]) }}} m1 /\
+    El Γ0 {{{ FT }}} {{{ (fst M[σ]) }}} m1 /\
     SEl m1 equiv_m Γ0 {{{ ST[Id,,(fst M[σ])] }}} {{{ (snd M[σ]) }}} m2
   ) by intuition.
   destruct_all.
-  assert (FEl Γ0 {{{ FT[Id] }}} {{{ (fst M[σ]) }}} m1) by (bulky_rewrite; auto).
+  assert (El Γ0 {{{ FT[Id] }}} {{{ (fst M[σ]) }}} m1) by (bulky_rewrite; auto).
   assert (glu_univ_elem i (SP m1 equiv_m) (SEl m1 equiv_m) b) by mauto 3.
   (on_all_hyp: fun H => destruct (H _ _ _ HSbΓA)).
   simplify_evals. rename m0 into b.
@@ -356,7 +356,7 @@ Proof.
     eapply wf_eq_typ_exp_sub_cong; mauto 3.
     eapply wf_sub_eq_extend_cong; mauto 3.
   }
-  rewrite H46. rewrite H45. 
+  rewrite H46. rewrite H45.
   eapply glu_univ_elem_trm_resp_exp_eq; mauto 3.
   rewrite <- H45.
   assert {{ Γ0 ⊢ (snd M[σ]) ≈ snd M[σ] :B[σ,,fst M[σ]] }}. {

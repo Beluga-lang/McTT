@@ -310,7 +310,7 @@ Proof with (congruence + mautosolve 3).
     assert {{ ⋅, Type@i ⊢ Type@i[Wk] ≈ Type@i : Type@(S i) }} by mauto 3.
     eapply subtyp_spec in Heq as [| []]; destruct_conjs;
       try (eapply HA'eq; mautosolve 4).
-    destruct H1. 
+    destruct H1.
     + destruct_all.
       assert {{ ⋅, Type@i ⊢ Type@i ≈ Π ^_ ^_ : Type@_ }} by mauto 3.
       assert ({{{ Π ^_ ^_ }}} = {{{ Type@i }}}) by mauto 3...

@@ -39,7 +39,7 @@ Inductive eval_exp_order : exp -> env -> Prop :=
      eval_exp_order N p ->
      (forall m n, {{ ⟦ M ⟧ p ↘ m }} -> {{ ⟦ N ⟧ p ↘ n }} -> eval_app_order m n) ->
      eval_exp_order {{{ M N }}} p )
-| eeo_sigma : 
+| eeo_sigma :
   `( eval_exp_order A p ->
      eval_exp_order {{{ Σ A B }}} p )
 | eeo_pair :
@@ -234,7 +234,7 @@ Equations eval_exp_impl m p (H : eval_exp_order m p) : { d | eval_exp m p d } by
     let (m1, Hm1) := eval_exp_impl M1 p _ in
     let (m2, Hm2) := eval_exp_impl M2 p _ in
     exist _ d{{{ Eq a m1 m2 }}} _
-| {{{ refl A M }}}                                      , p, H => 
+| {{{ refl A M }}}                                      , p, H =>
     let (m, Hm) := eval_exp_impl M p _ in
     exist _ d{{{ refl m }}} _
 | {{{ eqrec N as Eq A M1 M2 return B | refl -> BR end }}}, p, H =>

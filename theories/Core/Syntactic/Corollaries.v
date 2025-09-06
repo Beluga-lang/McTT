@@ -279,7 +279,7 @@ Lemma exp_eq_compose_typ : forall {Γ Δ Ψ σ τ A A' i},
   {{ Ψ ⊢ A ≈ A' : Type@i }} ->
   {{ Γ ⊢ A[σ∘τ] ≈ A[σ][τ] : Type@i }}.
 Proof.
-  intros. gen_presups. eapply wf_exp_eq_conv'; 
+  intros. gen_presups. eapply wf_exp_eq_conv';
     [eapply wf_exp_eq_sub_compose; mauto 3| mauto 4].
 Qed.
 
@@ -304,7 +304,7 @@ Corollary wf_eq_typ_exp_sub_cong_twice : forall {Γ σ σ' τ τ' Δ Δ' Ψ i M 
   {{ Γ ⊢ M[σ][τ] ≈ M'[σ'][τ'] : Type@i }}.
 Proof.
   intros. gen_presups.
-  transitivity {{{ M[σ∘τ] }}}. symmetry. 
+  transitivity {{{ M[σ∘τ] }}}. symmetry.
   eapply wf_exp_eq_conv';
     [eapply wf_exp_eq_sub_compose|]; mauto 3.
   transitivity {{{ M'[σ'∘τ'] }}}; mauto 3.
@@ -338,7 +338,7 @@ Corollary wf_eq_exp_sub_cong_twice : forall {Γ σ σ' τ τ' Δ Δ' Ψ M M' A},
   {{ Γ ⊢ M[σ][τ] ≈ M'[σ'][τ'] : A[σ][τ] }}.
 Proof.
   intros. gen_presups.
-  transitivity {{{ M[σ∘τ] }}}. symmetry. 
+  transitivity {{{ M[σ∘τ] }}}. symmetry.
   eapply wf_exp_eq_conv';
     [eapply wf_exp_eq_sub_compose|]; mauto 3.
   transitivity {{{ M'[σ'∘τ'] }}}; mauto 3.
@@ -519,7 +519,7 @@ Qed.
 Hint Resolve exp_sigma_sub_lhs : mctt.
 
 Lemma typ_sigma_sub : forall {Γ σ Δ A B i},
-   {{ Δ ⊢s σ : Γ }} ->  
+   {{ Δ ⊢s σ : Γ }} ->
    {{ Γ ⊢ A : Type@i }} ->
    {{ Γ, A ⊢ B : Type@i }} ->
    {{ Δ, A[σ] ⊢ B[q σ] : Type@i }}.
@@ -532,7 +532,7 @@ Qed.
 Hint Resolve typ_sigma_sub : mctt.
 
 Lemma exp_sigma_sub : forall {Γ σ Δ A B i M },
-   {{ Δ ⊢s σ : Γ }} ->  
+   {{ Δ ⊢s σ : Γ }} ->
    {{ Γ ⊢ A : Type@i }} ->
    {{ Γ, A ⊢ B : Type@i }} ->
    {{ Γ ⊢ M : Σ A B }} ->
@@ -564,7 +564,7 @@ Lemma exp_sigma_snd_bundle : forall i Δ σ Γ M M' FT ST,
     {{ Γ ⊢ M : Σ FT ST }} ->
     {{ Δ ⊢s σ : Γ }} ->
     {{ Δ ⊢ M[σ] ≈ M' : Σ FT[σ] ST[q σ] }} ->
-    {{ Δ ⊢ (snd M)[σ] ≈ snd M' : ST[Id,,fst M][σ] }} 
+    {{ Δ ⊢ (snd M)[σ] ≈ snd M' : ST[Id,,fst M][σ] }}
     /\ {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }}
     /\ {{ Δ ⊢ snd M[σ] ≈ (snd M)[σ] : ST[Id,,fst M][σ] }}
     /\ {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[q σ][Id,,fst M[σ]] : Type@i }}.
@@ -576,10 +576,10 @@ Proof.
     econstructor; mauto 3.
   }
   assert {{ Δ ⊢ (fst M)[σ] ≈ fst M[σ] : FT[σ] }} by (eapply wf_exp_eq_fst_sub; mauto 3).
-  assert {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }} by 
+  assert {{ Δ ⊢ ST[Id,,fst M][σ] ≈ ST[σ,,(fst M)[σ]] : Type@i }} by
     (eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3).
   assert {{ Δ ⊢ ST[σ,,(fst M)[σ]] ≈ ST[σ,,(fst M[σ])] : Type@i }}. {
-    eapply wf_eq_typ_exp_sub_cong; mauto 3. 
+    eapply wf_eq_typ_exp_sub_cong; mauto 3.
   }
   assert {{ Δ ⊢ ST[q σ][Id,,(fst M)[σ]] ≈ ST[σ,,(fst M)[σ]] : Type@i }}. {
     eapply exp_eq_elim_sub_rhs_typ; mauto 3.
@@ -598,7 +598,7 @@ Proof.
   - eapply wf_exp_eq_conv'; mauto 3.
   - rewrite H7. rewrite <- H9. auto.
 Qed.
-  
+
 (** This works for both var_0 and var_S cases *)
 Lemma exp_eq_var_sub_rhs_typ_gen : forall {Γ σ Δ i A M},
     {{ Γ ⊢s σ : Δ }} ->
@@ -734,7 +734,7 @@ Lemma wf_exp_eq_eqrec_Aσwkwkwkτ1 : forall {Γ Δ Ψ σ τ i A B},
   {{ Ψ ⊢s τ : Γ, A[σ], A[σ][Wk], B }} ->
   {{ Ψ ⊢ A[σ][Wk][Wk][Wk][τ] ≈ A[σ][Wk][Wk][Wk∘τ] : Type@i }}.
 Proof.
-  intros. symmetry. 
+  intros. symmetry.
   gen_presups.
   eapply wf_exp_eq_conv'; [eapply wf_exp_eq_sub_compose with (A:={{{ Type@i }}})|]; mauto 4.
   eapply exp_sub_typ; mauto 3.
@@ -747,7 +747,7 @@ Lemma wf_exp_eq_eqrec_Aσwkwkwkτ2 : forall {Γ Δ Ψ σ τ i A B},
   {{ Ψ ⊢s τ : Γ, A[σ], A[σ][Wk], B }} ->
   {{ Ψ ⊢ A[σ][Wk][Wk][Wk][τ] ≈ A[σ][Wk][Wk∘Wk∘τ] : Type@i }}.
 Proof.
-  intros. symmetry. 
+  intros. symmetry.
   gen_presups.
   erewrite wf_exp_eq_eqrec_Aσwkwkwkτ1; mauto 3.
   inversion HΓ2.
@@ -760,11 +760,11 @@ Lemma wf_exp_eq_eqrec_Aσwkwkwkτ3 : forall {Γ Δ Ψ σ τ i A B},
   {{ Ψ ⊢s τ : Γ, A[σ], A[σ][Wk], B }} ->
   {{ Ψ ⊢ A[σ][Wk][Wk][Wk][τ] ≈ A[σ][Wk∘Wk∘Wk∘τ] : Type@i }}.
 Proof.
-  intros. symmetry. 
+  intros. symmetry.
   gen_presups.
   erewrite wf_exp_eq_eqrec_Aσwkwkwkτ2; mauto 3.
   eapply @exp_eq_compose_typ with (Ψ:=Γ); mauto 3.
-  econstructor; mauto 3.  
+  econstructor; mauto 3.
 Qed.
 
 #[export]

@@ -6,15 +6,15 @@ From Mctt.Core.Semantic.Evaluation Require Import Definitions.
 Import Domain_Notations.
 
 Section functional_eval.
-  Lemma functional_eval_fst : 
+  Lemma functional_eval_fst :
     (forall a r1,
       {{ π₁ a ↘ r1 }} ->
         forall r2,
         {{ π₁ a ↘ r2 }} ->
         r1 = r2).
   Proof.
-    intros. 
-    inversion_by_head eval_fst; subst; 
+    intros.
+    inversion_by_head eval_fst; subst;
     progressive_inversion; reflexivity.
   Qed.
 
@@ -51,7 +51,7 @@ Section functional_eval.
             ρσ1 = ρσ2).
   Proof with ((on_all_hyp: fun H => erewrite H in *; eauto); solve [eauto using functional_eval_fst]) using.
     apply eval_mut_ind; intros;
-       progressive_inversion; 
+       progressive_inversion;
        try do 2 f_equal; try reflexivity...
   Qed.
 

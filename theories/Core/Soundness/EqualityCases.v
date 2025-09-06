@@ -677,9 +677,9 @@ Proof.
   | [ _ : {{ ⟦ A ⟧ ρ ↘ ^?a' }} ,
         _ : {{ ⟦ M1 ⟧ ρ ↘ ^?m1' }} ,
           _ : {{ ⟦ M2 ⟧ ρ ↘ ^?m2' }} ,
-            _ : {{ ⟦ N ⟧ ρ ↘ ^?n' }} , 
-              H : {{ ⟦ B ⟧ ρ ↦ ^?m1' ↦ ^?m1' ↦ refl ^?m1' ↘ ^?b0 }} , 
-                _ : {{ ⟦ B ⟧ ρ ↦ ^?m1' ↦ ^?m2' ↦ ^?n' ↘ ^?b1 }} , 
+            _ : {{ ⟦ N ⟧ ρ ↘ ^?n' }} ,
+              H : {{ ⟦ B ⟧ ρ ↦ ^?m1' ↦ ^?m1' ↦ refl ^?m1' ↘ ^?b0 }} ,
+                _ : {{ ⟦ B ⟧ ρ ↦ ^?m1' ↦ ^?m2' ↦ ^?n' ↘ ^?b1 }} ,
                   _ : {{ ⟦ BR ⟧ ρ ↦ ^?m1' ↘ ^?br' }} |- _
             ] =>
     rename a' into a;
@@ -808,7 +808,7 @@ Proof.
     eexists; split; mauto 3.
 
     match goal with
-    | [ _ : {{ ⟦ B ⟧ ρ ↦ m' ↦ m' ↦ refl m' ↘ ^?b0 }} , 
+    | [ _ : {{ ⟦ B ⟧ ρ ↦ m' ↦ m' ↦ refl m' ↘ ^?b0 }} ,
           _ : {{ ⟦ BR ⟧ ρ ↦ m' ↘ ^?br0 }} |- _  ] =>
       rename b0 into b';
       rename br0 into br'
@@ -850,7 +850,8 @@ Proof.
     eapply glu_univ_elem_trm_resp_exp_eq; eauto.
   - eexists; split; mauto 3.
     eapply realize_glu_elem_bot; mauto 3.
-    econstructor; mauto 3.
+    destruct_by_head glu_bot.
+    econstructor; mauto 3; [| econstructor].
     + eapply glu_univ_elem_typ_resp_exp_eq; mauto 3.
     + assert {{ ⊨ Γ }} by mauto 3.
       assert {{ Γ ⊨ A : Type@i }} by mauto 3.
@@ -964,7 +965,8 @@ Proof.
             replace (S (length Ψ)) with (length ({{{ Ψ, A[σ∘τ] }}})) by auto.
               eapply var0_glu_elem; mauto 2.
               eapply glu_univ_elem_typ_monotone; mauto 2.
-          + econstructor; [eapply var_per_bot |].
+          + econstructor.
+            econstructor; [eapply var_per_bot |].
             intros Ψ' τ' **.
             match_by_head1 read_ne ltac:(fun H => inversion H; subst). simpl.
             match goal with
@@ -992,7 +994,7 @@ Proof.
       match goal with
       | _ : {{ Rtyp a in length Ψ ↘ ^?VAστ' }} ,
           _ : {{ Rnf ⇓ a m1 in length Ψ ↘ ^?VM1στ' }} ,
-            _ : {{ Rnf ⇓ a m2 in length Ψ ↘ ^?VM2στ' }} |- _  => 
+            _ : {{ Rnf ⇓ a m2 in length Ψ ↘ ^?VM2στ' }} |- _  =>
         rename VAστ' into VAστ;
         rename VM1στ' into VM1στ;
         rename VM2στ' into VM2στ
@@ -1015,7 +1017,8 @@ Proof.
       * assert {{ Ψ ⊢ M2[σ∘τ][Id] ≈ VM2στ : A[σ∘τ][Id] }} by mauto 3.
         eapply wf_exp_eq_conv'; mauto 2.
         transitivity {{{ M2[σ∘τ][Id] }}}; [mauto 4 | mauto 2].
-      * assert {{ Ψ ⊢ (Eq A M1 M2)[σ∘τ] ≈ Eq A[σ∘τ] M1[σ∘τ] M2[σ∘τ] : Type@i }} by mauto 2.
+      * destruct_by_head glu_bot.
+        assert {{ Ψ ⊢ (Eq A M1 M2)[σ∘τ] ≈ Eq A[σ∘τ] M1[σ∘τ] M2[σ∘τ] : Type@i }} by mauto 2.
         assert {{ Γ ⊢ Eq A M1 M2 : Type@i }} by mauto 2.
         assert {{ Ψ ⊢ (Eq A M1 M2)[σ∘τ][Id] ≈ (Eq A M1 M2)[σ∘τ] : Type@i }} by mauto 3.
         eapply wf_exp_eq_conv' with (A:={{{ (Eq A M1 M2)[σ∘τ][Id] }}}); [| mauto 2].

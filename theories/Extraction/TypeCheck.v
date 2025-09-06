@@ -454,7 +454,7 @@ Section type_check.
     resolve_alg_sound.
     simplify_nbe_order.
     assert {{ ⊢ G, A' }} by mauto 2.
-    resolve_alg_sound. 
+    resolve_alg_sound.
     eauto.
   Qed.
 
@@ -491,7 +491,7 @@ Section type_check.
     assert {{ ⊢ G, ^(A':typ) }} by mauto 2.
     resolve_alg_sound.
     eexists.
-    eapply wf_conv'; [eapply wf_exp_sub |]; mauto 3.  
+    eapply wf_conv'; [eapply wf_exp_sub |]; mauto 3.
   Qed.
 
   Next Obligation.   (* {{ G ⊢a snd M' ⟹ B' }} /\ (exists i : nat, {{ G ⊢a B' ⟹ Type@i0 }}) *)

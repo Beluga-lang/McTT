@@ -401,8 +401,8 @@ Lemma equiv_rel_PER A (R R' : relation A) :
     relation_equivalence R R' ->
     PER R'.
 Proof.
-  intros. inversion H. 
-  unfold Symmetric in *. 
+  intros. inversion H.
+  unfold Symmetric in *.
   unfold Transitive in *. auto.
   constructor.
   - unfold Symmetric. intros. auto.
@@ -422,7 +422,7 @@ Ltac saturate_PER :=
         assert (PER R') by (eapply equiv_rel_PER; eauto);
         fail_if_dup
     end.
-    
+
 #[global]
 Ltac saturate_refl :=
   repeat match goal with

@@ -30,6 +30,12 @@ Notation "Γ ⊢s σ ® ρ ∈ R" := ((R Γ σ ρ : Prop) : (Prop : (Type : Type
 Notation "'DG' a ∈ R ↘ P ↘ El" := (R P El a : ((Prop : Type) : (Type : Type))) (in custom judg at level 90, a custom domain, R constr, P constr, El constr).
 Notation "'EG' A ∈ R ↘ Sb " := (R Sb A : ((Prop : (Type : Type)) : (Type : Type))) (in custom judg at level 90, A custom exp, R constr, Sb constr).
 
+Variant glu_bot Γ A M (m : domain_ne) : Prop :=
+  | mk_glu_bot : {{ Dom m ≈ m ∈ per_bot }} -> (forall Δ σ M', {{ Δ ⊢w σ : Γ }} -> {{ Rne m in length Δ ↘ M' }} -> {{ Δ ⊢ M[σ] ≈ M' : A[σ] }}) -> {{ Γ ⊢ M : A ® m ∈ glu_bot }}.
+
+#[export]
+Hint Constructors glu_bot : mctt.
+
 Inductive glu_nat : ctx -> exp -> domain -> Prop :=
 | glu_nat_zero :
   `{ {{ Γ ⊢ M ≈ zero : ℕ }} ->
@@ -39,8 +45,7 @@ Inductive glu_nat : ctx -> exp -> domain -> Prop :=
      glu_nat Γ M' m' ->
      glu_nat Γ M d{{{ succ m' }}} }
 | glu_nat_neut :
-  `{ per_bot m m ->
-     (forall {Δ σ M'}, {{ Δ ⊢w σ : Γ }} -> {{ Rne m in length Δ ↘ M' }} -> {{ Δ ⊢ M[σ] ≈ M' : ℕ }}) ->
+  `{ {{ Γ ⊢ M : ℕ ® m ∈ glu_bot }} ->
      glu_nat Γ M d{{{ ⇑ a m }}} }.
 
 #[export]
@@ -53,18 +58,14 @@ Definition nat_glu_exp_pred i : glu_exp_pred := fun Γ A M m => {{ Γ ⊢ A ® n
 Arguments nat_glu_exp_pred i Γ A M m/.
 
 Definition neut_glu_typ_pred i a : glu_typ_pred :=
-  fun Γ A => {{ Γ ⊢ A : Type@i }} /\
-            (forall Δ σ A', {{ Δ ⊢w σ : Γ }} -> {{ Rne a in length Δ ↘ A' }} -> {{ Δ ⊢ A[σ] ≈ A' : Type@i }}).
+  fun Γ A => {{ Γ ⊢ A : Type@i }} /\ {{ Γ ⊢ A : Type@i ® a ∈ glu_bot }}.
 Arguments neut_glu_typ_pred i a Γ A/.
 
 Variant neut_glu_exp_pred i a : glu_exp_pred :=
 | mk_neut_glu_exp_pred :
   `{ {{ Γ ⊢ A ® neut_glu_typ_pred i a }} ->
      {{ Γ ⊢ M : A }} ->
-     {{ Dom m ≈ m ∈ per_bot }} ->
-     (forall Δ σ M', {{ Δ ⊢w σ : Γ }} ->
-                   {{ Rne m in length Δ ↘ M' }} ->
-                   {{ Δ ⊢ M[σ] ≈ M' : A[σ] }}) ->
+     {{ Γ ⊢ M : A ® m ∈ glu_bot }} ->
      {{ Γ ⊢ M : A ® ⇑ b m ∈ neut_glu_exp_pred i a }} }.
 
 Variant pi_glu_typ_pred i
@@ -132,13 +133,13 @@ Variant sigma_glu_exp_pred i
   `{ forall (equiv_m : {{ Dom m1 ≈ m1 ∈ FR }}),
      {{ Γ ⊢ M : A }} ->
      {{ Dom m ≈ m ∈ elem_rel }} ->
-     {{ π₁ m ↘ m1 }} -> 
+     {{ π₁ m ↘ m1 }} ->
      {{ π₂ m ↘ m2 }} ->
      {{ Γ ⊢ A ≈ Σ FT ST : Type@i }} ->
      {{ Γ ⊢ FT : Type@i }} ->
      {{ Γ , FT ⊢ ST : Type@i }} ->
      {{ Γ ⊢ FT ® FP }} ->
-     (* We have to introduce SP and this extra condition, 
+     (* We have to introduce SP and this extra condition,
         otherwise our `sigma_glu_exp_pred` does not imply `sigma_glu_typ_pred` *)
      (forall Δ σ M' m',
          {{ Δ ⊢w σ : Γ }} ->
@@ -172,9 +173,8 @@ Variant glu_eq B M N m n (R : relation domain) (El : glu_exp_pred) : glu_exp_pre
        {{ Γ ⊢ M'' : B ® m' ∈ El }} ->
        {{ Γ ⊢ M' : A ® refl m' ∈ glu_eq B M N m n R El }} }
   | glu_eq_neut :
-    `{ {{ Dom v ≈ v ∈ per_bot }} ->
-       (forall Δ σ V, {{ Δ ⊢w σ : Γ }} -> {{ Rne v in length Δ ↘ V }} -> {{ Δ ⊢ M'[σ] ≈ V : A[σ] }}) ->
-       {{ Γ ⊢ M' : A ® ⇑ b v ∈ glu_eq B M N m n R El }} }.
+    `{ {{ Γ ⊢ M' : A ® m' ∈ glu_bot }} ->
+       {{ Γ ⊢ M' : A ® ⇑ b m' ∈ glu_eq B M N m n R El }} }.
 
 Variant eq_glu_exp_pred i m n R (P : glu_typ_pred) (El : glu_exp_pred) : glu_exp_pred :=
   | mk_eq_glu_exp_pred :
@@ -295,9 +295,9 @@ Definition glu_univ_typ (i : nat) (a : domain) : glu_typ_pred :=
 Arguments glu_univ_typ i a Γ A/.
 
 Definition univ_glu_exp_pred j i : glu_exp_pred :=
-    fun Γ A M m =>
-      {{ Γ ⊢ M : A }} /\ {{ Γ ⊢ A ≈ Type@j : Type@i }} /\
-        {{ Γ ⊢ M ® glu_univ_typ j m }}.
+  fun Γ A M m =>
+    {{ Γ ⊢ M : A }} /\ {{ Γ ⊢ A ≈ Type@j : Type@i }} /\
+      {{ Γ ⊢ M ® glu_univ_typ j m }}.
 Arguments univ_glu_exp_pred j i Γ A M m/.
 
 Section GluingInduction.
@@ -416,8 +416,7 @@ Variant glu_elem_bot i a Γ A M m : Prop :=
     {{ Γ ⊢ M : A }} ->
     {{ DG a ∈ glu_univ_elem i ↘ P ↘ El }} ->
     {{ Γ ⊢ A ® P }} ->
-    {{ Dom m ≈ m ∈ per_bot }} ->
-    (forall Δ σ M', {{ Δ ⊢w σ : Γ }} -> {{ Rne m in length Δ ↘ M' }} -> {{ Δ ⊢ M[σ] ≈ M' : A[σ] }}) ->
+    {{ Γ ⊢ M : A ® m ∈ glu_bot }} ->
     {{ Γ ⊢ M : A ® m ∈ glu_elem_bot i a }}.
 #[export]
 Hint Constructors glu_elem_bot : mctt.

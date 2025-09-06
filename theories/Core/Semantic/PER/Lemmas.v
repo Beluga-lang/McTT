@@ -73,7 +73,7 @@ Proof.
   destruct_all.
   eexists; mauto.
 Qed.
-  
+
 #[export]
 Hint Resolve fst_bot_per_bot : mctt.
 
@@ -411,7 +411,7 @@ Proof with (destruct_rel_mod_eval; destruct_rel_mod_app; functional_eval_rewrite
   - rename equiv_c_c' into equiv0_c_c'.
     assert (equiv_c_c' : in_rel c c') by firstorder...
   - assert (equiv0_c_c' : in_rel0 c c') by firstorder...
-  - split. 
+  - split.
     + intros.
       dependent destruction H2.
       assert (fst_rel <~> fst_rel0) by mauto 3.
@@ -658,7 +658,7 @@ Proof with (basic_per_univ_elem_econstructor; mautosolve 4).
       destruct_rel_mod_eval.
       functional_eval_rewrite_clear.
       handle_per_univ_elem_irrel...
-  - destruct_by_head rel_mod_proj. 
+  - destruct_by_head rel_mod_proj.
     functional_eval_rewrite_clear.
     assert (fst_rel b0 b') by intuition.
     destruct_rel_mod_eval.
@@ -746,7 +746,7 @@ Proof.
   typeclasses eauto.
 Qed.
 
-Lemma per_univ_elem_sigma' : 
+Lemma per_univ_elem_sigma' :
   forall i a a' ρ B ρ' B'
     (fst_rel : relation domain)
     (snd_rel : forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}), relation domain)
@@ -986,7 +986,7 @@ Proof.
       destruct_rel_mod_eval;
       functional_eval_rewrite_clear;
       trivial.
-  - assert ({{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }}) by 
+  - assert ({{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem i ↘ elem_rel }}) by
     (per_univ_elem_econstructor; intuition; destruct_rel_mod_eval; mauto).
     saturate_refl_for per_univ_elem.
     econstructor; eauto.
@@ -1327,7 +1327,7 @@ Ltac per_ctx_env_econstructor :=
 
 Lemma per_ctx_env_cons_clean_inversion : forall {Γ Γ' env_relΓ A A' env_relΓA},
     {{ EF Γ ≈ Γ' ∈ per_ctx_env ↘ env_relΓ }} ->
-    {{ EF Γ, A ≈ Γ', A' ∈ per_ctx_env ↘ env_relΓA }} -> 
+    {{ EF Γ, A ≈ Γ', A' ∈ per_ctx_env ↘ env_relΓA }} ->
     exists i (head_rel : forall {ρ ρ'} (equiv_ρ_ρ' : {{ Dom ρ ≈ ρ' ∈ env_relΓ }}), relation domain),
       (forall ρ ρ' (equiv_ρ_ρ' : {{ Dom ρ ≈ ρ' ∈ env_relΓ }}),
           rel_typ i A ρ A' ρ' (head_rel equiv_ρ_ρ')) /\

@@ -34,9 +34,9 @@ Arguments mk_rel_mod_app {_ _ _ _ _}.
 Hint Constructors rel_mod_app : mctt.
 
 (** Related modulo projection *)
-Variant rel_mod_proj a a' (R : relation domain) (R' : forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ R }}), relation domain) : Prop := mk_rel_mod_proj : 
+Variant rel_mod_proj a a' (R : relation domain) (R' : forall c c' (equiv_c_c' : {{ Dom c ≈ c' ∈ R }}), relation domain) : Prop := mk_rel_mod_proj :
 forall b b' c c'
-  (fst_a : {{ π₁ a ↘ b }}) (fst_a' : {{ π₁ a' ↘ b' }}) (snd_a : {{ π₂ a ↘ c }}) (snd_a' : {{ π₂ a' ↘ c' }}) 
+  (fst_a : {{ π₁ a ↘ b }}) (fst_a' : {{ π₁ a' ↘ b' }}) (snd_a : {{ π₂ a ↘ c }}) (snd_a' : {{ π₂ a' ↘ c' }})
   (equiv_b_b' : {{ Dom b ≈ b' ∈ R }} ), {{ Dom c ≈ c' ∈ (R' b b' equiv_b_b' ) }} -> rel_mod_proj a a' R R'.
 #[global]
 Arguments mk_rel_mod_proj {_ _ _ _ }.
@@ -140,7 +140,7 @@ Section Per_univ_elem_core_def.
           (forall {c c'} (equiv_c_c' : {{ Dom c ≈ c' ∈ fst_rel }}),
               rel_mod_eval per_univ_elem_core B d{{{ ρ ↦ c }}} B' d{{{ ρ' ↦ c' }}} (snd_rel equiv_c_c')) ->
           (elem_rel <~> fun b b' => rel_mod_proj b b' fst_rel (fun c c' => snd_rel) ) ->
-          {{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem_core ↘ elem_rel }} } 
+          {{ DF Σ a ρ B ≈ Σ a' ρ' B' ∈ per_univ_elem_core ↘ elem_rel }} }
   | per_univ_elem_core_eq :
     `{ forall (point_rel : relation domain)
          (elem_rel : relation domain),
@@ -214,11 +214,11 @@ Section Per_univ_elem_core_def.
                               end)
         HE;
   | R, a, b, (per_univ_elem_core_sigma _ snd_rel _ equiv_a_a' per HT HE) =>
-      case_Sigma snd_rel equiv_a_a' (per_univ_elem_core_strong_ind _ _ _ equiv_a_a') per 
+      case_Sigma snd_rel equiv_a_a' (per_univ_elem_core_strong_ind _ _ _ equiv_a_a') per
         (fun _ _ equiv_c_c' => match HT _ _ equiv_c_c' with
                         | mk_rel_mod_eval b b' evb evb' Rel =>
                             mk_rel_mod_eval b b' evb evb' (conj _ (per_univ_elem_core_strong_ind _ _ _ Rel))
-                        end) 
+                        end)
         HE;
   | R, a, b, (per_univ_elem_core_eq _ _ HT per HE1 HE2 eq)            => case_Eq HT (per_univ_elem_core_strong_ind _ _ _ HT) per HE1 HE2 eq;
   | R, a, b, (per_univ_elem_core_neut _ equiv_b_b' HE)                => case_ne equiv_b_b' HE.

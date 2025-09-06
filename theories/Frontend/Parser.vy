@@ -53,7 +53,7 @@ let obj :=
 
   | FST; ~ = atomic_obj; { Cst.fst atomic_obj }
   | SND; ~ = atomic_obj; { Cst.snd atomic_obj }
-  
+
   | LET; ds = let_defns; IN; body = obj; { List.fold_left (fun acc arg => Cst.app acc (snd arg)) (List.rev ds) (List.fold_left (fun acc arg => Cst.fn (fst (fst arg)) (snd (fst arg)) acc) ds body) }
 
 let eq_obj :=

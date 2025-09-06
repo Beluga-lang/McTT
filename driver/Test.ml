@@ -556,13 +556,13 @@ let%expect_test "nary.mctt works" =
 let%expect_test "simple_let.mctt works" =
   let _ = main_of_example "simple_let.mctt" in
   [%expect
-    {| 
+    {|
       Parsed:
         (fun (x : Nat) -> succ x) 0 : Nat
       Elaborated:
         (fun (x1 : Nat) -> succ x1) 0 : Nat
       Normalized Result:
-        1 : Nat      
+        1 : Nat
   |}]
 
 let%expect_test "let_two_vars.mctt works" =
@@ -678,7 +678,7 @@ let%expect_test "let_nary.mctt works" =
 let%expect_test "let_vector.mctt works" =
   let _ = main_of_example "let_vector.mctt" in
   [%expect
-    {| 
+    {|
       Parsed:
         (fun (Vec : forall (A : Type@0)
                            (n : Nat)
