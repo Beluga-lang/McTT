@@ -87,6 +87,7 @@ Module ctxsub_judg.
       assert {{ Δ0, C' ⊢ D[Wk] ⊆ B[Wk] }}...
     - eapply wf_subtyp_pi with (i := i); firstorder mauto 4.
     - eapply wf_subtyp_sigma with (i := i); firstorder mauto 4.
+    Guarded.
   Qed.
 
   Corollary ctxsub_exp : forall {Γ Δ M A}, {{ ⊢ Δ ⊆ Γ }} -> {{ Γ ⊢ M : A }} -> {{ Δ ⊢ M : A }}.

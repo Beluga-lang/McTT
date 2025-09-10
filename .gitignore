@@ -4,10 +4,10 @@
 _build
 *.opam
 
-# Generated coq files
+# Generated Rocq files
 theories/**/Parser.v
 
-# Coq compiler outputs
+# Rocq compiler outputs
 *.vo
 *.glob
 *.d
@@ -16,13 +16,13 @@ theories/**/Parser.v
 *.vok
 *.vos
 .lia.cache
-CoqMakefile.mk*
-!CoqMakefile.mk.local
-!CoqMakefile.mk.local-late
+RocqMakefile.mk*
+!RocqMakefile.mk.local
+!RocqMakefile.mk.local-late
 *.log
 theories/html/
 
-# Generated coq dependency graph
+# Generated Rocq dependency graph
 dep.dot
 dep.html
 

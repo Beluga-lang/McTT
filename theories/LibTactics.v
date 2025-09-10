@@ -1,4 +1,4 @@
-From Coq Require Export Equivalence Lia Morphisms Program.Equality Program.Tactics Relation_Definitions RelationClasses.
+From Stdlib Require Export Equivalence Lia Morphisms Program.Equality Program.Tactics Relation_Definitions RelationClasses.
 From Equations Require Export Equations.
 
 Open Scope predicate_scope.

@@ -73,7 +73,7 @@ def get_assumptions(check_file_dir: Path, project_dir: Path):
     errors = []
     try:
         with subprocess.Popen(
-            ["coqc", "-noglob", "-R", ".", "Mctt", f"{check_file_dir}"],
+            ["rocq", "c", "-noglob", "-R", ".", "Mctt", f"{check_file_dir}"],
             cwd=project_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -87,12 +87,12 @@ def get_assumptions(check_file_dir: Path, project_dir: Path):
                     error = line.decode("utf8")
                     errors.append(error)
                 if len(errors) > 0:
-                    print("Errors from `coqc`:")
+                    print("Errors from `rocq`:")
                     for error in errors:
                         print(error, end='')
                     sys.exit(1)
     except Exception as e:
-        print(f"Error running `coqc`: {e}")
+        print(f"Error running `rocq`: {e}")
         sys.exit(1)
     finally:
         os.remove(check_file_dir)

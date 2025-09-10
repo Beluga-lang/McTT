@@ -1,4 +1,4 @@
-From Coq Require Import Equivalence Lia Morphisms Morphisms_Prop Morphisms_Relations PeanoNat Relation_Definitions RelationClasses.
+From Stdlib Require Import Equivalence Lia Morphisms Morphisms_Prop Morphisms_Relations Relation_Definitions RelationClasses.
 From Equations Require Import Equations.
 
 From Mctt Require Import LibTactics.

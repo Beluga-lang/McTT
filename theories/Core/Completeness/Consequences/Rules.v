@@ -1,4 +1,3 @@
-From Coq Require Import RelationClasses.
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
 From Mctt.Core Require Export Completeness.
