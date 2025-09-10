@@ -19,28 +19,28 @@ space := $(empty) $(empty)
 
 MENHIR := menhir
 
-COQMAKEFILE := CoqMakefile.mk
+ROCQMAKEFILE := RocqMakefile.mk
 COQPROJECTFILE := _CoqProject
 PARSERBASE := Parser.ml
 POSTPARSERBASE := Entrypoint.ml
 PARSERFILE := ../driver/extracted/$(PARSERBASE)
 POSTPARSERFILE := ../driver/extracted/$(POSTPARSERBASE)
-COQPARSERFILE := $(patsubst %.vy,%.v,$(shell find ./ -name '*.vy'))
-COQFILES := $(sort $(shell find ./ -name '*.v') $(COQPARSERFILE))
+ROCQPARSERFILE := $(patsubst %.vy,%.v,$(shell find ./ -name '*.vy'))
+ROCQFILES := $(sort $(shell find ./ -name '*.v') $(ROCQPARSERFILE))
 
 .PHONY: all
-all: $(COQMAKEFILE)
-	@+$(MAKE) -j "${NPROCS}" -f "$(COQMAKEFILE)" all
+all: $(ROCQMAKEFILE)
+	@+$(MAKE) -j "${NPROCS}" -f "$(ROCQMAKEFILE)" all
 
 .PHONY: clean
-clean: $(COQMAKEFILE)
-	@+$(MAKE) -f "$(COQMAKEFILE)" cleanall
-	@echo "CLEAN $(COQPARSERFILE) $(PARSERBASE) $(patsubst %.ml,%.mli,$(PARSERBASE)) $(PARSERFILE) $(patsubst %.ml,%.mli,$(PARSERFILE))"
-	@rm -f "$(COQPARSERFILE)" "$(PARSERBASE)" "$(patsubst %.ml,%.mli,$(PARSERBASE))" "$(PARSERFILE)" "$(patsubst %.ml,%.mli,$(PARSERFILE))"
+clean: $(ROCQMAKEFILE)
+	@+$(MAKE) -f "$(ROCQMAKEFILE)" cleanall
+	@echo "CLEAN $(ROCQPARSERFILE) $(PARSERBASE) $(patsubst %.ml,%.mli,$(PARSERBASE)) $(PARSERFILE) $(patsubst %.ml,%.mli,$(PARSERFILE))"
+	@rm -f "$(ROCQPARSERFILE)" "$(PARSERBASE)" "$(patsubst %.ml,%.mli,$(PARSERBASE))" "$(PARSERFILE)" "$(patsubst %.ml,%.mli,$(PARSERFILE))"
 	@echo "CLEAN $(POSTPARSERBASE) $(patsubst %.ml,%.mli,$(POSTPARSERBASE)) $(POSTPARSERFILE) $(patsubst %.ml,%.mli,$(POSTPARSERFILE))"
 	@rm -f "$(POSTPARSERBASE)" "$(patsubst %.ml,%.mli,$(POSTPARSERBASE))" "$(POSTPARSERFILE)" "$(patsubst %.ml,%.mli,$(POSTPARSERFILE))"
-	@echo "CLEAN $(COQMAKEFILE) $(COQMAKEFILE).conf"
-	@rm -f "$(COQMAKEFILE)" "$(COQMAKEFILE).conf"
+	@echo "CLEAN $(ROCQMAKEFILE) $(ROCQMAKEFILE).conf"
+	@rm -f "$(ROCQMAKEFILE)" "$(ROCQMAKEFILE).conf"
 
 .PHONY: update_CoqProject
 update_CoqProject: clean
@@ -48,15 +48,15 @@ update_CoqProject: clean
         echo ""; \
         echo "-arg -w -arg -cast-in-pattern,-notation-overridden"; \
         echo ""; \
-        echo -e "$(subst $(space),\n,$(COQFILES))") > "$(COQPROJECTFILE)"
+        echo -e "$(subst $(space),\n,$(ROCQFILES))") > "$(COQPROJECTFILE)"
 
 .PHONY: force
 force: ;
 
-$(COQMAKEFILE): $(COQPROJECTFILE)
-	$(COQBIN)coq_makefile -f "$?" -o "$@"
+$(ROCQMAKEFILE): $(COQPROJECTFILE)
+	rocq makefile -f "$?" -o "$@"
 
 $(COQPROJECTFILE): ;
 
-%: $(COQMAKEFILE) force
-	@+$(MAKE) -f "$(COQMAKEFILE)" "$@"
+%: $(ROCQMAKEFILE) force
+	@+$(MAKE) -f "$(ROCQMAKEFILE)" "$@"

@@ -1,4 +1,4 @@
-.PHONY: all pretty-timed test check_CoqProject coqdoc clean depgraphdoc
+.PHONY: all pretty-timed test check_CoqProject rocqdoc clean depgraphdoc
 
 all:
 	@$(MAKE) -C theories
@@ -14,8 +14,8 @@ test:
 check_CoqProject:
 	scripts/check_projects.sh theories
 
-coqdoc:
-	@$(MAKE) coqdoc -C theories
+rocqdoc:
+	@$(MAKE) rocq doc -C theories
 
 depgraphdoc:
 	@$(MAKE) depgraphdoc -C theories

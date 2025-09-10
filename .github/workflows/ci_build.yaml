@@ -55,13 +55,13 @@ jobs:
         run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_TAG }}
 
       - name: Process main steps
-        uses: coq-community/docker-coq-action@v1
+        uses: rocq-community/docker-coq-action@v1
         with:
           custom_image: ${{ env.REGISTRY }}/${{ env.IMAGE_TAG }}
           install: |
           before_script: |
-            startGroup "Fix the permission issue"
-              sudo chown -R coq:coq .
+            startGroup "Workaround permission issue"
+              sudo chown -R 1000:1000 .
             endGroup
           script: |
             startGroup "Build binary"
@@ -69,13 +69,13 @@ jobs:
             endGroup
             startGroup "Build HTMLs for GitHub pages"
               if [[ "${{ env.DOC_DEPLOY }}" == 'true' ]]; then
-                make coqdoc
+                make rocqdoc
                 DOC_BASE="${{ env.DOC_DEPLOY_DEST }}" make depgraphdoc
                 mv theories/html html
                 mv theories/dep.html html/dep.html
                 cp assets/styling.css html/styling.css
                 cp -r assets/images html/images
-                sed -i 's!\[Coqdoc\](https://beluga-lang\.github\.io/McTT/dep\.html)![Coqdoc](dep.html)!' README.md
+                sed -i 's!\[Rocqdoc\](https://beluga-lang\.github\.io/McTT/dep\.html)![Rocqdoc](dep.html)!' README.md
                 pandoc README.md -f gfm -H assets/include.html --no-highlight --metadata pagetitle='McTT: Building A Correct-By-Construction Proof Checkers For Type Theories' -t html --css styling.css -o html/index.html
               fi
             endGroup

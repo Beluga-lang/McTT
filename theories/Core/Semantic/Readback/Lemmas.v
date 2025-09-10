@@ -1,5 +1,3 @@
-From Coq Require Import Lia PeanoNat Relations.
-
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
 From Mctt.Core.Semantic Require Import Evaluation.

@@ -1,4 +1,4 @@
-From Coq Require Import Lia Morphisms_Relations PeanoNat Relation_Definitions.
+From Stdlib Require Import Morphisms_Relations Relation_Definitions.
 From Equations Require Import Equations.
 
 From Mctt Require Import LibTactics.
