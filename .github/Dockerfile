@@ -4,8 +4,7 @@ ENV NCPUS=4
 ENV OPAMYES="true"
 ENV OPAMJOBS=$NCPUS
 
-RUN opam repo add rocq-released https://rocq-prover.org/opam/released \
-    && opam update \
+RUN opam update \
     && opam install rocq-equations coq-menhirlib menhir ppx_expect ppx_inline_test \
     && eval $(opam env)
 
