@@ -1,12 +1,12 @@
-FROM coqorg/coq:8.20-ocaml-4.14-flambda
+FROM rocq/rocq-prover:9.0.0-native-ocaml-4.14.2-flambda
 
 ENV NCPUS=4
 ENV OPAMYES="true"
 ENV OPAMJOBS=$NCPUS
 
-RUN opam repo add coq-released https://coq.inria.fr/opam/released \
+RUN opam repo add rocq-released https://rocq-prover.org/opam/released \
     && opam update \
-    && opam install coq-equations coq-menhirlib menhir ppx_expect \
+    && opam install rocq-equations coq-menhirlib menhir ppx_expect ppx_inline_test \
     && eval $(opam env)
 
 RUN curl https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/12.1.1/graphviz-12.1.1.tar.gz -O \
