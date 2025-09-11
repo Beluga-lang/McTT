@@ -1471,7 +1471,7 @@ Proof.
     eapply var0_glu_elem; eassumption.
 Qed.
 
-#[local]
+#[export]
 Hint Resolve cons_glu_sub_pred_q_helper : mctt.
 
 (** *** Lemmas about [glu_rel_sub] *)
