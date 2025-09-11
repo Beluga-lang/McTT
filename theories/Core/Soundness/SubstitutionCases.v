@@ -100,7 +100,7 @@ Lemma glu_rel_sub_extend_helper : forall {Γ Δ0 m ρ0 σ0 Δ σ M A i a SbΔ P 
     {{ EG Δ ∈ glu_ctx_env ↘ SbΔ }} ->
     {{ Δ0 ⊢s σ∘σ0 ® ρ0 ∈ SbΔ }} ->
     {{ Δ0 ⊢ M[σ0] : A[σ][σ0] ® m ∈ El }} ->
-    {{ Δ0 ⊢s (σ,,M)∘σ0 ® ρ0 ↦ m ∈ (cons_glu_sub_pred i Δ A SbΔ) }}.
+    {{ Δ0 ⊢s (σ,,M)∘σ0 ® ρ0 ↦ m ∈ cons_glu_sub_pred i Δ A SbΔ }}.
 Proof.
   intros.
   assert {{ Δ0 ⊢s (σ,,M)∘σ0 : Δ, A }} by mauto 3.

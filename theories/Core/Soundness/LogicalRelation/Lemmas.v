@@ -1445,7 +1445,36 @@ Qed.
 #[export]
 Hint Resolve glu_rel_exp_to_wf_exp : mctt.
 
+Lemma cons_glu_sub_pred_q_helper : forall {Γ SbΓ Δ σ ρ i A a},
+    {{ EG Γ ∈ glu_ctx_env ↘ SbΓ }} ->
+    {{ Δ ⊢s σ ® ρ ∈ SbΓ }} ->
+    {{ Γ ⊩ A : Type@i }} ->
+    {{ ⟦ A ⟧ ρ ↘ a }} ->
+    {{ Δ, A[σ] ⊢s q σ ® ρ ↦ ⇑! a (length Δ) ∈ cons_glu_sub_pred i Γ A SbΓ }}.
+Proof.
+  intros * ? ? HA ?.
+  assert {{ Γ ⊢ A : Type@i }} by mauto 2.
+  invert_glu_rel_exp HA.
+  destruct_glu_rel_exp_with_sub.
+  simplify_evals.
+  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
+  apply_predicate_equivalence.
+  unfold univ_glu_exp_pred' in *.
+  destruct_conjs.
+  assert {{ Δ ⊢s σ : Γ }} by mauto 2.
+  assert {{ ⊢ Δ, A[σ] }} by mauto 3.
+  assert {{ Δ, A[σ] ⊢w Wk : Δ }} by mauto 2.
+  eapply cons_glu_sub_pred_helper; mauto 2.
+  - eapply glu_ctx_env_sub_monotone; eassumption.
+  - assert {{ Δ, A[σ] ⊢s Wk : Δ }} by mauto 2.
+    assert {{ Δ, A[σ] ⊢ A[σ∘Wk] ≈ A[σ][Wk] : Type@i }} as -> by mauto 3.
+    eapply var0_glu_elem; eassumption.
+Qed.
 
+#[local]
+Hint Resolve cons_glu_sub_pred_q_helper : mctt.
+
+(** *** Lemmas about [glu_rel_sub] *)
 
 Lemma glu_ctx_env_cons_clean_inversion'_helper : forall {Γ TSb A Sb i},
   {{ EG Γ ∈ glu_ctx_env ↘ TSb }} ->
@@ -1482,7 +1511,6 @@ Proof.
     bulky_rewrite.
 Qed.
 
-
 Lemma glu_ctx_env_cons_clean_inversion' : forall {Γ TSb A Sb i},
   {{ EG Γ ∈ glu_ctx_env ↘ TSb }} ->
   {{ EG Γ, A ∈ glu_ctx_env ↘ Sb }} ->
@@ -1495,13 +1523,9 @@ Proof.
   mauto using glu_ctx_env_cons_clean_inversion'_helper.
 Qed.
 
-
 Ltac invert_glu_ctx_env H ::=
   directed (unshelve eapply (glu_ctx_env_cons_clean_inversion' _) in H; shelve_unifiable; try eassumption; destruct H)
   + basic_invert_glu_ctx_env H.
-
-
-(** *** Lemmas about [glu_rel_sub] *)
 
 Lemma glu_rel_sub_clean_inversion1 : forall {Γ Sb τ Γ'},
     {{ EG Γ ∈ glu_ctx_env ↘ Sb }} ->
@@ -1575,7 +1599,6 @@ Qed.
 
 #[export]
 Hint Resolve glu_rel_sub_wf_sub : mctt.
-
 
 Ltac saturate_glu_typ_from_el1 :=
   match goal with
@@ -1668,7 +1691,6 @@ Qed.
 #[export]
 Hint Resolve glu_rel_exp_preserves_lvl : mctt.
 
-
 Ltac saturate_syn_judge1 :=
   match goal with
   | H : {{ ^?Γ ⊩ ^?M : ^?A }} |- _ =>
@@ -1678,7 +1700,6 @@ Ltac saturate_syn_judge1 :=
   | H : {{ ⊩ ^?Γ }} |- _ =>
       assert {{ ⊢ Γ }} by mauto; fail_if_dup
   end.
-
 
 #[global]
 Ltac saturate_syn_judge :=

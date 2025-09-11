@@ -301,35 +301,6 @@ Proof.
   eassumption.
 Qed.
 
-Lemma cons_glu_sub_pred_q_helper : forall {Γ SbΓ Δ σ ρ i A a},
-    {{ EG Γ ∈ glu_ctx_env ↘ SbΓ }} ->
-    {{ Δ ⊢s σ ® ρ ∈ SbΓ }} ->
-    {{ Γ ⊩ A : Type@i }} ->
-    {{ ⟦ A ⟧ ρ ↘ a }} ->
-    {{ Δ, A[σ] ⊢s q σ ® ρ ↦ ⇑! a (length Δ) ∈ cons_glu_sub_pred i Γ A SbΓ }}.
-Proof.
-  intros * ? ? HA ?.
-  assert {{ Γ ⊢ A : Type@i }} by mauto 2.
-  invert_glu_rel_exp HA.
-  destruct_glu_rel_exp_with_sub.
-  simplify_evals.
-  match_by_head glu_univ_elem ltac:(fun H => directed invert_glu_univ_elem_nouip H).
-  apply_predicate_equivalence.
-  unfold univ_glu_exp_pred' in *.
-  destruct_conjs.
-  assert {{ Δ ⊢s σ : Γ }} by mauto 2.
-  assert {{ ⊢ Δ, A[σ] }} by mauto 3.
-  assert {{ Δ, A[σ] ⊢w Wk : Δ }} by mauto 2.
-  eapply cons_glu_sub_pred_helper; mauto 2.
-  - eapply glu_ctx_env_sub_monotone; eassumption.
-  - assert {{ Δ, A[σ] ⊢s Wk : Δ }} by mauto 2.
-    assert {{ Δ, A[σ] ⊢ A[σ∘Wk] ≈ A[σ][Wk] : Type@i }} as -> by mauto 3.
-    eapply var0_glu_elem; eassumption.
-Qed.
-
-#[local]
-Hint Resolve cons_glu_sub_pred_q_helper : mctt.
-
 Lemma cons_glu_sub_pred_q_nat_helper : forall {Γ SbΓ Δ σ ρ i},
     {{ EG Γ ∈ glu_ctx_env ↘ SbΓ }} ->
     {{ Δ ⊢s σ ® ρ ∈ SbΓ }} ->
