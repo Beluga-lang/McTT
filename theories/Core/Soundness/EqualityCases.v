@@ -662,9 +662,9 @@ Proof.
   destruct_all.
   handle_functional_glu_univ_elem.
   repeat match goal with
-         | H: ?i < S ?i |- _ => idtac H; clear H
-         | H: {{ DG 𝕌@_ ∈ glu_univ_elem _ ↘ _ ↘ _ }} |- _ => idtac H; clear H
-         | H: {{ DG Eq ^_ ^_ ^_ ∈ glu_univ_elem _ ↘ _ ↘ _ }} |- _ => idtac H; clear H
+         | H: ?i < S ?i |- _ => clear H
+         | H: {{ DG 𝕌@_ ∈ glu_univ_elem _ ↘ _ ↘ _ }} |- _ => clear H
+         | H: {{ DG Eq ^_ ^_ ^_ ∈ glu_univ_elem _ ↘ _ ↘ _ }} |- _ => clear H
          end.
   (on_all_hyp: destruct_glu_rel_by_assumption SbΓA).
   (on_all_hyp: destruct_glu_rel_by_assumption SbΓAAEq).
