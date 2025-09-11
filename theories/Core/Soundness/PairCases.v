@@ -150,7 +150,7 @@ Proof.
     end.
     do 2 eexists; repeat split; mauto 3.
     intros.
-    (on_all_hyp: fun H => directed invert_glu_univ_elem H).
+    (on_all_hyp: fun H => directed invert_glu_univ_elem_nouip H).
     handle_functional_glu_univ_elem.
     assert (equiv_m : {{ Dom m ≈ m ∈ fst_rel }}) by (eapply glu_univ_elem_per_elem; mauto 3).
     assert {{ Δ ⊢ fst ⟨ M : A ; N : B ⟩[σ] ≈ M[σ] : A[σ] }}.
@@ -217,7 +217,7 @@ Proof.
           eapply wf_sub_eq_extend_cong; mauto 3.
         - symmetry; eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3.
       }
-      etransitivity; [symmetry; rewrite <- H17; eapply wf_exp_eq_snd_sub; mautosolve 3 |].
+      etransitivity; [symmetry; rewrite <- H16; eapply wf_exp_eq_snd_sub; mautosolve 3 |].
       eapply wf_exp_eq_sub_cong; mauto 3.
 Qed.
 
@@ -251,16 +251,16 @@ Proof.
   handle_functional_glu_univ_elem.
   match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem_nouip H).
   apply_relation_equivalence.
-  invert_glu_rel1.
+  match_by_head sigma_glu_exp_pred ltac:(fun H => inversion H; subst; clear H).
   econstructor; mauto 3.
-  assert {{ Γ0 ⊢ (fst M)[σ] ≈ (fst M[σ])[Id] : A[σ] }} as ->.
+  assert {{ Δ ⊢ (fst M)[σ] ≈ (fst M[σ])[Id] : A[σ] }} as ->.
   {
     transitivity {{{ (fst M)[σ][Id] }}}.
     - symmetry; eapply wf_exp_eq_sub_id; mauto 3.
       eapply wf_exp_sub; mauto 3.
     - eapply wf_exp_eq_conv'; [eapply wf_exp_eq_sub_cong |]; mauto 3.
   }
-  assert {{ Γ0 ⊢ A[σ] ≈ FT : Type@i }} as -> by mauto 3.
+  assert {{ Δ ⊢ A[σ] ≈ FT : Type@i }} as -> by mauto 3.
   bulky_rewrite.
 Qed.
 
@@ -301,26 +301,30 @@ Proof.
   handle_functional_glu_univ_elem.
   match_by_head per_univ_elem ltac:(fun H => directed invert_per_univ_elem_nouip H).
   apply_relation_equivalence.
-  invert_glu_rel1.
+  match_by_head sigma_glu_exp_pred ltac:(fun H => inversion H; subst; clear H).
   destruct_rel_mod_eval.
   simplify_evals.
   match goal with
   | _: {{ ⟦ A ⟧ ρ ↘ ^?a' }},
       _: {{ ⟦ M ⟧ ρ ↘ ^?m' }},
-        _: {{ ⟦ B ⟧ ρ ↦ ^_ ↘ ^?b' }} |- _ =>
+        _: {{ ⟦ B ⟧ ρ ↦ ^_ ↘ ^?b' }},
+          _: {{ π₁ ^?m' ↘ ^?m1' }},
+            _: {{ π₂ ^?m' ↘ ^?m2' }} |- _ =>
       rename b' into b;
       rename a' into a;
-      rename m' into m
+      rename m' into m;
+      rename m1' into m1;
+      rename m2' into m2
   end.
-  assert {{ Γ0 ⊢ fst M[σ] : A[σ] }} by (eapply wf_fst with (B:={{{ B[q σ] }}}) (i:=i); mauto 3).
+  assert {{ Δ ⊢ fst M[σ] : A[σ] }} by (eapply wf_fst with (B:={{{ B[q σ] }}}) (i:=i); mauto 3).
   assert {{ ⟦ B[Id,,fst M] ⟧ ρ ↘ b }} by mauto 4.
   eapply mk_glu_rel_exp_with_sub with (El:=SEl m1 equiv_m); mauto 3.
-  assert {{ Γ0 ⊢w Id : Γ0 }} by mauto.
-  assert {{ Γ0 ⊢ (fst M)[σ] ≈ (fst M[σ])[Id] : A[σ] }} by (bulky_rewrite; mauto 3).
-  assert {{ Γ0 ⊢ A[σ] ≈ FT : Type@i }} by mauto 3.
-  assert {{ Γ0 ⊢s σ,,fst M[σ] ® ρ ↦ m1 ∈ SbΓA }} by (eapply cons_glu_sub_pred_helper; mauto 3; bulky_rewrite).
-  assert ({{ Γ0 ⊢ fst M[σ] : FT ® m1 ∈ El }} /\ {{ Γ0 ⊢ snd M[σ] : ST[Id,,(fst M[σ])] ® m2 ∈ SEl m1 equiv_m }}) as [] by intuition.
-  assert (El Γ0 {{{ FT[Id] }}} {{{ fst M[σ] }}} m1) by (bulky_rewrite; auto).
+  assert {{ Δ ⊢w Id : Δ }} by mauto.
+  assert {{ Δ ⊢ (fst M)[σ] ≈ (fst M[σ])[Id] : A[σ] }} by (bulky_rewrite; mauto 3).
+  assert {{ Δ ⊢ A[σ] ≈ FT : Type@i }} by mauto 3.
+  assert {{ Δ ⊢s σ,,fst M[σ] ® ρ ↦ m1 ∈ SbΓA }} by (eapply cons_glu_sub_pred_helper; mauto 3; bulky_rewrite).
+  assert ({{ Δ ⊢ fst M[σ] : FT ® m1 ∈ El }} /\ {{ Δ ⊢ snd M[σ] : ST[Id,,(fst M[σ])] ® m2 ∈ SEl m1 equiv_m }}) as [] by intuition.
+  assert (El Δ {{{ FT[Id] }}} {{{ fst M[σ] }}} m1) by (bulky_rewrite; auto).
   assert (glu_univ_elem i (SP m1 equiv_m) (SEl m1 equiv_m) b) by mauto 3.
   (on_all_hyp: destruct_glu_rel_by_assumption SbΓA).
   simplify_evals.
@@ -337,8 +341,8 @@ Proof.
          | H: ?i < S ?i |- _ => clear H
          | H: {{ DG 𝕌@_ ∈ glu_univ_elem _ ↘ _ ↘ _ }} |- _ => clear H
          end.
-  assert (SP m1 equiv_m Γ0 {{{ ST[Id,,fst M[σ]] }}}) by auto.
-  assert {{ Γ0 ⊢ B[Id,,fst M][σ] ≈  B[σ,,fst M[σ]] : Type@i }} as ->.
+  assert (SP m1 equiv_m Δ {{{ ST[Id,,fst M[σ]] }}}) by auto.
+  assert {{ Δ ⊢ B[Id,,fst M][σ] ≈  B[σ,,fst M[σ]] : Type@i }} as ->.
   {
     transitivity {{{ B[σ,,(fst M)[σ]] }}}.
     - eapply exp_eq_elim_sub_lhs_typ_gen; mauto 3.
@@ -346,10 +350,10 @@ Proof.
       eapply wf_sub_eq_extend_cong; mauto 3.
   }
   eapply glu_univ_elem_trm_resp_exp_eq; [mautosolve 3 | |].
-  - assert {{ Γ0 ⊢ B[σ,,fst M[σ]] ≈ ST[Id,,fst M[σ]] : Type@i }} as ->; mauto 3.
-  - assert {{ Γ0 ⊢ (snd M[σ]) ≈ snd M[σ] : B[σ,,fst M[σ]] }}.
+  - assert {{ Δ ⊢ B[σ,,fst M[σ]] ≈ ST[Id,,fst M[σ]] : Type@i }} as ->; mauto 3.
+  - assert {{ Δ ⊢ (snd M[σ]) ≈ snd M[σ] : B[σ,,fst M[σ]] }}.
     {
-      assert {{ Γ0 ⊢ B[q σ][Id,,fst M[σ]] ≈ B[σ,,fst M[σ]] : Type@i }} as <- by mauto 3.
+      assert {{ Δ ⊢ B[q σ][Id,,fst M[σ]] ≈ B[σ,,fst M[σ]] : Type@i }} as <- by mauto 3.
       eapply exp_eq_refl.
       eapply wf_snd with (A:={{{ A[σ] }}}) (i:=i); mauto 3.
     }
