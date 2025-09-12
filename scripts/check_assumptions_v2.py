@@ -49,7 +49,7 @@ def create_assumption_file(all_files_lemma_names: List[Tuple[str, List[str]]], p
 
     with open(check_file_dir, "w+", encoding="utf-8") as check_file:
         for path, _ in all_files_lemma_names:
-            check_file.write(f"From Mctt Require {path.replace('/','.')[:-2]}." + "\n")
+            check_file.write(f"From Mctt Require {path.replace('/','.')[:-2]}.\n")
 
         check_file.write("\n")
         for path, file_lemma_names in all_files_lemma_names:
@@ -73,7 +73,7 @@ def get_assumptions(check_file_dir: Path, project_dir: Path):
     errors = []
     try:
         with subprocess.Popen(
-            ["coqc", "-R", ".", "Mctt", f"{check_file_dir}"],
+            ["coqc", "-noglob", "-R", ".", "Mctt", f"{check_file_dir}"],
             cwd=project_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -190,9 +190,10 @@ def main(project_dir: str, output_dir: Optional[str] = None):
 if __name__ == "__main__":
     DEFAULT_DIR = str(Path.joinpath(Path(os.path.dirname(os.path.abspath(__file__))).parent, "./theories"))
     parser = argparse.ArgumentParser(
-        prog='Check the axiom usage of every lemma/theorem/corollaries in a given directory (default "../theories/")'
+        prog=f'python3 {sys.argv[0]}',
+        description='Check the axiom usage of every lemma/theorem/corollaries in a PDIR'
     )
-    parser.add_argument("--project_dir", default=DEFAULT_DIR)
-    parser.add_argument("--output_dir", default=None)
+    parser.add_argument("--project_dir", default=DEFAULT_DIR, metavar='PDIR', help='set a directory to check lemma/theorem/corollaries (default "../theories/")')
+    parser.add_argument("--output_dir", default=None, metavar='ODIR', help='set a directory to output the checking result')
     args = parser.parse_args()
     main(args.project_dir, args.output_dir)
