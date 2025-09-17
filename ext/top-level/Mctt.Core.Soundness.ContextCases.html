@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="resources/coqdoc.css" rel="stylesheet" type="text/css" />
+<link href="resources/coqdocjs.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="resources/config.js"></script>
+<script type="text/javascript" src="resources/coqdocjs.js"></script>
+</head>
+
+<body onload="document.getElementById('content').focus()">
+  <div id="header">
+    <span class="left">
+      <span class="modulename"> <script> document.write(document.title) </script> </span>
+    </span>
+
+    <span class="button" id="toggle-proofs"></span>
+
+    <span class="right">
+      <a href="./">Project Page</a>
+      <a href="./indexpage.html"> Index </a>
+      <a href="./dep.html"> Table of Contents </a>
+    </span>
+</div>
+    <div id="content" tabindex="-1" onblur="document.getElementById('content').focus()">
+    <div id="main">
+<h1 class="libtitle">Mctt.Core.Soundness.ContextCases</h1>
+
+<div class="code">
+<span class="id" title="keyword">From</span> <span class="id" title="var">Mctt</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Mctt.LibTactics.html#"><span class="id" title="library">LibTactics</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Mctt.Core</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Mctt.Core.Base.html#"><span class="id" title="library">Base</span></a>.<br/>
+<span class="id" title="keyword">From</span> <span class="id" title="var">Mctt.Core.Soundness</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Mctt.Core.Soundness.LogicalRelation.html#"><span class="id" title="library">LogicalRelation</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="Mctt.Core.Semantic.Domain.html#Domain_Notations"><span class="id" title="module">Domain_Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="glu_rel_ctx_empty" class="idref" href="#glu_rel_ctx_empty"><span class="id" title="lemma">glu_rel_ctx_empty</span></a> : <a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">{{</span></a> <a class="idref" href="Mctt.Core.Soundness.LogicalRelation.Definitions.html#f4b19c1aa81869982324fde9a946ee2a"><span class="id" title="notation">⊩</span></a> <a class="idref" href="Mctt.Core.Syntactic.Syntax.html#bc870ab23e6b981afd413618d7074d6a"><span class="id" title="notation">⋅</span></a> <a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">}}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">econstructor</span>; <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>]<br/>
+<span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Resolve</span> <span class="id" title="var">glu_rel_ctx_empty</span> : <span class="id" title="var">mctt</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="glu_rel_ctx_extend" class="idref" href="#glu_rel_ctx_extend"><span class="id" title="lemma">glu_rel_ctx_extend</span></a> : <span class="id" title="keyword">forall</span> {<a id="454330da0f56a2416dd22d7f96feb974" class="idref" href="#454330da0f56a2416dd22d7f96feb974"><span class="id" title="binder">Γ</span></a> <a id="A:2" class="idref" href="#A:2"><span class="id" title="binder">A</span></a> <a id="i:3" class="idref" href="#i:3"><span class="id" title="binder">i</span></a>},<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">{{</span></a> <a class="idref" href="Mctt.Core.Soundness.LogicalRelation.Definitions.html#f4b19c1aa81869982324fde9a946ee2a"><span class="id" title="notation">⊩</span></a> <a id="9cfd66c80bf9988ea8f7104e167ac5cd" class="idref" href="#9cfd66c80bf9988ea8f7104e167ac5cd"><span class="id" title="binder"><span id="a66eb0e7c85ea280f33904e5ac83af54" class="id">Γ</span></span></a> <a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">}}</span></a> <a class="idref" href="http://coq.inria.fr/doc/V8.20.1/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">{{</span></a> <a id="6b23b3527a5ae82de0dbe08d52926f19" class="idref" href="#6b23b3527a5ae82de0dbe08d52926f19"><span class="id" title="binder"><span id="de9bdb4e9c2be34cf9b5e2f20d66b06e" class="id">Γ</span></span></a> <a class="idref" href="Mctt.Core.Soundness.LogicalRelation.Definitions.html#1547fdaebb04690f624a701c70f5b852"><span class="id" title="notation">⊩</span></a> <a id="A:8" class="idref" href="#A:8"><span class="id" title="binder"><span id="A:9" class="id">A</span></span></a> <a class="idref" href="Mctt.Core.Soundness.LogicalRelation.Definitions.html#1547fdaebb04690f624a701c70f5b852"><span class="id" title="notation">:</span></a> <a class="idref" href="Mctt.Core.Syntactic.Syntax.html#efd901996cb10f37561c83ae2288c419"><span class="id" title="notation">Type@i</span></a> <a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">}}</span></a> <a class="idref" href="http://coq.inria.fr/doc/V8.20.1/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">{{</span></a> <a class="idref" href="Mctt.Core.Soundness.LogicalRelation.Definitions.html#f4b19c1aa81869982324fde9a946ee2a"><span class="id" title="notation">⊩</span></a> <a id="7adcac760179e19a0bb37c9e1720bc22" class="idref" href="#7adcac760179e19a0bb37c9e1720bc22"><span class="id" title="binder"><span id="a57704a48aaf9a67d8a3df75d6eea365" class="id">Γ</span></span></a><a class="idref" href="Mctt.Core.Syntactic.Syntax.html#545d14d3749e4214500beb453d7ad50f"><span class="id" title="notation">,</span></a> <a id="A:10" class="idref" href="#A:10"><span class="id" title="binder"><span id="A:11" class="id">A</span></span></a> <a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">}}</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> * [<span class="id" title="var">Sb</span>] <span class="id" title="var">HA</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> <a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">{{</span></a> <a id="6f77cad99d2eda9ef19109858c066b07" class="idref" href="#6f77cad99d2eda9ef19109858c066b07"><span class="id" title="binder"><span id="918d7ebace48bcbe2bb5610a4828654d" class="id"><span id="f0fc26962fbc1476a5f5245f565ffb72" class="id"><span id="d2f974a479ebcd81c5829843a3f7c760" class="id">Γ</span></span></span></span></a> <a class="idref" href="Mctt.Core.Syntactic.System.Definitions.html#946b41ceb8284bcfce58d31084906f52"><span class="id" title="notation">⊢</span></a> <a id="A:16" class="idref" href="#A:16"><span class="id" title="binder"><span id="A:17" class="id"><span id="A:20" class="id"><span id="A:21" class="id">A</span></span></span></span></a> <a class="idref" href="Mctt.Core.Syntactic.System.Definitions.html#946b41ceb8284bcfce58d31084906f52"><span class="id" title="notation">:</span></a> <a class="idref" href="Mctt.Core.Syntactic.Syntax.html#efd901996cb10f37561c83ae2288c419"><span class="id" title="notation">Type@i</span></a> <a class="idref" href="Mctt.Core.Base.html#2e12ae37c5a5c7396a13d7170e0de451"><span class="id" title="notation">}}</span></a> <span class="id" title="tactic">by</span> <span class="id" title="var">mauto</span> 3.<br/>
+&nbsp;&nbsp;<span class="id" title="var">invert_glu_rel_exp</span> <span class="id" title="var">HA</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eexists</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">econstructor</span>; <span class="id" title="var">mauto</span> 3; <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">export</span>]<br/>
+<span class="id" title="keyword">Hint</span> <span class="id" title="keyword">Resolve</span> <span class="id" title="var">glu_rel_ctx_extend</span> : <span class="id" title="var">mctt</span>.<br/>
+</div>
+</div>
+<div id="footer">
+  Generated by <a href="http://coq.inria.fr/">coqdoc</a> and improved with <a href="https://github.com/coq-community/coqdocjs">CoqdocJS</a>
+</div>
+</div>
+</body>
+
+</html>

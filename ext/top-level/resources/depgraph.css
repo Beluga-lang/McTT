@@ -1,0 +1,26 @@
+svg.depgraph {
+    max-width: 100%;
+}
+
+svg.depgraph > text:first-of-type {
+    font-weight: bold;
+}
+
+.text-highlight-edges text {
+    opacity: 1 !important;
+    stroke-width: 3;
+    font-weight: bold;
+    fill: indigo;
+}
+
+.edge-highlight path {
+    opacity: 1;
+    stroke-width: 3;
+    stroke: blue;
+}
+
+.edge-highlight polygon {
+    opacity: 1;
+    stroke-width: 3;
+    stroke: blue;
+}
