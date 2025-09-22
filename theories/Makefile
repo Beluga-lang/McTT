@@ -21,12 +21,7 @@ MENHIR := menhir
 
 ROCQMAKEFILE := RocqMakefile.mk
 COQPROJECTFILE := _CoqProject
-PARSERBASE := Parser.ml
-POSTPARSERBASE := Entrypoint.ml
-PARSERFILE := ../driver/extracted/$(PARSERBASE)
-POSTPARSERFILE := ../driver/extracted/$(POSTPARSERBASE)
-ROCQPARSERFILE := $(patsubst %.vy,%.v,$(shell find ./ -name '*.vy'))
-ROCQFILES := $(sort $(shell find ./ -name '*.v') $(ROCQPARSERFILE))
+ROCQFILES := $(sort $(shell find ./ -name '*.v'))
 
 .PHONY: all
 all: $(ROCQMAKEFILE)
@@ -35,10 +30,6 @@ all: $(ROCQMAKEFILE)
 .PHONY: clean
 clean: $(ROCQMAKEFILE)
 	@+$(MAKE) -f "$(ROCQMAKEFILE)" cleanall
-	@echo "CLEAN $(ROCQPARSERFILE) $(PARSERBASE) $(patsubst %.ml,%.mli,$(PARSERBASE)) $(PARSERFILE) $(patsubst %.ml,%.mli,$(PARSERFILE))"
-	@rm -f "$(ROCQPARSERFILE)" "$(PARSERBASE)" "$(patsubst %.ml,%.mli,$(PARSERBASE))" "$(PARSERFILE)" "$(patsubst %.ml,%.mli,$(PARSERFILE))"
-	@echo "CLEAN $(POSTPARSERBASE) $(patsubst %.ml,%.mli,$(POSTPARSERBASE)) $(POSTPARSERFILE) $(patsubst %.ml,%.mli,$(POSTPARSERFILE))"
-	@rm -f "$(POSTPARSERBASE)" "$(patsubst %.ml,%.mli,$(POSTPARSERBASE))" "$(POSTPARSERFILE)" "$(patsubst %.ml,%.mli,$(POSTPARSERFILE))"
 	@echo "CLEAN $(ROCQMAKEFILE) $(ROCQMAKEFILE).conf"
 	@rm -f "$(ROCQMAKEFILE)" "$(ROCQMAKEFILE).conf"
 

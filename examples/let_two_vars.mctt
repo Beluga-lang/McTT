@@ -1,1 +1,0 @@
-let ((x : Nat) := 0) ((f : forall (y : Nat) -> Nat) := (fun (n : Nat) -> n)) in f x : Nat

@@ -1,4 +1,0 @@
-(fun (x : Nat) -> rec x return y . Nat
-  | zero => 1
-  | succ n, r => succ r
-  end) : forall (x : Nat) -> Nat
