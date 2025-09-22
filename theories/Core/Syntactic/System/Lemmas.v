@@ -1462,18 +1462,3 @@ Lemma presup_exp : forall {Γ M A},
 Proof.
   mauto 4 using presup_exp_typ.
 Qed.
-
-(** *** Consistency Helper *)
-
-Lemma no_closed_neutral : forall {A} {W : ne},
-    ~ {{ ⋅ ⊢ W : A }}.
-Proof.
-  intros * H.
-  dependent induction H; destruct W;
-    try (simpl in *; congruence);
-    autoinjections;
-    intuition.
-  inversion_by_head ctx_lookup.
-Qed.
-#[export]
-Hint Resolve no_closed_neutral : mctt.
