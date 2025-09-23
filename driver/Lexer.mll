@@ -100,7 +100,7 @@
       format_range (get_range_of_token t)
 }
 
-let string = ['a'-'z''A'-'Z']+
+let ident = ['a'-'z''A'-'Z''_']['a'-'z''A'-'Z''0'-'9''_']*
 
 rule read =
   parse
@@ -140,7 +140,7 @@ rule read =
   | "fst" {FST (get_range lexbuf) }
   | "snd" {SND (get_range lexbuf) }
   | "as" {AS (get_range lexbuf) }
-  | string { VAR (get_range lexbuf, Lexing.lexeme lexbuf) }
+  | ident { VAR (get_range lexbuf, Lexing.lexeme lexbuf) }
   | _ as c { failwith (Format.asprintf "@[<v 2>Lexer error:@ @[<v 2>Unexpected character %C@ at %a@]@]@." c format_position lexbuf.lex_start_p) }
 and comment =
   parse
