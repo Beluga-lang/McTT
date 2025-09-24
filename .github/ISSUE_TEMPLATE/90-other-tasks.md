@@ -3,6 +3,7 @@ name: Other Tasks
 about: Tasks other than feature implementations
 title: "[task] put your title here"
 labels: require triage
+type: Bug
 assignees: ''
 
 ---
