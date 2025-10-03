@@ -1,4 +1,4 @@
-(lang dune 3.13)
+(lang dune 3.18)
 (using menhir 2.1)
 (name mctt)
 
@@ -9,6 +9,7 @@
          "Jason Hu"
          "Junyoung Jang")
 (maintainers "the CompLogic group, McGill University")
+(maintenance_intent "(latest)")
 (homepage "https://beluga-lang.github.io/McTT/")
 (documentation "https://beluga-lang.github.io/McTT/")
 (source (github Beluga-lang/McTT))
@@ -26,7 +27,7 @@ program in MLTT. This is the first verified proof assistant (despite being
 elementary) and serves as a basis for future extensions.")
  (depends
   (ocaml (>= "4.14.2"))
-  (coq   (= "8.20.0"))
+  (coq (= "8.20.0"))
   (menhir (= "20240715"))
   (coq-menhirlib (= "20240715"))
   (coq-equations (= "1.3.1+8.20"))
