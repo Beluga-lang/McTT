@@ -6,8 +6,9 @@ ENV OPAMJOBS=$NCPUS
 
 RUN opam repo add coq-released https://coq.inria.fr/opam/released \
     && opam update \
-    && opam upgrade dune \
-    && opam install coq-equations coq-menhirlib menhir ppx_expect \
+    && opam pin remove dune \
+    && opam upgrade -y dune.3.20.2 \
+    && opam install coq-equations.1.3.1+8.20 coq-menhirlib.20240715 menhir.20240715 ppx_expect.v0.16.1 \
     && eval $(opam env)
 
 RUN curl https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/12.1.1/graphviz-12.1.1.tar.gz -O \
