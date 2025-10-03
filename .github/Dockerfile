@@ -6,6 +6,7 @@ ENV OPAMJOBS=$NCPUS
 
 RUN opam repo add coq-released https://coq.inria.fr/opam/released \
     && opam update \
+    && opam upgrade dune \
     && opam install coq-equations coq-menhirlib menhir ppx_expect \
     && eval $(opam env)
 
