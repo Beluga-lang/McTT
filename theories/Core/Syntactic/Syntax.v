@@ -62,6 +62,10 @@ where "'typ'" := exp.
 
 Notation ctx := (list exp).
 
+Notation gctx := (list (exp * typ)).
+
+(** ** Substitution *)
+
 Fixpoint nat_to_exp n : exp :=
   match n with
   | 0 => a_zero
