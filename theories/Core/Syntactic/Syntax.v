@@ -62,7 +62,9 @@ where "'typ'" := exp.
 
 Notation ctx := (list exp).
 
-Notation gctx := (list (exp * typ)).
+(* We store the name, defintion (optional, none represents axiom), and its type  *)
+
+Notation gctx := (list (string * option exp * typ)).
 
 (** ** Substitution *)
 
