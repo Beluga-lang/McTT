@@ -51,6 +51,7 @@ Inductive exp : Set :=
 | a_eqrec : exp -> typ -> exp -> exp -> typ -> exp -> exp
 (** Variable *)
 | a_var : nat -> exp
+| a_gvar : string -> exp
 (** Substitution Application *)
 | a_sub : exp -> sub -> exp
 with sub : Set :=
@@ -62,7 +63,7 @@ where "'typ'" := exp.
 
 Notation ctx := (list exp).
 
-(* We store the name, defintion (optional, none represents axiom), and its type  *)
+(* We store the name, defintion (optional, none represents axiom), and type of the defintion *)
 
 Notation gctx := (list (string * option exp * typ)).
 
@@ -110,6 +111,7 @@ with ne : Set :=
 | ne_fst : ne -> ne
 | ne_snd : ne -> ne
 | ne_var : nat -> ne
+| ne_gvar : string -> ne
 | ne_eqrec : nf -> nf -> nf -> nf -> nf -> ne -> ne
 .
 
@@ -134,6 +136,7 @@ with ne_to_exp (M : ne) : exp :=
   | ne_fst M => a_fst (ne_to_exp M)
   | ne_snd M => a_snd (ne_to_exp M)
   | ne_var x => a_var x
+  | ne_gvar x => a_gvar x
   | ne_eqrec A B BR M M' N =>
       a_eqrec (nf_to_exp A) (nf_to_exp B) (nf_to_exp BR) (nf_to_exp M) (nf_to_exp M') (ne_to_exp N)
   end
@@ -148,7 +151,8 @@ with ne_eq_dec : forall (M M' : ne),
     ({M = M'} + {M <> M'})%type.
 Proof.
   all: intros; decide equality;
-    apply PeanoNat.Nat.eq_dec.
+    first [ apply PeanoNat.Nat.eq_dec
+           | apply string_dec ].
 Defined.
 
 Definition q σ := a_extend (a_compose σ a_weaken) (a_var 0).
@@ -200,6 +204,7 @@ Module Syntax_Notations.
 
   Notation "⋅" := nil (in custom exp at level 0) : mctt_scope.
   Notation "x , y" := (cons y x) (in custom exp at level 50, left associativity, format "x ,  y") : mctt_scope.
+  Notation "x , y := A :: B " := (cons (y , Some A , B) x) (in custom exp at level 50, left associativity, format "x ,  y := A :: B") : mctt_scope.
 
   Notation "n{{{ x }}}" := x (at level 0, x custom nf at level 99, format "'n{{{'  x  '}}}'") : mctt_scope.
   Notation "( x )" := x (in custom nf at level 0, x custom nf at level 60) : mctt_scope.

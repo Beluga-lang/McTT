@@ -1,18 +1,19 @@
-From Coq Require Import List Classes.RelationClasses Setoid Morphisms.
+From Coq Require Import List String Classes.RelationClasses Setoid Morphisms.
 
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
 From Mctt.Core.Syntactic Require Export Syntax.
 Import Syntax_Notations.
 
-Reserved Notation "⊢ Γ" (in custom judg at level 80, Γ custom exp).
-Reserved Notation "⊢ Γ ≈ Γ'" (in custom judg at level 80, Γ custom exp, Γ' custom exp).
-Reserved Notation "Γ ⊢ M ≈ M' : A" (in custom judg at level 80, Γ custom exp, M custom exp, M' custom exp, A custom exp).
-Reserved Notation "Γ ⊢ M : A" (in custom judg at level 80, Γ custom exp, M custom exp, A custom exp).
-Reserved Notation "Γ ⊢s σ : Δ" (in custom judg at level 80, Γ custom exp, σ custom exp, Δ custom exp).
-Reserved Notation "Γ ⊢s σ ≈ σ' : Δ" (in custom judg at level 80, Γ custom exp, σ custom exp, σ' custom exp, Δ custom exp).
-Reserved Notation "⊢ Γ ⊆ Γ'" (in custom judg at level 80, Γ custom exp, Γ' custom exp).
-Reserved Notation "Γ ⊢ A ⊆ A'" (in custom judg at level 80, Γ custom exp, A custom exp, A' custom exp).
+Reserved Notation "⊢ Δ ;; Γ" (in custom judg at level 80, Γ custom exp, Δ custom exp).
+Reserved Notation "⊢ Δ " (in custom judg at level 80, Δ custom exp).
+(* Reserved Notation "⊢ Γ ≈ Γ'" (in custom judg at level 80, Γ custom exp, Γ' custom exp). *)
+(* Reserved Notation "Γ ⊢ M ≈ M' : A" (in custom judg at level 80, Γ custom exp, M custom exp, M' custom exp, A custom exp). *)
+Reserved Notation "Δ ;; Γ ⊢ M : A" (in custom judg at level 80, Δ custom exp, Γ custom exp, M custom exp, A custom exp).
+(* Reserved Notation "Γ ⊢s σ : Δ" (in custom judg at level 80, Γ custom exp, σ custom exp, Δ custom exp). *)
+(* Reserved Notation "Γ ⊢s σ ≈ σ' : Δ" (in custom judg at level 80, Γ custom exp, σ custom exp, σ' custom exp, Δ custom exp). *)
+(* Reserved Notation "⊢ Γ ⊆ Γ'" (in custom judg at level 80, Γ custom exp, Γ' custom exp). *)
+(* Reserved Notation "Γ ⊢ A ⊆ A'" (in custom judg at level 80, Γ custom exp, A custom exp, A' custom exp). *)
 Reserved Notation "'#' x : A ∈ Γ" (in custom judg at level 80, x constr at level 0, A custom exp, Γ custom exp at level 50).
 
 Generalizable All Variables.
@@ -22,8 +23,36 @@ Inductive ctx_lookup : nat -> typ -> ctx -> Prop :=
   | there : `({{ #n : A ∈ Γ }} -> {{ #(S n) : A[Wk] ∈ Γ, B }})
 where "'#' x : A ∈ Γ" := (ctx_lookup x A Γ) (in custom judg) : type_scope.
 
+(* Inductive gctx_lookup : string -> exp -> typ -> ctx -> Prop :=
+  | here : `({{ #0 : A[Wk] ∈ Γ, A }})
+  | there : `({{ #n : A ∈ Γ }} -> {{ #(S n) : A[Wk] ∈ Γ, B }})
+where "'#' x : A ∈ Γ" := (ctx_lookup x A Γ) (in custom judg) : type_scope. *)
+
+Inductive wf_gctx : gctx -> Prop :=
+| wf_gctx_empty : {{ ⊢ ⋅ }}
+| wf_gctx_extend :
+  `( {{ ⊢ Δ }} ->
+     {{ Δ ;; ⋅ ⊢ M : A }} ->
+     {{ ⊢ Δ , x := M :: A }} )
+where "⊢ Δ " := (wf_gctx Δ) (in custom judg) : type_scope
+
+with wf_ctx : gctx -> ctx -> Prop :=
+| wf_ctx_empty : 
+  `( {{ ⊢ Δ }} ->
+  {{ ⊢ Δ ;; ⋅ }} )
+where "⊢ Δ ;; Γ" := (wf_ctx Δ Γ) (in custom judg) : type_scope
+
+
+with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
+| wf_typ :
+  `( {{ ⊢ Δ ;; Γ }} ->
+     {{ Δ ;; Γ ⊢ Type@i : Type@(S i) }} )
+where "Δ ;; Γ ⊢ M : A" := (wf_exp Δ Γ A M) (in custom judg) : type_scope
+.
+
+
 Inductive wf_ctx : ctx -> Prop :=
-| wf_ctx_empty : {{ ⊢ ⋅ }}
+| wf_ctx_empty : {{ ⊢ ⋅ ; ⋅ }}
 | wf_ctx_extend :
   `( {{ ⊢ Γ }} ->
      {{ Γ ⊢ A : Type@i }} ->
