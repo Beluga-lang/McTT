@@ -24,6 +24,7 @@ Inductive obj : Set :=
           string -> obj ->                   (** x. Pf : M[x/x, x/y, refl A x/z] *)
           obj -> obj -> obj -> obj
 | var : string -> obj.
+(* TODO: do we need gvar for this? possibly yes *)
 End Cst.
 
 (** * Abstract Syntac Tree *)
@@ -51,6 +52,7 @@ Inductive exp : Set :=
 | a_eqrec : exp -> typ -> exp -> exp -> typ -> exp -> exp
 (** Variable *)
 | a_var : nat -> exp
+(* gvar for global var *)
 | a_gvar : string -> exp
 (** Substitution Application *)
 | a_sub : exp -> sub -> exp
