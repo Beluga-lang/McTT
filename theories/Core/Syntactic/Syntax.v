@@ -197,6 +197,7 @@ Module Syntax_Notations.
   Notation "'eqrec' N 'as' 'Eq' A M1 M2 'return' B | 'refl' -> BR 'end'" := (a_eqrec A B BR M1 M2 N) (in custom exp at level 0, A custom exp at level 30, B custom exp at level 60, BR custom exp at level 60, M1 custom exp at level 35, M2 custom exp at level 40, N custom exp at level 60) : mctt_scope.
 
   Notation "'#' n" := (a_var n) (in custom exp at level 0, n constr at level 0, format "'#' n") : mctt_scope.
+  Notation "'`#' x" := (a_gvar x) (in custom exp at level 0, x constr at level 0, format "'`#' x") : mctt_scope.
 
   Notation "'Id'" := a_id (in custom exp at level 0) : mctt_scope.
   Notation "'Wk'" := a_weaken (in custom exp at level 0) : mctt_scope.
@@ -206,7 +207,9 @@ Module Syntax_Notations.
 
   Notation "⋅" := nil (in custom exp at level 0) : mctt_scope.
   Notation "x , y" := (cons y x) (in custom exp at level 50, left associativity, format "x ,  y") : mctt_scope.
-  Notation "x , y := A :: B " := (cons (y , Some A , B) x) (in custom exp at level 50, left associativity, format "x ,  y := A :: B") : mctt_scope.
+  Notation "x , y := [ M ] :: B " := (cons (y , M , B) x) (in custom exp at level 50, left associativity, format "x ,  y := [ M ] :: B") : mctt_scope.
+  Notation "x , y := ∅ :: B " := (cons (y , None , B) x) (in custom exp at level 50, left associativity, format "x ,  y := ∅ :: B") : mctt_scope.
+  Notation "x , y := M :: B " := (cons (y , Some M , B) x) (in custom exp at level 50, left associativity, format "x ,  y := M :: B") : mctt_scope.
 
   Notation "n{{{ x }}}" := x (at level 0, x custom nf at level 99, format "'n{{{'  x  '}}}'") : mctt_scope.
   Notation "( x )" := x (in custom nf at level 0, x custom nf at level 60) : mctt_scope.

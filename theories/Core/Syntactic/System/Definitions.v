@@ -8,7 +8,7 @@ Import Syntax_Notations.
 (* TODO: better notation to replace Δ ;; Γ *)
 Reserved Notation "⊢ Δ ;; Γ" (in custom judg at level 80, Γ custom exp, Δ custom exp).
 Reserved Notation "⊢ Δ " (in custom judg at level 80, Δ custom exp).
-(* Reserved Notation "⊢ Γ ≈ Γ'" (in custom judg at level 80, Γ custom exp, Γ' custom exp). *)
+Reserved Notation "⊢ Δ ;; Γ ≈ Δ' ;; Γ'" (in custom judg at level 80, Δ custom exp, Γ custom exp, Δ' custom exp, Γ' custom exp).
 Reserved Notation "Δ ;; Γ ⊢ M ≈ M' : A" (in custom judg at level 80, Δ custom exp, Γ custom exp, M custom exp, M' custom exp, A custom exp).
 Reserved Notation "Δ ;; Γ ⊢ M : A" (in custom judg at level 80, Δ custom exp, Γ custom exp, M custom exp, A custom exp).
 Reserved Notation "Δ ;; Γ ⊢s σ : Γ'" (in custom judg at level 80, Δ custom exp, Γ custom exp, σ custom exp, Γ' custom exp).
@@ -16,7 +16,9 @@ Reserved Notation "Δ ;; Γ ⊢s σ ≈ σ' : Γ'" (in custom judg at level 80, 
 Reserved Notation "⊢ Δ ;; Γ ⊆ Δ' ;; Γ'" (in custom judg at level 80, Δ custom exp, Γ custom exp, Δ' custom exp, Γ' custom exp).
 Reserved Notation "Δ ;; Γ ⊢ A ⊆ A'" (in custom judg at level 80, Δ custom exp, Γ custom exp, A custom exp, A' custom exp).
 Reserved Notation "'#' x : A ∈ Γ" (in custom judg at level 80, x constr at level 0, A custom exp, Γ custom exp at level 50).
-Reserved Notation "'#' x := M :: A ∈ Γ" (in custom judg at level 80, x constr at level 0, M custom exp, A custom exp, Γ custom exp at level 50).
+(* TODO: better notation to distinguish string from nat *)
+Reserved Notation "'`#' x := [ M ] :: A ∈ Δ" (in custom judg at level 80, x constr at level 0, M custom exp, A custom exp, Δ custom exp at level 50).
+(* Reserved Notation "'#' x := ∅ :: A ∈ Γ" (in custom judg at level 80, x constr at level 0, A custom exp, Γ custom exp at level 50). *)
 
 Generalizable All Variables.
 
@@ -25,18 +27,24 @@ Inductive ctx_lookup : nat -> typ -> ctx -> Prop :=
   | there : `({{ #n : A ∈ Γ }} -> {{ #(S n) : A[Wk] ∈ Γ, B }})
 where "'#' x : A ∈ Γ" := (ctx_lookup x A Γ) (in custom judg) : type_scope.
 
-Inductive gctx_lookup : string -> exp -> typ -> gctx -> Prop :=
-  | ghere : `({{ #x := M :: A ∈ Γ, x := M :: A }})
-  | gthere : `(x <> y -> {{ #y := M :: A ∈ Γ }} -> {{ #y := M :: A ∈ Γ, x := N :: B }})
-where "'#' x := M :: A ∈ Γ" := (gctx_lookup x M A Γ) (in custom judg) : type_scope.
+(* We do not need weaken here because everything is named *)
+Inductive gctx_lookup : string -> option exp -> typ -> gctx -> Prop :=
+  | ghere : `({{ `#x := [ M ] :: A ∈ Γ, x := [ M ] :: A }})
+  | gthere : `(x <> y -> {{ `#y := [ M ] :: A ∈ Γ }} -> {{ `#y := [ M ] :: A ∈ Γ, x := [ N ] :: B }})
+where "'`#' x := [ M ] :: A ∈ Δ" := (gctx_lookup x M A Δ) (in custom judg) : type_scope.
 
 (* TODO: check the signature of each judgment *)
 Inductive wf_gctx : gctx -> Prop :=
 | wf_gctx_empty : {{ ⊢ ⋅ }}
 | wf_gctx_extend :
   `( {{ ⊢ Δ }} ->
+     {{ Δ ;; ⋅ ⊢ A : Type@i }} ->
      {{ Δ ;; ⋅ ⊢ M : A }} ->
      {{ ⊢ Δ , x := M :: A }} )
+| wf_gctx_extend_ax :
+  `( {{ ⊢ Δ }} ->
+     {{ Δ ;; ⋅ ⊢ A : Type@i }} ->
+     {{ ⊢ Δ , x := ∅ :: A }} )
 (* TODO: add a case for axiom def *)
 where "⊢ Δ " := (wf_gctx Δ) (in custom judg) : type_scope
 
@@ -49,6 +57,8 @@ with wf_ctx : gctx -> ctx -> Prop :=
      {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ ⊢ Δ ;; Γ, A }} )
 where "⊢ Δ ;; Γ" := (wf_ctx Δ Γ) (in custom judg) : type_scope
+
+(* with wf_gctx_sub  *)
 
 with wf_ctx_sub : gctx -> ctx -> gctx -> ctx -> Prop :=
 | wf_ctx_sub_empty : 
@@ -124,6 +134,10 @@ with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
   `( {{ ⊢ Δ ;; Γ }} ->
      {{ #x : A ∈ Γ }} ->
      {{ Δ ;; Γ ⊢ #x : A }} )
+| wf_gvlookup :
+  `( {{ ⊢ Δ ;; Γ }} ->
+     {{ `#x := [ M ] :: A ∈ Δ }} ->
+     {{ Δ ;; Γ ⊢ `#x : A }} )
 
 | wf_eq :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
@@ -430,6 +444,18 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ' ⊢s σ : Γ'' }} ->
      {{ Δ ;; Γ'' ⊢ M : A }} ->
      {{ Δ ;; Γ ⊢ M[σ∘τ] ≈ M[σ][τ] : A[σ∘τ] }} )
+
+| wf_exp_eq_delta :
+  `( {{ ⊢ Δ ;; Γ }} ->
+     {{ `#x := [ M ] :: A ∈ Δ }} ->
+     (M = Some M') ->
+     {{ Δ ;; Γ ⊢ `#x ≈ M' : A }} )
+| wf_exp_eq_gvar_ax_refl :
+  `( {{ ⊢ Δ ;; Γ }} ->
+     {{ `#x := [ M ] :: A ∈ Δ }} ->
+     (M = None) ->
+     {{ Δ ;; Γ ⊢ `#x ≈ `#x : A }} )
+
 | wf_exp_eq_subtyp :
   `( {{ Δ ;; Γ ⊢ M ≈ M' : A }} ->
      {{ Δ ;; Γ ⊢ A' : Type@i }} ->
