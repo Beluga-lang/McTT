@@ -1,4 +1,5 @@
 From Coq Require Import List String Classes.RelationClasses Setoid Morphisms.
+From stdpp Require Import gmap.
 
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
@@ -30,7 +31,7 @@ where "'#' x : A ∈ Γ" := (ctx_lookup x A Γ) (in custom judg) : type_scope.
 (* We do not need weaken here because everything is named *)
 Inductive gctx_lookup : string -> option exp -> typ -> gctx -> Prop :=
   | ghere : `({{ `#x := [ M ] :: A ∈ Γ, x := [ M ] :: A }})
-  | gthere : `(x <> y -> {{ `#y := [ M ] :: A ∈ Γ }} -> {{ `#y := [ M ] :: A ∈ Γ, x := [ N ] :: B }})
+  | gthere : `(x <> y -> {{ `#y := [ M ] :: A ∈ Γ }} -> {{ `#y := [ M ] :: A ∈ Γ, x := [ N' ] :: B }})
 where "'`#' x := [ M ] :: A ∈ Δ" := (gctx_lookup x M A Δ) (in custom judg) : type_scope.
 
 (* TODO: check the signature of each judgment *)
@@ -40,10 +41,12 @@ Inductive wf_gctx : gctx -> Prop :=
   `( {{ ⊢ Δ }} ->
      {{ Δ ;; ⋅ ⊢ A : Type@i }} ->
      {{ Δ ;; ⋅ ⊢ M : A }} ->
+     x ∉ gctx_dom Δ ->
      {{ ⊢ Δ , x := M :: A }} )
 | wf_gctx_extend_ax :
   `( {{ ⊢ Δ }} ->
      {{ Δ ;; ⋅ ⊢ A : Type@i }} ->
+     x ∉ gctx_dom Δ ->
      {{ ⊢ Δ , x := ∅ :: A }} )
 (* TODO: add a case for axiom def *)
 where "⊢ Δ " := (wf_gctx Δ) (in custom judg) : type_scope
@@ -106,8 +109,8 @@ with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
      {{ Δ ;; Γ ⊢ M : Π A B }} ->
-     {{ Δ ;; Γ ⊢ N : A }} ->
-     {{ Δ ;; Γ ⊢ M N : B[Id,,N] }} )
+     {{ Δ ;; Γ ⊢ N' : A }} ->
+     {{ Δ ;; Γ ⊢ M N' : B[Id,,N'] }} )
 
 | wf_sigma :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
@@ -117,8 +120,8 @@ with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
      {{ Δ ;; Γ ⊢ M : A }} ->
-     {{ Δ ;; Γ ⊢ N : B[Id,,M] }} ->
-     {{ Δ ;; Γ ⊢ ⟨ M : A ; N : B ⟩ : Σ A B }} )
+     {{ Δ ;; Γ ⊢ N' : B[Id,,M] }} ->
+     {{ Δ ;; Γ ⊢ ⟨ M : A ; N' : B ⟩ : Σ A B }} )
 | wf_fst :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
@@ -142,9 +145,9 @@ with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
 | wf_eq :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ ⊢ M : A }} ->
-     {{ Δ ;; Γ ⊢ N : A }} ->
-     {{ Δ ;; Γ ⊢ Eq A M N : Type@i }})
-| wf_refl :
+     {{ Δ ;; Γ ⊢ N' : A }} ->
+     {{ Δ ;; Γ ⊢ Eq A M N' : Type@i }})
+| wf_refl : 
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ ⊢ M : A }} ->
      {{ Δ ;; Γ ⊢ refl A M : Eq A M M }})
@@ -154,8 +157,8 @@ with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
      {{ Δ ;; Γ ⊢ M2 : A }} ->
      {{ Δ ;; Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊢ B : Type@j }} ->
      {{ Δ ;; Γ, A ⊢ BR : B[Id,,#0,,refl A[Wk] #0] }} ->
-     {{ Δ ;; Γ ⊢ N : Eq A M1 M2 }} ->
-     {{ Δ ;; Γ ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end : B[Id,,M1,,M2,,N] }} )
+     {{ Δ ;; Γ ⊢ N' : Eq A M1 M2 }} ->
+     {{ Δ ;; Γ ⊢ eqrec N' as Eq A M1 M2 return B | refl -> BR end : B[Id,,M1,,M2,,N'] }} )
 
 | wf_exp_sub :
   `( 
@@ -275,21 +278,21 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
      {{ Δ ;; Γ ⊢ M ≈ M' : Π A B }} ->
-     {{ Δ ;; Γ ⊢ N ≈ N' : A }} ->
-     {{ Δ ;; Γ ⊢ M N ≈ M' N' : B[Id,,N] }} )
+     {{ Δ ;; Γ ⊢ N' ≈ N'' : A }} ->
+     {{ Δ ;; Γ ⊢ M N' ≈ M' N'' : B[Id,,N'] }} )
 | wf_exp_eq_app_sub :
   `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
      {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
      {{ Δ ;; Γ ⊢ M : Π A B }} ->
-     {{ Δ ;; Γ ⊢ N : A }} ->
-     {{ Δ ;; Γ ⊢ (M N)[σ] ≈ M[σ] N[σ] : B[σ,,N[σ]] }} )
+     {{ Δ ;; Γ ⊢ N' : A }} ->
+     {{ Δ ;; Γ ⊢ (M N')[σ] ≈ M[σ] N'[σ] : B[σ,,N'[σ]] }} )
 | wf_exp_eq_pi_beta :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ M : B }} ->
-     {{ Δ ;; Γ ⊢ N : A }} ->
-     {{ Δ ;; Γ ⊢ (λ A M) N ≈ M[Id,,N] : B[Id,,N] }} )
+     {{ Δ ;; Γ ⊢ N' : A }} ->
+     {{ Δ ;; Γ ⊢ (λ A M) N' ≈ M[Id,,N'] : B[Id,,N'] }} )
 | wf_exp_eq_pi_eta :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
@@ -311,15 +314,15 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ ⊢ A ≈ A' : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B ≈ B' : Type@i }} ->
      {{ Δ ;; Γ ⊢ M ≈ M' : A }} ->
-     {{ Δ ;; Γ ⊢ N ≈ N' : B[Id,,M] }} ->
-     {{ Δ ;; Γ ⊢ ⟨ M : A ; N : B ⟩ ≈ ⟨ M' : A' ; N' : B' ⟩ : Σ A B }} )
+     {{ Δ ;; Γ ⊢ N' ≈ N'' : B[Id,,M] }} ->
+     {{ Δ ;; Γ ⊢ ⟨ M : A ; N' : B ⟩ ≈ ⟨ M' : A' ; N'' : B' ⟩ : Σ A B }} )
 | wf_exp_eq_pair_sub :
   `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
      {{ Δ ;; Γ' ⊢ A : Type@i }} ->
      {{ Δ ;; Γ', A ⊢ B : Type@i }} ->
      {{ Δ ;; Γ' ⊢ M : A }} ->
-     {{ Δ ;; Γ' ⊢ N : B[Id,,M] }} ->
-     {{ Δ ;; Γ ⊢ ⟨ M : A ; N : B ⟩[σ] ≈ ⟨ M[σ] : A[σ] ; N[σ] : B[q σ] ⟩ : (Σ A B)[σ] }} )
+     {{ Δ ;; Γ' ⊢ N' : B[Id,,M] }} ->
+     {{ Δ ;; Γ ⊢ ⟨ M : A ; N' : B ⟩[σ] ≈ ⟨ M[σ] : A[σ] ; N'[σ] : B[q σ] ⟩ : (Σ A B)[σ] }} )
 | wf_exp_eq_fst_cong :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
@@ -346,14 +349,14 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
      {{ Δ ;; Γ ⊢ M : A }} ->
-     {{ Δ ;; Γ ⊢ N : B[Id,,M] }} ->
-     {{ Δ ;; Γ ⊢ fst (⟨ M : A ; N : B⟩) ≈ M : A }} )
+     {{ Δ ;; Γ ⊢ N' : B[Id,,M] }} ->
+     {{ Δ ;; Γ ⊢ fst (⟨ M : A ; N' : B⟩) ≈ M : A }} )
 | wf_exp_eq_snd_beta :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
      {{ Δ ;; Γ ⊢ M : A }} ->
-     {{ Δ ;; Γ ⊢ N : B[Id,,M] }} ->
-     {{ Δ ;; Γ ⊢ snd ⟨ M : A ; N : B ⟩ ≈ N : B[Id,,M] }} )
+     {{ Δ ;; Γ ⊢ N' : B[Id,,M] }} ->
+     {{ Δ ;; Γ ⊢ snd ⟨ M : A ; N' : B ⟩ ≈ N' : B[Id,,M] }} )
 | wf_exp_eq_sigma_eta :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
@@ -364,8 +367,8 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
   `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
      {{ Δ ;; Γ' ⊢ A : Type@i }} ->
      {{ Δ ;; Γ' ⊢ M : A }} ->
-     {{ Δ ;; Γ' ⊢ N : A }} ->
-     {{ Δ ;; Γ ⊢ (Eq A M N)[σ] ≈ Eq A[σ] M[σ] N[σ] : Type@i }} )
+     {{ Δ ;; Γ' ⊢ N' : A }} ->
+     {{ Δ ;; Γ ⊢ (Eq A M N')[σ] ≈ Eq A[σ] M[σ] N'[σ] : Type@i }} )
 | wf_exp_eq_refl_sub :
   `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
      {{ Δ ;; Γ' ⊢ A : Type@i }} ->
@@ -378,15 +381,15 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ' ⊢ M2 : A }} ->
      {{ Δ ;; Γ', A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊢ B : Type@j }} ->
      {{ Δ ;; Γ', A ⊢ BR : B[Id,,#0,,refl A[Wk] #0] }} ->
-     {{ Δ ;; Γ' ⊢ N : Eq A M1 M2 }} ->
-     {{ Δ ;; Γ ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end[σ] 
-               ≈ eqrec N[σ] as Eq A[σ] M1[σ] M2[σ] return B[q (q (q σ))] | refl -> BR[q σ] end
-                 : B[σ,,M1[σ],,M2[σ],,N[σ]] }} )
+     {{ Δ ;; Γ' ⊢ N' : Eq A M1 M2 }} ->
+     {{ Δ ;; Γ ⊢ eqrec N' as Eq A M1 M2 return B | refl -> BR end[σ] 
+               ≈ eqrec N'[σ] as Eq A[σ] M1[σ] M2[σ] return B[q (q (q σ))] | refl -> BR[q σ] end
+                 : B[σ,,M1[σ],,M2[σ],,N'[σ]] }} )
 | wf_exp_eq_eq_cong :
   `( {{ Δ ;; Γ ⊢ A ≈ A' : Type@i }} ->
      {{ Δ ;; Γ ⊢ M ≈ M' : A }} ->
-     {{ Δ ;; Γ ⊢ N ≈ N' : A }} ->
-     {{ Δ ;; Γ ⊢ Eq A M N ≈ Eq A' M' N' : Type@i }})
+     {{ Δ ;; Γ ⊢ N' ≈ N'' : A }} ->
+     {{ Δ ;; Γ ⊢ Eq A M N' ≈ Eq A' M' N'' : Type@i }})
 | wf_exp_eq_refl_cong :
   `( {{ Δ ;; Γ ⊢ A ≈ A' : Type@i }} ->
      {{ Δ ;; Γ ⊢ M ≈ M' : A }} ->
@@ -400,10 +403,10 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ ⊢ M2 ≈ M2' : A }} ->
      {{ Δ ;; Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 ⊢ B ≈ B' : Type@j }} ->
      {{ Δ ;; Γ, A ⊢ BR ≈ BR' : B[Id,,#0,,refl A[Wk] #0] }} ->
-     {{ Δ ;; Γ ⊢ N ≈ N' : Eq A M1 M2 }} ->
-     {{ Δ ;; Γ ⊢ eqrec N as Eq A M1 M2 return B | refl -> BR end 
-               ≈ eqrec N' as Eq A' M1' M2' return B' | refl -> BR' end
-         : B[Id,,M1,,M2,,N] }} )
+     {{ Δ ;; Γ ⊢ N' ≈ N'' : Eq A M1 M2 }} ->
+     {{ Δ ;; Γ ⊢ eqrec N' as Eq A M1 M2 return B | refl -> BR end 
+               ≈ eqrec N'' as Eq A' M1' M2' return B' | refl -> BR' end
+         : B[Id,,M1,,M2,,N'] }} )
 | wf_exp_eq_eqrec_beta :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
      {{ Δ ;; Γ ⊢ M : A }} ->

@@ -1,4 +1,5 @@
 From Coq Require Import List String.
+From stdpp Require Import gmap.
 
 From Mctt.Core Require Import Base.
 
@@ -68,6 +69,12 @@ Notation ctx := (list exp).
 (* We store the name, defintion (optional, none represents axiom), and type of the defintion *)
 
 Notation gctx := (list (string * option exp * typ)).
+
+Fixpoint gctx_dom (Δ : gctx) : gset string :=
+  match Δ with
+  | nil => ∅
+  | cons (x, _, _) Δ' => {[x]} ∪ gctx_dom Δ'
+  end.
 
 (** ** Substitution *)
 
