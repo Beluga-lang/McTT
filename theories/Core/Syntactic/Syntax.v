@@ -1,4 +1,5 @@
 From Coq Require Import List String.
+From stdpp Require Import gmap.
 
 From Mctt.Core Require Import Base.
 
@@ -24,6 +25,7 @@ Inductive obj : Set :=
           string -> obj ->                   (** x. Pf : M[x/x, x/y, refl A x/z] *)
           obj -> obj -> obj -> obj
 | var : string -> obj.
+(* TODO: do we need gvar for this? possibly yes *)
 End Cst.
 
 (** * Abstract Syntac Tree *)
@@ -51,6 +53,8 @@ Inductive exp : Set :=
 | a_eqrec : exp -> typ -> exp -> exp -> typ -> exp -> exp
 (** Variable *)
 | a_var : nat -> exp
+(* gvar for global var *)
+| a_gvar : string -> exp
 (** Substitution Application *)
 | a_sub : exp -> sub -> exp
 with sub : Set :=
@@ -61,6 +65,18 @@ with sub : Set :=
 where "'typ'" := exp.
 
 Notation ctx := (list exp).
+
+(* We store the name, defintion (optional, none represents axiom), and type of the defintion *)
+
+Notation gctx := (list (string * option exp * typ)).
+
+Fixpoint gctx_dom (Δ : gctx) : gset string :=
+  match Δ with
+  | nil => ∅
+  | cons (x, _, _) Δ' => {[x]} ∪ gctx_dom Δ'
+  end.
+
+(** ** Substitution *)
 
 Fixpoint nat_to_exp n : exp :=
   match n with
@@ -104,6 +120,7 @@ with ne : Set :=
 | ne_fst : ne -> ne
 | ne_snd : ne -> ne
 | ne_var : nat -> ne
+| ne_gvar : string -> ne
 | ne_eqrec : nf -> nf -> nf -> nf -> nf -> ne -> ne
 .
 
@@ -128,6 +145,7 @@ with ne_to_exp (M : ne) : exp :=
   | ne_fst M => a_fst (ne_to_exp M)
   | ne_snd M => a_snd (ne_to_exp M)
   | ne_var x => a_var x
+  | ne_gvar x => a_gvar x
   | ne_eqrec A B BR M M' N =>
       a_eqrec (nf_to_exp A) (nf_to_exp B) (nf_to_exp BR) (nf_to_exp M) (nf_to_exp M') (ne_to_exp N)
   end
@@ -142,7 +160,8 @@ with ne_eq_dec : forall (M M' : ne),
     ({M = M'} + {M <> M'})%type.
 Proof.
   all: intros; decide equality;
-    apply PeanoNat.Nat.eq_dec.
+    first [ apply PeanoNat.Nat.eq_dec
+           | apply string_dec ].
 Defined.
 
 Definition q σ := a_extend (a_compose σ a_weaken) (a_var 0).
@@ -185,6 +204,7 @@ Module Syntax_Notations.
   Notation "'eqrec' N 'as' 'Eq' A M1 M2 'return' B | 'refl' -> BR 'end'" := (a_eqrec A B BR M1 M2 N) (in custom exp at level 0, A custom exp at level 30, B custom exp at level 60, BR custom exp at level 60, M1 custom exp at level 35, M2 custom exp at level 40, N custom exp at level 60) : mctt_scope.
 
   Notation "'#' n" := (a_var n) (in custom exp at level 0, n constr at level 0, format "'#' n") : mctt_scope.
+  Notation "'`#' x" := (a_gvar x) (in custom exp at level 0, x constr at level 0, format "'`#' x") : mctt_scope.
 
   Notation "'Id'" := a_id (in custom exp at level 0) : mctt_scope.
   Notation "'Wk'" := a_weaken (in custom exp at level 0) : mctt_scope.
@@ -194,6 +214,9 @@ Module Syntax_Notations.
 
   Notation "⋅" := nil (in custom exp at level 0) : mctt_scope.
   Notation "x , y" := (cons y x) (in custom exp at level 50, left associativity, format "x ,  y") : mctt_scope.
+  Notation "x , y := [ M ] :: B " := (cons (y , M , B) x) (in custom exp at level 50, left associativity, format "x ,  y := [ M ] :: B") : mctt_scope.
+  Notation "x , y := ∅ :: B " := (cons (y , None , B) x) (in custom exp at level 50, left associativity, format "x ,  y := ∅ :: B") : mctt_scope.
+  Notation "x , y := M :: B " := (cons (y , Some M , B) x) (in custom exp at level 50, left associativity, format "x ,  y := M :: B") : mctt_scope.
 
   Notation "n{{{ x }}}" := x (at level 0, x custom nf at level 99, format "'n{{{'  x  '}}}'") : mctt_scope.
   Notation "( x )" := x (in custom nf at level 0, x custom nf at level 60) : mctt_scope.
