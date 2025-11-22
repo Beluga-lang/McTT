@@ -66,8 +66,9 @@ where "⊢ Δ ;; Γ" := (wf_ctx Δ Γ) (in custom judg) : type_scope
 with wf_ctx_sub : gctx -> ctx -> gctx -> ctx -> Prop :=
 | wf_ctx_sub_empty : 
   `( 
-      (* TODO: check this, shall we force syntactic equality of two gctx? *)
-      {{ ⊢ Δ ;; ⋅ ⊆ Δ ;; ⋅ }} )
+     (* TODO: check this, shall we force syntactic equality of two gctx? *)
+     {{ ⊢ Δ }} ->
+     {{ ⊢ Δ ;; ⋅ ⊆ Δ ;; ⋅ }} )
 | wf_ctx_sub_extend :
   `( {{ ⊢ Δ ;; Γ ⊆ Δ' ;; Γ' }} ->
      {{ Δ ;; Γ ⊢ A : Type@i }} ->
@@ -606,24 +607,26 @@ Combined Scheme syntactic_wf_mut_ind' from
   wf_exp_mut_ind',
   wf_sub_mut_ind'.
 
-Inductive wf_ctx_eq : ctx -> ctx -> Prop :=
-| wf_ctx_eq_empty : {{ ⊢ ⋅ ≈ ⋅ }}
+Inductive wf_ctx_eq : gctx -> ctx -> gctx -> ctx -> Prop :=
+| wf_ctx_eq_empty : 
+  `( {{ ⊢ Δ }} ->
+     {{ ⊢ Δ ;; ⋅ ≈  Δ ;; ⋅ }})
 | wf_ctx_eq_extend :
-  `( {{ ⊢ Γ ≈ Δ }} ->
-     {{ Γ ⊢ A : Type@i }} ->
-     {{ Γ ⊢ A' : Type@i }} ->
-     {{ Δ ⊢ A : Type@i }} ->
-     {{ Δ ⊢ A' : Type@i }} ->
-     {{ Γ ⊢ A ≈ A' : Type@i }} ->
-     {{ Δ ⊢ A ≈ A' : Type@i }} ->
-     {{ ⊢ Γ, A ≈ Δ, A' }} )
-where "⊢ Γ ≈ Γ'" := (wf_ctx_eq Γ Γ') (in custom judg) : type_scope.
+  `( {{ ⊢ Δ ;; Γ ≈ Δ' ;; Γ' }} ->
+     {{ Δ ;; Γ ⊢ A : Type@i }} ->
+     {{ Δ ;; Γ ⊢ A' : Type@i }} ->
+     {{ Δ ;; Γ' ⊢ A : Type@i }} ->
+     {{ Δ ;; Γ' ⊢ A' : Type@i }} ->
+     {{ Δ ;; Γ ⊢ A ≈ A' : Type@i }} ->
+     {{ Δ ;; Γ' ⊢ A ≈ A' : Type@i }} ->
+     {{ ⊢ Δ ;; Γ, A ≈ Δ' ;; Γ', A' }} )
+where "⊢ Δ ;; Γ ≈ Δ' ;; Γ'" := (wf_ctx_eq Δ Γ Δ' Γ') (in custom judg) : type_scope.
 
 #[export]
 Hint Constructors wf_ctx wf_ctx_eq wf_ctx_sub wf_exp wf_sub wf_exp_eq wf_sub_eq wf_subtyp ctx_lookup : mctt.
 
 #[export]
-Instance wf_exp_eq_PER Γ A : PER (wf_exp_eq Γ A).
+Instance wf_exp_eq_PER Δ Γ A : PER (wf_exp_eq Δ Γ A).
 Proof.
   split.
   - eauto using wf_exp_eq_sym.
@@ -631,7 +634,7 @@ Proof.
 Qed.
 
 #[export]
-Instance wf_sub_eq_PER Γ Δ : PER (wf_sub_eq Γ Δ).
+Instance wf_sub_eq_PER Δ Γ Γ' : PER (wf_sub_eq Δ Γ Γ').
 Proof.
   split.
   - eauto using wf_sub_eq_sym.
@@ -639,28 +642,44 @@ Proof.
 Qed.
 
 #[export]
-Instance wf_ctx_eq_Symmetric : Symmetric wf_ctx_eq.
+Instance wf_ctx_eq_Symmetric Δ Δ' : Symmetric (fun Γ Γ' => wf_ctx_eq Δ Γ Δ' Γ').
 Proof.
   induction 1; mauto.
 Qed.
 
 #[export]
-Instance wf_subtyp_Transitive Γ : Transitive (wf_subtyp Γ).
+Instance wf_subtyp_Transitive Δ Γ : Transitive (wf_subtyp Δ Γ).
 Proof.
   hnf; mauto.
 Qed.
 
 (** Immediate & Independent Presuppositions *)
 
-Lemma presup_ctx_sub : forall {Γ Δ}, {{ ⊢ Γ ⊆ Δ }} -> {{ ⊢ Γ }} /\ {{ ⊢ Δ }}.
+Lemma presup_ctx_sub : forall {Δ Γ Δ' Γ'}, {{ ⊢ Δ ;; Γ ⊆ Δ' ;; Γ' }} -> {{ ⊢ Δ }} /\ {{ ⊢ Δ ;; Γ }} /\ {{ ⊢ Δ' }} /\ {{ ⊢ Δ' ;; Γ' }}.
 Proof with mautosolve.
-  induction 1; destruct_pairs...
+  induction 1; destruct_pairs; repeat split...
 Qed.
 
 #[export]
 Hint Resolve presup_ctx_sub : mctt.
 
-Lemma presup_ctx_sub_left : forall {Γ Δ}, {{ ⊢ Γ ⊆ Δ }} -> {{ ⊢ Γ }}.
+Lemma presup_gctx_sub_left : forall {Δ Γ Δ' Γ'}, {{ ⊢ Δ ;; Γ ⊆ Δ' ;; Γ' }} -> {{ ⊢ Δ }}.
+Proof with easy.
+  intros * ?%presup_ctx_sub...
+Qed.
+
+#[export]
+Hint Resolve presup_gctx_sub_left : mctt.
+
+Lemma presup_gctx_sub_right : forall {Δ Γ Δ' Γ'}, {{ ⊢ Δ ;; Γ ⊆ Δ' ;; Γ' }} -> {{ ⊢ Δ' }}.
+Proof with easy.
+  intros * ?%presup_ctx_sub...
+Qed.
+
+#[export]
+Hint Resolve presup_gctx_sub_right : mctt.
+
+Lemma presup_ctx_sub_left : forall {Δ Γ Δ' Γ'}, {{ ⊢ Δ ;; Γ ⊆ Δ' ;; Γ' }} -> {{ ⊢ Δ ;; Γ }}.
 Proof with easy.
   intros * ?%presup_ctx_sub...
 Qed.
@@ -668,7 +687,7 @@ Qed.
 #[export]
 Hint Resolve presup_ctx_sub_left : mctt.
 
-Lemma presup_ctx_sub_right : forall {Γ Δ}, {{ ⊢ Γ ⊆ Δ }} -> {{ ⊢ Δ }}.
+Lemma presup_ctx_sub_right : forall {Δ Γ Δ' Γ'}, {{ ⊢ Δ ;; Γ ⊆ Δ' ;; Γ' }} -> {{ ⊢ Δ' ;; Γ' }}.
 Proof with easy.
   intros * ?%presup_ctx_sub...
 Qed.
@@ -676,7 +695,7 @@ Qed.
 #[export]
 Hint Resolve presup_ctx_sub_right : mctt.
 
-Lemma presup_subtyp_right : forall {Γ A B}, {{ Γ ⊢ A ⊆ B }} -> exists i, {{ Γ ⊢ B : Type@i }}.
+Lemma presup_subtyp_right : forall {Δ Γ A B}, {{ Δ ;; Γ ⊢ A ⊆ B }} -> exists i, {{ Δ ;; Γ ⊢ B : Type@i }}.
 Proof with mautosolve.
   induction 1...
 Qed.
@@ -686,13 +705,13 @@ Hint Resolve presup_subtyp_right : mctt.
 
 (** Subtyping Rules without Extra Arguments *)
 
-Lemma wf_exp_subtyp' : forall Γ A A' M,
-    {{ Γ ⊢ M : A }} ->
-    {{ Γ ⊢ A ⊆ A' }} ->
-    {{ Γ ⊢ M : A' }}.
+Lemma wf_exp_subtyp' : forall Δ Γ A A' M,
+    {{ Δ ;; Γ ⊢ M : A }} ->
+    {{ Δ ;; Γ ⊢ A ⊆ A' }} ->
+    {{ Δ ;; Γ ⊢ M : A' }}.
 Proof.
   intros.
-  assert (exists i, {{ Γ ⊢ A' : Type@i }}) as [] by mauto.
+  assert (exists i, {{ Δ ;; Γ ⊢ A' : Type@i }}) as [] by mauto.
   econstructor; mauto.
 Qed.
 
@@ -701,10 +720,10 @@ Hint Resolve wf_exp_subtyp' : mctt.
 #[export]
 Remove Hints wf_exp_subtyp : mctt.
 
-Lemma wf_sub_subtyp' : forall Γ Δ Δ' σ,
-    {{ Γ ⊢s σ : Δ }} ->
-    {{ ⊢ Δ ⊆ Δ' }} ->
-    {{ Γ ⊢s σ : Δ' }}.
+Lemma wf_sub_subtyp' : forall Δ Γ1 Γ2 Γ3 σ,
+    {{ Δ ;; Γ1 ⊢s σ : Γ2 }} ->
+    {{ ⊢ Δ ;; Γ2 ⊆ Δ ;; Γ3 }} ->
+    {{ Δ ;; Γ1 ⊢s σ : Γ3 }}.
 Proof.
   intros.
   econstructor; mauto.
@@ -715,13 +734,13 @@ Hint Resolve wf_sub_subtyp' : mctt.
 #[export]
 Remove Hints wf_sub_subtyp : mctt.
 
-Lemma wf_exp_eq_subtyp' : forall Γ A A' M M',
-    {{ Γ ⊢ M ≈ M' : A }} ->
-    {{ Γ ⊢ A ⊆ A' }} ->
-    {{ Γ ⊢ M ≈ M' : A' }}.
+Lemma wf_exp_eq_subtyp' : forall Δ Γ A A' M M',
+    {{ Δ ;; Γ ⊢ M ≈ M' : A }} ->
+    {{ Δ ;; Γ ⊢ A ⊆ A' }} ->
+    {{ Δ ;; Γ ⊢ M ≈ M' : A' }}.
 Proof.
   intros.
-  assert (exists i, {{ Γ ⊢ A' : Type@i }}) as [] by mauto.
+  assert (exists i, {{Δ ;; Γ ⊢ A' : Type@i }}) as [] by mauto.
   econstructor; mauto.
 Qed.
 
@@ -730,10 +749,10 @@ Hint Resolve wf_exp_eq_subtyp' : mctt.
 #[export]
 Remove Hints wf_exp_eq_subtyp : mctt.
 
-Lemma wf_sub_eq_subtyp' : forall Γ Δ Δ' σ σ',
-    {{ Γ ⊢s σ ≈ σ' : Δ }} ->
-    {{ ⊢ Δ ⊆ Δ' }} ->
-    {{ Γ ⊢s σ ≈ σ' : Δ' }}.
+Lemma wf_sub_eq_subtyp' : forall Δ Γ1 Γ2 Γ3 σ σ',
+    {{ Δ ;; Γ1 ⊢s σ ≈ σ' : Γ2 }} ->
+    {{ ⊢ Δ ;; Γ2 ⊆ Δ ;; Γ3 }} ->
+    {{ Δ ;; Γ1 ⊢s σ ≈ σ' : Γ3 }}.
 Proof.
   intros.
   econstructor; mauto.
@@ -744,26 +763,26 @@ Hint Resolve wf_sub_eq_subtyp' : mctt.
 #[export]
 Remove Hints wf_sub_eq_subtyp : mctt.
 
-Add Parametric Morphism Γ T : (wf_exp_eq Γ T)
-    with signature wf_exp_eq Γ T ==> eq ==> iff as wf_exp_eq_morphism_iff1.
+Add Parametric Morphism Δ Γ T : (wf_exp_eq Δ Γ T)
+    with signature wf_exp_eq Δ Γ T ==> eq ==> iff as wf_exp_eq_morphism_iff1.
 Proof.
   split; mauto.
 Qed.
 
-Add Parametric Morphism Γ T : (wf_exp_eq Γ T)
-    with signature eq ==> wf_exp_eq Γ T ==> iff as wf_exp_eq_morphism_iff2.
+Add Parametric Morphism Δ Γ T : (wf_exp_eq Δ Γ T)
+    with signature eq ==> wf_exp_eq Δ Γ T ==> iff as wf_exp_eq_morphism_iff2.
 Proof.
   split; mauto.
 Qed.
 
-Add Parametric Morphism Γ Δ : (wf_sub_eq Γ Δ)
-    with signature wf_sub_eq Γ Δ ==> eq ==> iff as wf_sub_eq_morphism_iff1.
+Add Parametric Morphism Δ Γ Γ' : (wf_sub_eq Δ Γ Γ')
+    with signature wf_sub_eq Δ Γ Γ' ==> eq ==> iff as wf_sub_eq_morphism_iff1.
 Proof.
   split; mauto.
 Qed.
 
-Add Parametric Morphism Γ Δ : (wf_sub_eq Γ Δ)
-    with signature eq ==> wf_sub_eq Γ Δ ==> iff as wf_sub_eq_morphism_iff2.
+Add Parametric Morphism Δ Γ Γ' : (wf_sub_eq Δ Γ Γ')
+    with signature eq ==> wf_sub_eq Δ Γ Γ' ==> iff as wf_sub_eq_morphism_iff2.
 Proof.
   split; mauto.
 Qed.
@@ -780,14 +799,14 @@ Hint Rewrite -> wf_sub_eq_id_compose_right wf_sub_eq_id_compose_left
 Hint Rewrite -> wf_exp_eq_sub_id wf_exp_eq_pi_sub wf_exp_eq_sigma_sub using mauto 4 : mctt.
 
 #[export]
-Instance wf_exp_eq_per_elem Γ T : PERElem _ (wf_exp Γ T) (wf_exp_eq Γ T).
+Instance wf_exp_eq_per_elem Δ Γ T : PERElem _ (wf_exp Δ Γ T) (wf_exp_eq Δ Γ T).
 Proof.
   intros a Ha. mauto.
 Qed.
 
 
 #[export]
-Instance wf_sub_eq_per_elem Γ Δ : PERElem _ (wf_sub Γ Δ) (wf_sub_eq Γ Δ).
+Instance wf_sub_eq_per_elem Δ Γ Γ' : PERElem _ (wf_sub Δ Γ Γ') (wf_sub_eq Δ Γ Γ').
 Proof.
   intros a Ha. mauto.
 Qed.
