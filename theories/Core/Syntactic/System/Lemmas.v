@@ -1475,6 +1475,74 @@ Proof.
   mauto 4 using presup_exp_typ.
 Qed.
 
+
+(** *** New Properties for gctx *)
+
+(* the weakening of gctx seems to need a mutual proof with multiple judgements *)
+
+Lemma wf_ctx_weakening_gctx : forall {Δ Δ' Γ},
+    {{ ⊢ Δ ;; Γ }} ->
+    {{ ⊢ Δ ,++ Δ' }} ->
+    {{ ⊢ Δ ,++ Δ' ;; Γ }}.
+Proof.
+Admitted.
+
+#[export]
+Hint Resolve wf_ctx_weakening_gctx : mctt.
+
+Lemma wf_sub_weakening_gctx : forall {Δ Δ' σ Γ Γ'},
+    {{ Δ;; Γ ⊢s σ : Γ' }} ->
+    {{ ⊢ Δ ,++ Δ' }} ->
+    {{ Δ ,++ Δ' ;; Γ ⊢s σ : Γ' }}.
+Admitted.
+
+Lemma wf_subtyp_weakening_gctx : forall {Δ Δ' Γ A A'},
+    {{ Δ ;; Γ ⊢ A ⊆ A' }} ->
+    {{ ⊢ Δ ,++ Δ' }} ->
+    {{ Δ ,++ Δ' ;; Γ ⊢ A ⊆ A' }}.
+Proof.
+Admitted.
+
+Lemma gctx_presup_weakening : forall {Δ Δ' Γ A M},
+    {{ Δ ;; Γ ⊢ M : A }} ->
+    {{ ⊢ Δ ,++ Δ' }} ->
+    {{ Δ ,++ Δ' ;; Γ ⊢ M : A }}.
+Proof.
+  intros. dependent induction H; try solve [econstructor; mauto 4].
+  - econstructor; mauto 3. admit.
+  - econstructor; mauto 3. admit.
+  - econstructor; mauto 3. admit.
+Admitted.
+
+(* this cannot be proved by induction in this form *)
+Lemma gctx_presup_weakening_ctx : forall {Δ Γ A M},
+    {{ Δ ;; ⋅ ⊢ M : A }} ->
+    {{ ⊢ Δ ;; Γ }} ->
+    {{ Δ ;; Γ ⊢ M : A }}.
+Proof.
+  intros. dependent induction H; mauto 3.
+Admitted.
+
+Lemma presup_gctx_lookup_typ_nil : forall {Δ A x M},
+    {{ ⊢ Δ }} ->
+    {{ `#x := [ M ] :: A ∈ Δ }} ->
+    exists i, {{ Δ ;; ⋅ ⊢ A : Type@i }}.
+Proof with mautosolve 4.
+  intros * HΔ.
+  induction 1; inversion_clear HΔ.
+Admitted.
+
+Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
+    {{ ⊢ Δ ;; Γ }} ->
+    {{ `#x := [ M ] :: A ∈ Δ }} ->
+    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
+Proof with mautosolve 4.
+  intros * Hctx.
+  induction 1.
+  - admit.
+  - admit.
+Admitted.
+
 (** *** Consistency Helper *)
 
 (* TODO: needs a closer look, the conclusion could be possibly 
