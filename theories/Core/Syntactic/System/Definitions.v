@@ -448,6 +448,11 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ'' ⊢ M : A }} ->
      {{ Δ ;; Γ ⊢ M[σ∘τ] ≈ M[σ][τ] : A[σ∘τ] }} )
 
+| wf_exp_eq_gvar_sub :
+  `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
+     {{ `#x := [ M ] :: A ∈ Δ }} ->
+     (* in principle, A ≈ A[σ] for global defs *)
+     {{ Δ ;; Γ ⊢ `#x[σ] ≈ `#x : A }} )
 | wf_exp_eq_delta :
   `( {{ ⊢ Δ ;; Γ }} ->
      {{ `#x := [ ^(Some M) ] :: A ∈ Δ }} ->

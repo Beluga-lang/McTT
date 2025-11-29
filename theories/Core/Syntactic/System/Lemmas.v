@@ -1480,38 +1480,15 @@ Qed.
 
 (* the weakening of gctx seems to need a mutual proof with multiple judgements *)
 
-Lemma wf_ctx_weakening_gctx : forall {Δ Δ' Γ},
-    {{ ⊢ Δ ;; Γ }} ->
-    {{ ⊢ Δ ,++ Δ' }} ->
-    {{ ⊢ Δ ,++ Δ' ;; Γ }}.
+Lemma wf_weakening_gctx : 
+    (forall Γ Δ, {{ ⊢ Δ ;; Γ }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }}  -> {{ ⊢ Δ ,++ Δ' ;; Γ }}) /\
+    (forall Δ Γ Γ', {{ Δ ⊢ Γ ⊆ Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ⊢ Γ ⊆ Γ' }}) /\
+    (forall Δ Γ A M, {{ Δ ;; Γ ⊢ M : A }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ M : A }}) /\
+    (forall Δ Γ M M' A, {{ Δ ;; Γ ⊢ M ≈ M' : A }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ M ≈ M' : A }}) /\
+    (forall Δ σ Γ Γ',  {{ Δ;; Γ ⊢s σ : Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢s σ : Γ' }}) /\
+    (forall Δ σ σ' Γ Γ',  {{ Δ;; Γ ⊢s σ ≈ σ' : Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢s σ ≈ σ' : Γ' }}) /\
+    (forall Δ Γ A A', {{ Δ ;; Γ ⊢ A ⊆ A' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ A ⊆ A' }}).
 Proof.
-Admitted.
-
-#[export]
-Hint Resolve wf_ctx_weakening_gctx : mctt.
-
-Lemma wf_sub_weakening_gctx : forall {Δ Δ' σ Γ Γ'},
-    {{ Δ;; Γ ⊢s σ : Γ' }} ->
-    {{ ⊢ Δ ,++ Δ' }} ->
-    {{ Δ ,++ Δ' ;; Γ ⊢s σ : Γ' }}.
-Admitted.
-
-Lemma wf_subtyp_weakening_gctx : forall {Δ Δ' Γ A A'},
-    {{ Δ ;; Γ ⊢ A ⊆ A' }} ->
-    {{ ⊢ Δ ,++ Δ' }} ->
-    {{ Δ ,++ Δ' ;; Γ ⊢ A ⊆ A' }}.
-Proof.
-Admitted.
-
-Lemma gctx_presup_weakening : forall {Δ Δ' Γ A M},
-    {{ Δ ;; Γ ⊢ M : A }} ->
-    {{ ⊢ Δ ,++ Δ' }} ->
-    {{ Δ ,++ Δ' ;; Γ ⊢ M : A }}.
-Proof.
-  intros. dependent induction H; try solve [econstructor; mauto 4].
-  - econstructor; mauto 3. admit.
-  - econstructor; mauto 3. admit.
-  - econstructor; mauto 3. admit.
 Admitted.
 
 (* this cannot be proved by induction in this form *)
