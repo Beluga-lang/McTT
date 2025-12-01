@@ -140,6 +140,7 @@ with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
 | wf_gvlookup :
   `( {{ ⊢ Δ ;; Γ }} ->
      {{ `#x := [ M ] :: A ∈ Δ }} ->
+     (* feel like I have to weaken this A by len Γ explicitly *)
      {{ Δ ;; Γ ⊢ `#x : A }} )
 
 | wf_eq :

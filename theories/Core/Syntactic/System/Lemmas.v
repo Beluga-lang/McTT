@@ -1,4 +1,4 @@
-From Coq Require Import List.
+From Coq Require Import List Nat.
 
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
@@ -1473,12 +1473,16 @@ Lemma presup_exp : forall {Δ Γ M A},
     {{ ⊢ Δ ;; Γ }} /\ exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
 Proof.
   mauto 4 using presup_exp_typ.
-Qed.
+Qed. 
 
 
 (** *** New Properties for gctx *)
 
 (* the weakening of gctx seems to need a mutual proof with multiple judgements *)
+
+
+#[export]
+Hint Resolve presup_ctx_lookup_typ : mctt.
 
 Lemma wf_weakening_gctx : 
     (forall Γ Δ, {{ ⊢ Δ ;; Γ }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }}  -> {{ ⊢ Δ ,++ Δ' ;; Γ }}) /\
@@ -1500,6 +1504,20 @@ Proof.
   intros. dependent induction H; mauto 3.
 Admitted.
 
+
+Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
+    {{ ⊢ Δ ;; Γ }} ->
+    {{ `#x := [M] :: A ∈ Δ }} ->
+    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
+Proof with mautosolve 4.
+  intros * HΔ.
+  induction 1; inversion_clear HΔ.
+  - eexists. admit.
+  - admit.
+  - admit. (* problematic, cannot use IH which requires ⊢ Δ;; Γ *)
+  - admit. (* problematic, cannot use IH which requires ⊢ Δ;; Γ *)
+Abort.
+
 Lemma presup_gctx_lookup_typ_nil : forall {Δ A x M},
     {{ ⊢ Δ }} ->
     {{ `#x := [ M ] :: A ∈ Δ }} ->
@@ -1509,10 +1527,11 @@ Proof with mautosolve 4.
   induction 1; inversion_clear HΔ.
 Admitted.
 
+(* I think this is the best form we can prove *)
 Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
     {{ ⊢ Δ ;; Γ }} ->
     {{ `#x := [ M ] :: A ∈ Δ }} ->
-    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
+    exists i, {{ Δ ;; Γ ⊢ ^(iter (S (length Γ)) (fun B => {{{ B[Wk] }}}) A) : Type@i }}.
 Proof with mautosolve 4.
   intros * Hctx.
   induction 1.
