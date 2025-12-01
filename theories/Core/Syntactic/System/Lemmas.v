@@ -1,5 +1,7 @@
 From Coq Require Import List Nat.
 
+From stdpp Require Import gmap sorting.
+
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
 From Mctt.Core.Syntactic.System Require Import Definitions.
@@ -411,7 +413,7 @@ Proof with mautosolve 4.
   intros.
   assert {{ Δ ;; Γ', B ⊢s Wk : Γ' }} by mauto 4.
   assert {{ Δ ;; Γ', B, C ⊢s Wk : Γ', B }} by mauto 4.
-  transitivity {{{ A[Wk][Wk][σ,,M,,N] }}}; [eapply exp_eq_sub_cong_typ1; mautosolve 3 |].
+  transitivity {{{ A[Wk][Wk][σ,,M,,^N] }}}; [eapply exp_eq_sub_cong_typ1; mautosolve 3 |].
   transitivity {{{ A[Wk][σ,,M] }}}...
 Qed.
 
@@ -666,7 +668,7 @@ Lemma exp_eq_sub_compose_weaken_extend_nat : forall {Δ Γ σ Γ' M i B N},
 Proof with mautosolve 3.
   intros.
   assert {{ Δ ;; Γ', B ⊢s Wk : Γ' }} by mauto 4.
-  transitivity {{{ M[Wk∘(σ,,N)] }}}; [mauto 4 |].
+  transitivity {{{ M[Wk∘(σ,,^N)] }}}; [mauto 4 |].
   eapply exp_eq_sub_cong_nat2...
 Qed.
 
@@ -682,7 +684,7 @@ Proof with mautosolve 4.
   intros.
   assert {{ Δ ;; Γ ⊢ B[Id] : Type@_ }} by mauto 4.
   assert {{ Δ ;; Γ ⊢ B ⊆ B[Id] }} by mauto 4.
-  assert {{ Δ ;; Γ ⊢ N : B[Id] }} by mauto 2.
+  assert {{ Δ ;; Γ ⊢ ^N : B[Id] }} by mauto 2.
   transitivity {{{ M[Id] }}}...
 Qed.
 
@@ -701,8 +703,8 @@ Proof with mautosolve 4.
   intros.
   assert {{ Δ ;; Γ', B ⊢s Wk : Γ' }} by mauto 4.
   assert {{ Δ ;; Γ', B, C ⊢s Wk : Γ', B }} by mauto 4.
-  transitivity {{{ M[Wk][Wk][σ,,N,,L] }}}; [eapply exp_eq_sub_cong_nat1; mautosolve 3 |].
-  transitivity {{{ M[Wk][σ,,N] }}}...
+  transitivity {{{ M[Wk][Wk][σ,,^N,,L] }}}; [eapply exp_eq_sub_cong_nat1; mautosolve 3 |].
+  transitivity {{{ M[Wk][σ,,^N] }}}...
 Qed.
 
 #[export]
@@ -719,7 +721,7 @@ Proof with mautosolve 4.
   intros.
   assert {{ Δ ;; Γ ⊢ B[Id] : Type@_ }} by mauto 4.
   assert {{ Δ ;; Γ ⊢ B ⊆ B[Id] }} by mauto 4.
-  assert {{ Δ ;; Γ ⊢ N : B[Id] }} by mauto 2.
+  assert {{ Δ ;; Γ ⊢ ^N : B[Id] }} by mauto 2.
   transitivity {{{ M[Id] }}}...
 Qed.
 
@@ -1443,13 +1445,13 @@ Proof.
 
   - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
 
-  - enough {{ Δ ;; Γ ⊢s Id,,N : Γ, A }}; mauto 3.
+  - enough {{ Δ ;; Γ ⊢s Id,,^N : Γ, A }}; mauto 3.
 
   - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
 
   - admit.
 
-  - enough {{ Δ ;; Γ ⊢s Id,,M1,,M2,,N : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by mauto 3.
+  - enough {{ Δ ;; Γ ⊢s Id,,M1,,M2,,^N : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by mauto 3.
     assert {{ Δ ;; Γ, A ⊢s Wk : Γ }} by mauto 3.
     assert {{ Δ ;; Γ, A ⊢ A[Wk] : Type@i }} by mauto 3.
     assert {{ Δ ;; Γ, A, A[Wk] ⊢s Wk : Γ, A }} by mauto 4.
@@ -1484,18 +1486,57 @@ Qed.
 #[export]
 Hint Resolve presup_ctx_lookup_typ : mctt.
 
-Lemma wf_weakening_gctx : 
-    (forall Γ Δ, {{ ⊢ Δ ;; Γ }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }}  -> {{ ⊢ Δ ,++ Δ' ;; Γ }}) /\
-    (forall Δ Γ Γ', {{ Δ ⊢ Γ ⊆ Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ⊢ Γ ⊆ Γ' }}) /\
-    (forall Δ Γ A M, {{ Δ ;; Γ ⊢ M : A }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ M : A }}) /\
-    (forall Δ Γ M M' A, {{ Δ ;; Γ ⊢ M ≈ M' : A }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ M ≈ M' : A }}) /\
-    (forall Δ σ Γ Γ',  {{ Δ;; Γ ⊢s σ : Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢s σ : Γ' }}) /\
-    (forall Δ σ σ' Γ Γ',  {{ Δ;; Γ ⊢s σ ≈ σ' : Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢s σ ≈ σ' : Γ' }}) /\
-    (forall Δ Γ A A', {{ Δ ;; Γ ⊢ A ⊆ A' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ A ⊆ A' }}).
+Scheme 
+wf_ctx_mut_ind2 := Induction for wf_ctx Sort Prop
+with wf_ctx_sub_mut_ind2 := Induction for wf_ctx_sub Sort Prop
+with wf_exp_mut_ind2 := Induction for wf_exp Sort Prop
+with wf_exp_eq_mut_ind2 := Induction for wf_exp_eq Sort Prop
+with wf_sub_mut_ind2 := Induction for wf_sub Sort Prop
+with wf_sub_eq_mut_ind2 := Induction for wf_sub_eq Sort Prop
+with wf_subtyp_mut_ind2 := Induction for wf_subtyp Sort Prop.
+Combined Scheme syntactic_wf_mut_ind2 from
+  wf_ctx_mut_ind2,
+  wf_ctx_sub_mut_ind2,
+  wf_exp_mut_ind2,
+  wf_exp_eq_mut_ind2,
+  wf_sub_mut_ind2,
+  wf_sub_eq_mut_ind2,
+  wf_subtyp_mut_ind2.
+
+
+Lemma gctx_lookup_weakening : forall {Δ A x M},
+    {{ `#x := [ M ] :: A ∈ Δ }} ->
+    forall Δ',
+      {{ ⊢ Δ ,++ Δ' }} ->
+      {{ `#x := [ M ] :: A ∈ (Δ ,++ Δ') }}.
 Proof.
+  intros. induction Δ'; auto.
+  destruct a. destruct p.
+  apply gthere; simpl; mauto 3.
+  - inversion_clear H0; mauto 3;
+    assert (x ∈ gctx_dom Δ) by admit;
+    replace (gctx_dom {{{ Δ,++Δ' }}}) with (gctx_dom Δ ∪ gctx_dom Δ') in * by admit;
+    set_solver.
+  - inversion_clear H0; mauto 3.
 Admitted.
 
-(* this cannot be proved by induction in this form *)
+#[export]
+Hint Resolve gctx_lookup_weakening : mctt.
+
+Lemma wf_weakening_gctx : 
+    (forall Δ Γ, {{ ⊢ Δ ;; Γ }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }}  -> {{ ⊢ Δ ,++ Δ' ;; Γ }}) /\
+    (forall Δ Γ Γ', {{ Δ ⊢ Γ ⊆ Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ⊢ Γ ⊆ Γ' }}) /\
+    (forall Δ Γ A M, {{ Δ ;; Γ ⊢ M : A }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ M : A }}) /\
+    (forall Δ Γ A M M', {{ Δ ;; Γ ⊢ M ≈ M' : A }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ M ≈ M' : A }}) /\
+    (forall Δ Γ Γ' σ,  {{ Δ;; Γ ⊢s σ : Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢s σ : Γ' }}) /\
+    (forall Δ Γ Γ' σ σ' ,  {{ Δ;; Γ ⊢s σ ≈ σ' : Γ' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢s σ ≈ σ' : Γ' }}) /\
+    (forall Δ Γ A A', {{ Δ ;; Γ ⊢ A ⊆ A' }} -> forall Δ', {{ ⊢ Δ ,++ Δ' }} -> {{ Δ ,++ Δ' ;; Γ ⊢ A ⊆ A' }}).
+Proof.
+  apply syntactic_wf_mut_ind2; intros; mauto 4;
+    try solve [econstructor; mauto 4].
+Qed.
+
+(* this cannot be proved by induction in this form, and generally not true *)
 Lemma gctx_presup_weakening_ctx : forall {Δ Γ A M},
     {{ Δ ;; ⋅ ⊢ M : A }} ->
     {{ ⊢ Δ ;; Γ }} ->
@@ -1503,7 +1544,6 @@ Lemma gctx_presup_weakening_ctx : forall {Δ Γ A M},
 Proof.
   intros. dependent induction H; mauto 3.
 Admitted.
-
 
 Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
     {{ ⊢ Δ ;; Γ }} ->
