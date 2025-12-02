@@ -1,6 +1,6 @@
 From Coq Require Import List Nat.
 
-From stdpp Require Import gmap sorting.
+From stdpp Require Import gmap.
 
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
@@ -1503,6 +1503,30 @@ Combined Scheme syntactic_wf_mut_ind2 from
   wf_sub_eq_mut_ind2,
   wf_subtyp_mut_ind2.
 
+Lemma gctx_lookup_in_dom : forall {Δ A x M},
+    {{ `#x := [ M ] :: A ∈ Δ }} ->
+    x ∈ gctx_dom Δ.
+Proof.
+  intros. induction Δ; simpl; mauto 3.
+  - inversion H.
+  - destruct a. destruct p.
+    inversion_clear H; try set_solver.
+Qed.
+
+#[export]
+Hint Resolve gctx_lookup_in_dom : mctt.
+
+Lemma gctx_dom_app : forall {Δ Δ'},
+    gctx_dom {{{ Δ ,++ Δ' }}} = gctx_dom Δ ∪ gctx_dom Δ'.
+Proof.
+  intros. induction Δ'; simpl; mauto 3.
+  - set_solver.
+  - destruct a. 
+    destruct p. set_solver.
+Qed.
+
+#[export]
+Hint Resolve gctx_dom_app : mctt.
 
 Lemma gctx_lookup_weakening : forall {Δ A x M},
     {{ `#x := [ M ] :: A ∈ Δ }} ->
@@ -1514,11 +1538,11 @@ Proof.
   destruct a. destruct p.
   apply gthere; simpl; mauto 3.
   - inversion_clear H0; mauto 3;
-    assert (x ∈ gctx_dom Δ) by admit;
-    replace (gctx_dom {{{ Δ,++Δ' }}}) with (gctx_dom Δ ∪ gctx_dom Δ') in * by admit;
+    assert (x ∈ gctx_dom Δ) by mauto 3;
+    replace (gctx_dom {{{ Δ,++Δ' }}}) with (gctx_dom Δ ∪ gctx_dom Δ') in * by mauto 3;
     set_solver.
   - inversion_clear H0; mauto 3.
-Admitted.
+Qed.
 
 #[export]
 Hint Resolve gctx_lookup_weakening : mctt.
