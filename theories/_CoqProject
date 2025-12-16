@@ -8,7 +8,7 @@
 # ./Algorithmic/Typing.v
 # ./Algorithmic/Typing/Definitions.v
 # ./Algorithmic/Typing/Lemmas.v
-# ./Core/Base.v
+./Core/Base.v
 # ./Core/Completeness.v
 # ./Core/Completeness/Consequences/Rules.v
 # ./Core/Completeness/Consequences/Types.v

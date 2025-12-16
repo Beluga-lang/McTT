@@ -77,6 +77,24 @@ Qed.
 #[export]
 Hint Resolve presup_ctx_eq presup_ctx_eq_left presup_ctx_eq_right : mctt.
 
+Lemma presup_ctx_sub : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ ⊢ Δ ;; Γ }} /\ {{ ⊢ Δ ;; Γ' }}.
+Proof with mautosolve.
+  induction 1; destruct_pairs...
+Qed.
+
+Corollary presup_ctx_sub_left : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ ⊢ Δ ;; Γ }}.
+Proof with easy.
+  intros * ?%presup_ctx_sub...
+Qed.
+
+Corollary presup_ctx_sub_right : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ ⊢ Δ ;; Γ' }}.
+Proof with easy.
+  intros * ?%presup_ctx_sub...
+Qed.
+
+#[export]
+Hint Resolve presup_ctx_sub presup_ctx_sub_left presup_ctx_sub_right : mctt.
+
 Lemma presup_sub : forall {Δ Γ Γ' σ}, {{ Δ ;; Γ ⊢s σ : Γ' }} -> {{ ⊢ Δ ;; Γ }} /\ {{ ⊢ Δ ;; Γ' }}.
 Proof with mautosolve.
   induction 1; destruct_pairs...
@@ -1431,6 +1449,24 @@ Proof with mautosolve 4.
 Qed.
 
 (** *** Type Presuppositions *)
+Lemma presub_exp_eq_helper: forall {Δ Γ A i},
+  {{ Δ ;; Γ ⊢ A : Type@i }} ->
+  {{ Δ ;; Γ, A ⊢ A[Wk] : Type@i }} /\ 
+  {{ Δ ;; Γ, A, A[Wk] ⊢s Wk : Γ, A }} /\
+  {{ Δ ;; Γ, A, A[Wk] ⊢ A[Wk∘Wk] : Type@i }} /\
+  {{ Δ ;; Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }}.
+Proof.
+  intros.
+  assert {{ Δ ;; Γ, A ⊢s Wk : Γ }} by mauto 4.
+  assert {{ Δ ;; Γ, A ⊢ A[Wk] : Type@i }} by mauto 3.
+  assert {{ Δ ;; Γ, A, A[Wk] ⊢s Wk : Γ, A }} by mauto 4.
+  assert {{ Δ ;; Γ, A, A[Wk] ⊢ A[Wk∘Wk] : Type@i }} by mauto 3.
+  assert {{ Δ ;; Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (econstructor; mauto 3; eapply wf_conv; mauto 4).
+  auto.
+Qed.
+
+#[local]
+Hint Resolve presub_exp_eq_helper : mctt.
 
 (* TODO: to prove this, we may need the weakening of both gctx and ctx, some of which 
    are stated below. the weakening of ctx, in the presence of explicit substitution,
@@ -1449,16 +1485,15 @@ Proof.
 
   - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
 
-  - admit.
+  - inversion_clear H0. admit. admit.
 
   - enough {{ Δ ;; Γ ⊢s Id,,M1,,M2,,^N : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by mauto 3.
-    assert {{ Δ ;; Γ, A ⊢s Wk : Γ }} by mauto 3.
-    assert {{ Δ ;; Γ, A ⊢ A[Wk] : Type@i }} by mauto 3.
+    assert {{ Δ ;; Γ, A ⊢ A[Wk] : Type@i }} by mauto 4.
     assert {{ Δ ;; Γ, A, A[Wk] ⊢s Wk : Γ, A }} by mauto 4.
-    assert {{ Δ ;; Γ, A, A[Wk] ⊢ A[Wk∘Wk] : Type@i }} by mauto 3.
-    assert {{ Δ ;; Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (econstructor; mauto 3; eapply wf_conv; mauto 4).
+    assert {{ Δ ;; Γ, A, A[Wk] ⊢ A[Wk∘Wk] : Type@i }} by (eapply presub_exp_eq_helper; eauto 3).
+    assert {{ Δ ;; Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (eapply presub_exp_eq_helper; eauto 3).
     assert {{ Δ ;; Γ ⊢s Id,,M1 : Γ, A }} by mauto 3.
-    assert {{ Δ ;; Γ ⊢ M2 : A[Wk][Id,,M1] }} by (eapply wf_conv; [| | symmetry]; mauto 2).
+    assert {{ Δ ;; Γ ⊢ M2 : A[Wk][Id,,M1] }} by (eapply wf_conv; [| | symmetry]; mauto 3).
     assert {{ Δ ;; Γ ⊢s Id,,M1,,M2 : Γ, A, A[Wk] }} by mauto 3.
     econstructor; [mautosolve 3 | mautosolve 3 |].
     eapply wf_conv; [| | symmetry]; mauto 3.
@@ -1560,28 +1595,6 @@ Proof.
     try solve [econstructor; mauto 4].
 Qed.
 
-(* this cannot be proved by induction in this form, and generally not true *)
-Lemma gctx_presup_weakening_ctx : forall {Δ Γ A M},
-    {{ Δ ;; ⋅ ⊢ M : A }} ->
-    {{ ⊢ Δ ;; Γ }} ->
-    {{ Δ ;; Γ ⊢ M : A }}.
-Proof.
-  intros. dependent induction H; mauto 3.
-Admitted.
-
-Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
-    {{ ⊢ Δ ;; Γ }} ->
-    {{ `#x := [M] :: A ∈ Δ }} ->
-    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
-Proof with mautosolve 4.
-  intros * HΔ.
-  induction 1; inversion_clear HΔ.
-  - eexists. admit.
-  - admit.
-  - admit. (* problematic, cannot use IH which requires ⊢ Δ;; Γ *)
-  - admit. (* problematic, cannot use IH which requires ⊢ Δ;; Γ *)
-Abort.
-
 Lemma presup_gctx_lookup_typ_nil : forall {Δ A x M},
     {{ ⊢ Δ }} ->
     {{ `#x := [ M ] :: A ∈ Δ }} ->
@@ -1589,19 +1602,121 @@ Lemma presup_gctx_lookup_typ_nil : forall {Δ A x M},
 Proof with mautosolve 4.
   intros * HΔ.
   induction 1; inversion_clear HΔ.
-Admitted.
+  - eexists.
+    replace {{{ Δ, x:=M0::A }}} with {{{ Δ ,++ (^nil,x:=M0::A) }}} by mauto 3.
+    eapply wf_weakening_gctx; mauto 3.
+    econstructor; mauto 3.
+  - eexists.
+    replace {{{ Δ, x:=∅::A }}} with {{{ Δ ,++ (^nil,x:=∅::A) }}} by mauto 3.
+    eapply wf_weakening_gctx; mauto 3.
+    econstructor; mauto 3.
+  - apply IHgctx_lookup in H1 as H1'. destruct H1' as [i' HIH]. eexists.
+    replace {{{ Δ, x:=M0::B }}} with {{{ Δ ,++ (^nil,x:=M0::B) }}} by mauto 3.
+    eapply wf_weakening_gctx; mauto 3.
+    econstructor; mauto 3.
+  - apply IHgctx_lookup in H1 as H1'. destruct H1' as [i' HIH]. eexists.
+    replace {{{ Δ, x:=∅::B }}} with {{{ Δ ,++ (^nil,x:=∅::B) }}} by mauto 3.
+    eapply wf_weakening_gctx; mauto 3.
+    econstructor; mauto 3.
+Qed.
 
-(* I think this is the best form we can prove *)
-Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
-    {{ ⊢ Δ ;; Γ }} ->
-    {{ `#x := [ M ] :: A ∈ Δ }} ->
-    exists i, {{ Δ ;; Γ ⊢ ^(iter (S (length Γ)) (fun B => {{{ B[Wk] }}}) A) : Type@i }}.
-Proof with mautosolve 4.
-  intros * Hctx.
-  induction 1.
-  - admit.
-  - admit.
-Admitted.
+Scheme 
+wf_ctx_sub_mut_ind3 := Induction for wf_ctx_sub Sort Prop
+with wf_exp_mut_ind3 := Induction for wf_exp Sort Prop
+with wf_exp_eq_mut_ind3 := Induction for wf_exp_eq Sort Prop
+with wf_sub_mut_ind3 := Induction for wf_sub Sort Prop
+with wf_sub_eq_mut_ind3 := Induction for wf_sub_eq Sort Prop
+with wf_subtyp_mut_ind3 := Induction for wf_subtyp Sort Prop.
+Combined Scheme syntactic_wf_mut_ind3 from
+  wf_ctx_sub_mut_ind3,
+  wf_exp_mut_ind3,
+  wf_exp_eq_mut_ind3,
+  wf_sub_mut_ind3,
+  wf_sub_eq_mut_ind3,
+  wf_subtyp_mut_ind3.
+
+Lemma ctx_lookup_weakening : forall {Γ A x Γ'},
+  {{ # x : A ∈ Γ }} -> 
+  {{ # x : A ∈ Γ',++Γ }}.
+Proof.
+  induction 1; mauto 3.
+Qed.
+
+#[export]
+Hint Resolve ctx_lookup_weakening : mctt.
+
+Lemma wf_weakening_ctx : 
+    (forall Δ Γ Γ', {{ Δ ⊢ Γ ⊆ Γ' }} -> forall Γ1, {{ ⊢ Δ ;; ^(Γ ++ Γ1) }} -> {{ Δ ⊢ ^(Γ ++ Γ1) ⊆ ^(Γ' ++ Γ1) }}) /\
+    (forall Δ Γ A M, {{ Δ ;; Γ ⊢ M : A }} -> forall Γ', {{ ⊢ Δ ;; ^(Γ ++ Γ') }} -> {{ Δ ;; ^(Γ ++ Γ') ⊢ M : A }}) /\
+    (forall Δ Γ A M M', {{ Δ ;; Γ ⊢ M ≈ M' : A }} -> forall Γ', {{ ⊢ Δ ;; ^(Γ ++ Γ') }} -> {{ Δ ;; ^(Γ ++ Γ') ⊢ M ≈ M' : A }}) /\
+    (forall Δ Γ Γ' σ,  {{ Δ;; Γ ⊢s σ : Γ' }} -> forall Γ1, {{ ⊢ Δ ;; ^(Γ ++ Γ1) }} -> {{ Δ ;; ^(Γ ++ Γ1) ⊢s σ : ^(Γ' ++ Γ1)}}) /\
+    (forall Δ Γ Γ' σ σ', {{ Δ;; Γ ⊢s σ ≈ σ' : Γ' }} -> forall Γ1, {{ ⊢ Δ ;; ^(Γ ++ Γ1) }} -> {{ Δ ;; ^(Γ ++ Γ1) ⊢s σ ≈ σ' : ^(Γ' ++ Γ1) }}) /\
+    (forall Δ Γ A A', {{ Δ ;; Γ ⊢ A ⊆ A' }} -> forall Γ', {{ ⊢ Δ ;; ^(Γ ++ Γ') }} -> {{ Δ ;; ^(Γ ++ Γ') ⊢ A ⊆ A' }}).
+Proof.
+  apply syntactic_wf_mut_ind3; intros; mauto 4;
+    try solve [econstructor; mauto 4].
+  - inversion_clear H3; simpl.
+    eapply wf_ctx_sub_extend with (i:=max i0 i); mauto 3.
+    eapply lift_exp_max_left; mauto 4.
+    eapply lift_exp_max_right; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1; mauto 4.
+    simpl. mauto 4.
+    econstructor; mauto 4.
+  - econstructor; mauto 3.
+    assert {{ Δ;; Γ',++Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (eapply presub_exp_eq_helper; eauto 3).
+    eapply H2; mauto 4.
+    eapply H3; mauto 4.
+  - econstructor; mauto 4.
+    simpl. eapply H2.
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H2.
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1. econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1. econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1.
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1.
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1.
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1. 
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1. 
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    assert {{ Δ;; Γ'0,++Γ', A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (eapply presub_exp_eq_helper; mauto 5).
+    eapply H3; mauto 3.
+    eapply H4; mauto 4.
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    assert {{ Δ;; Γ',++Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (eapply presub_exp_eq_helper; mauto 5).
+    eapply H5; mauto 4. 
+  - econstructor; mauto 3.
+    assert {{ Δ;; Γ',++Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (eapply presub_exp_eq_helper; mauto 5).
+    eapply H1; mauto 3.
+    eapply H2; mauto 3.
+  - eapply wf_exp_eq_sub_cong with (Γ':=Γ' ++ Γ'0); mauto 4.
+  - eapply wf_exp_eq_sub_compose with (Γ'':=Γ''++Γ'0); mauto 3.
+    eapply H0; mauto 3.
+    eapply H1; mauto 5.
+  - econstructor; mauto 5.
+  - eapply wf_sub_eq_compose_assoc with (Γ3:=Γ3++Γ0); mauto 4.
+    assert {{ ⊢ Δ;; Γ0,++Γ3 }} by mauto 4.
+    assert {{ ⊢ Δ;; Γ0,++Γ2 }} by mauto 4.
+    mauto 4.
+  - econstructor; mauto 4. eapply H0.
+    apply H2 in H3 as H3'. mauto 4.
+  - eapply wf_sub_eq_subtyp; mauto 5.
+Qed.
 
 (** *** Consistency Helper *)
 
@@ -1616,7 +1731,8 @@ Proof.
     autoinjections;
     intuition.
   inversion_by_head ctx_lookup.
-Admitted.
+  inversion_by_head gctx_lookup.
+Qed.
 
 #[export]
 Hint Resolve no_closed_neutral : mctt.
