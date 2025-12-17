@@ -1468,51 +1468,6 @@ Qed.
 #[local]
 Hint Resolve presub_exp_eq_helper : mctt.
 
-(* TODO: to prove this, we may need the weakening of both gctx and ctx, some of which 
-   are stated below. the weakening of ctx, in the presence of explicit substitution,
-   is less clear to me *)
-Lemma presup_exp_typ : forall {Δ Γ M A},
-    {{ Δ ;; Γ ⊢ M : A }} ->
-    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
-Proof.
-  induction 1; assert {{ ⊢ Δ ;; Γ }} by mauto 3; destruct_all; mauto 3.
-
-  - enough {{ Δ ;; Γ ⊢s Id,,M : Γ, ℕ }}; mauto 3.
-
-  - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
-
-  - enough {{ Δ ;; Γ ⊢s Id,,^N : Γ, A }}; mauto 3.
-
-  - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
-
-  - inversion_clear H0. admit. admit.
-
-  - enough {{ Δ ;; Γ ⊢s Id,,M1,,M2,,^N : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by mauto 3.
-    assert {{ Δ ;; Γ, A ⊢ A[Wk] : Type@i }} by mauto 4.
-    assert {{ Δ ;; Γ, A, A[Wk] ⊢s Wk : Γ, A }} by mauto 4.
-    assert {{ Δ ;; Γ, A, A[Wk] ⊢ A[Wk∘Wk] : Type@i }} by (eapply presub_exp_eq_helper; eauto 3).
-    assert {{ Δ ;; Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (eapply presub_exp_eq_helper; eauto 3).
-    assert {{ Δ ;; Γ ⊢s Id,,M1 : Γ, A }} by mauto 3.
-    assert {{ Δ ;; Γ ⊢ M2 : A[Wk][Id,,M1] }} by (eapply wf_conv; [| | symmetry]; mauto 3).
-    assert {{ Δ ;; Γ ⊢s Id,,M1,,M2 : Γ, A, A[Wk] }} by mauto 3.
-    econstructor; [mautosolve 3 | mautosolve 3 |].
-    eapply wf_conv; [| | symmetry]; mauto 3.
-    transitivity {{{ Eq A[Wk∘Wk][Id,,M1,,M2] #1[Id,,M1,,M2] #0[Id,,M1,,M2] }}}.
-    + econstructor; mauto 3 using id_sub_lookup_var0, id_sub_lookup_var1; eapply wf_conv; mauto 4.
-    + assert {{ Δ ;; Γ ⊢ M2 : A }} by eassumption. (* re-assert to help search process *)
-      assert {{ Δ ;; Γ ⊢ M1 : A[Wk∘Wk][Id,,M1,,M2] }} by (eapply wf_conv; [| | symmetry]; mauto 2).
-      assert {{ Δ ;; Γ ⊢ M2 : A[Wk∘Wk][Id,,M1,,M2] }} by (eapply wf_conv; [| | symmetry]; mauto 2).
-      econstructor; mauto 3 using id_sub_lookup_var0, id_sub_lookup_var1.
-Admitted.
-
-Lemma presup_exp : forall {Δ Γ M A},
-    {{ Δ ;; Γ ⊢ M : A }} ->
-    {{ ⊢ Δ ;; Γ }} /\ exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
-Proof.
-  mauto 4 using presup_exp_typ.
-Qed. 
-
-
 (** *** New Properties for gctx *)
 
 (* the weakening of gctx seems to need a mutual proof with multiple judgements *)
@@ -1717,6 +1672,65 @@ Proof.
     apply H2 in H3 as H3'. mauto 4.
   - eapply wf_sub_eq_subtyp; mauto 5.
 Qed.
+
+Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
+    {{ ⊢ Δ ;; Γ }} ->
+    {{ `#x := [ M ] :: A ∈ Δ }} ->
+    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
+Proof.
+  intros.
+  assert {{ ⊢ Δ }} by mauto 4.
+  assert (exists i, {{ Δ ;; ⋅ ⊢ A : Type@i }}) by (eapply presup_gctx_lookup_typ_nil; eauto 3).
+  destruct_all.
+  exists i.
+  replace Γ with (nil ++ Γ) by mauto 3.
+  eapply wf_weakening_ctx; mauto 3.
+Qed.
+
+(* TODO: to prove this, we may need the weakening of both gctx and ctx, some of which 
+   are stated below. the weakening of ctx, in the presence of explicit substitution,
+   is less clear to me *)
+Lemma presup_exp_typ : forall {Δ Γ M A},
+    {{ Δ ;; Γ ⊢ M : A }} ->
+    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
+Proof.
+  induction 1; assert {{ ⊢ Δ ;; Γ }} by mauto 3; destruct_all; mauto 3.
+
+  - enough {{ Δ ;; Γ ⊢s Id,,M : Γ, ℕ }}; mauto 3.
+
+  - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
+
+  - enough {{ Δ ;; Γ ⊢s Id,,^N : Γ, A }}; mauto 3.
+
+  - eexists; mauto 4 using lift_exp_max_left, lift_exp_max_right.
+
+  - eapply presup_gctx_lookup_typ; mauto 3.
+
+  - enough {{ Δ ;; Γ ⊢s Id,,M1,,M2,,^N : Γ, A, A[Wk], Eq A[Wk∘Wk] #1 #0 }} by mauto 3.
+    assert {{ Δ ;; Γ, A ⊢ A[Wk] : Type@i }} by mauto 4.
+    assert {{ Δ ;; Γ, A, A[Wk] ⊢s Wk : Γ, A }} by mauto 4.
+    assert {{ Δ ;; Γ, A, A[Wk] ⊢ A[Wk∘Wk] : Type@i }} by (eapply presub_exp_eq_helper; eauto 3).
+    assert {{ Δ ;; Γ, A, A[Wk] ⊢ Eq A[Wk∘Wk] #1 #0 : Type@i }} by (eapply presub_exp_eq_helper; eauto 3).
+    assert {{ Δ ;; Γ ⊢s Id,,M1 : Γ, A }} by mauto 3.
+    assert {{ Δ ;; Γ ⊢ M2 : A[Wk][Id,,M1] }} by (eapply wf_conv; [| | symmetry]; mauto 3).
+    assert {{ Δ ;; Γ ⊢s Id,,M1,,M2 : Γ, A, A[Wk] }} by mauto 3.
+    econstructor; [mautosolve 3 | mautosolve 3 |].
+    eapply wf_conv; [| | symmetry]; mauto 3.
+    transitivity {{{ Eq A[Wk∘Wk][Id,,M1,,M2] #1[Id,,M1,,M2] #0[Id,,M1,,M2] }}}.
+    + econstructor; mauto 3 using id_sub_lookup_var0, id_sub_lookup_var1; eapply wf_conv; mauto 4.
+    + assert {{ Δ ;; Γ ⊢ M2 : A }} by eassumption. (* re-assert to help search process *)
+      assert {{ Δ ;; Γ ⊢ M1 : A[Wk∘Wk][Id,,M1,,M2] }} by (eapply wf_conv; [| | symmetry]; mauto 2).
+      assert {{ Δ ;; Γ ⊢ M2 : A[Wk∘Wk][Id,,M1,,M2] }} by (eapply wf_conv; [| | symmetry]; mauto 2).
+      econstructor; mauto 3 using id_sub_lookup_var0, id_sub_lookup_var1.
+Qed.
+
+Lemma presup_exp : forall {Δ Γ M A},
+    {{ Δ ;; Γ ⊢ M : A }} ->
+    {{ ⊢ Δ ;; Γ }} /\ exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
+Proof.
+  mauto 4 using presup_exp_typ.
+Qed. 
+
 
 (** *** Consistency Helper *)
 
