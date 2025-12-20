@@ -64,8 +64,8 @@
 # ./Core/Soundness/Weakening/Lemmas.v
 # ./Core/Syntactic/CoreInversions.v
 # ./Core/Syntactic/Corollaries.v
-# ./Core/Syntactic/CtxEq.v
-# ./Core/Syntactic/CtxSub.v
+./Core/Syntactic/CtxEq.v
+./Core/Syntactic/CtxSub.v
 # ./Core/Syntactic/Presup.v
 ./Core/Syntactic/Syntax.v
 ./Core/Syntactic/System.v

@@ -3,7 +3,7 @@ From Mctt.Core Require Import Base.
 From Mctt.Core.Syntactic Require Export CtxSub.
 Import Syntax_Notations.
 
-Lemma ctx_eq_refl : forall {Γ}, {{ ⊢ Γ }} -> {{ ⊢ Γ ≈ Γ }}.
+Lemma ctx_eq_refl : forall {Δ Γ}, {{ Δ ⊢ Γ }} -> {{ Δ ⊢ Γ ≈ Γ }}.
 Proof with mautosolve.
   induction 1...
 Qed.
@@ -11,7 +11,7 @@ Qed.
 #[export]
 Hint Resolve ctx_eq_refl : mctt.
 
-Lemma ctx_eq_sym : forall {Γ Δ}, {{ ⊢ Γ ≈ Δ }} -> {{ ⊢ Δ ≈ Γ }}.
+Lemma ctx_eq_sym : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ≈ Γ' }} -> {{ Δ ⊢ Γ' ≈ Γ }}.
 Proof.
   intros.
   symmetry.
@@ -21,39 +21,39 @@ Qed.
 #[export]
 Hint Resolve ctx_eq_sym : mctt.
 
-Lemma ctxeq_exp : forall {Γ Δ M A}, {{ ⊢ Γ ≈ Δ }} -> {{ Γ ⊢ M : A }} -> {{ Δ ⊢ M : A }}.
+Lemma ctxeq_exp : forall {Δ Γ Γ1 M A}, {{ Δ ⊢ Γ ≈ Γ1 }} -> {{ Δ ;; Γ ⊢ M : A }} -> {{ Δ ;; Γ1 ⊢ M : A }}.
 Proof. mauto. Qed.
 
-Lemma ctxeq_exp_eq : forall {Γ Δ M M' A}, {{ ⊢ Γ ≈ Δ }} -> {{ Γ ⊢ M ≈ M' : A }} -> {{ Δ ⊢ M ≈ M' : A }}.
+Lemma ctxeq_exp_eq : forall {Δ Γ Γ1 M M' A}, {{ Δ ⊢ Γ ≈ Γ1 }} -> {{ Δ ;; Γ ⊢ M ≈ M' : A }} -> {{ Δ ;; Γ1 ⊢ M ≈ M' : A }}.
 Proof. mauto. Qed.
 
-Lemma ctxeq_sub : forall {Γ Δ σ Γ'}, {{ ⊢ Γ ≈ Δ }} -> {{ Γ ⊢s σ : Γ' }} -> {{ Δ ⊢s σ : Γ' }}.
+Lemma ctxeq_sub : forall {Δ Γ Γ1 σ Γ'}, {{ Δ ⊢ Γ ≈ Γ1 }} -> {{ Δ ;; Γ ⊢s σ : Γ' }} -> {{ Δ ;; Γ1 ⊢s σ : Γ' }}.
 Proof. mauto. Qed.
 
-Lemma ctxeq_sub_eq : forall {Γ Δ σ σ' Γ'}, {{ ⊢ Γ ≈ Δ }} -> {{ Γ ⊢s σ ≈ σ' : Γ' }} -> {{ Δ ⊢s σ ≈ σ' : Γ' }}.
+Lemma ctxeq_sub_eq : forall {Δ Γ Γ1 σ σ' Γ'}, {{ Δ ⊢ Γ ≈ Γ1 }} -> {{ Δ ;; Γ ⊢s σ ≈ σ' : Γ' }} -> {{ Δ ;; Γ1 ⊢s σ ≈ σ' : Γ' }}.
 Proof. mauto. Qed.
 
-Lemma ctxeq_subtyp : forall {Γ Δ A B}, {{ ⊢ Γ ≈ Δ }} -> {{ Γ ⊢ A ⊆ B }} -> {{ Δ ⊢ A ⊆ B }}.
+Lemma ctxeq_subtyp : forall {Δ Γ Γ1 A B}, {{ Δ ⊢ Γ ≈ Γ1 }} -> {{ Δ ;; Γ ⊢ A ⊆ B }} -> {{ Δ ;; Γ1 ⊢ A ⊆ B }}.
 Proof. mauto. Qed.
 
 #[export]
 Hint Resolve ctxeq_exp ctxeq_exp_eq ctxeq_sub ctxeq_sub_eq ctxeq_subtyp : mctt.
 
 
-Lemma ctx_eq_trans : forall {Γ0 Γ1 Γ2}, {{ ⊢ Γ0 ≈ Γ1 }} -> {{ ⊢ Γ1 ≈ Γ2 }} -> {{ ⊢ Γ0 ≈ Γ2 }}.
+Lemma ctx_eq_trans : forall {Δ Γ0 Γ1 Γ2}, {{ Δ ⊢ Γ0 ≈ Γ1 }} -> {{ Δ ⊢ Γ1 ≈ Γ2 }} -> {{ Δ ⊢ Γ0 ≈ Γ2 }}.
 Proof with mautosolve.
   intros * HΓ01.
   gen Γ2.
-  induction HΓ01 as [|Γ0 ? i01 T0 T1]; mauto.
-  inversion_clear 1 as [|? Γ2' i12 ? T2].
+  induction HΓ01 as [|? Γ0 ? i01 A0 A1]; mauto.
+  inversion_clear 1 as [|? ? Γ2' i12 ? A2].
   clear Γ2; rename Γ2' into Γ2.
   set (i := max i01 i12).
-  assert {{ Γ0 ⊢ T0 : Type@i }} by mauto using lift_exp_max_left.
-  assert {{ Γ2 ⊢ T2 : Type@i }} by mauto using lift_exp_max_right.
-  assert {{ Γ0 ⊢ T0 ≈ T1 : Type@i }} by mauto using lift_exp_eq_max_left.
-  assert {{ Γ2 ⊢ T1 ≈ T2 : Type@i }} by mauto using lift_exp_eq_max_right.
-  assert {{ ⊢ Γ0 ≈ Γ2 }} by mauto.
-  assert {{ Γ0 ⊢ T0 ≈ T2 : Type@i }} by mauto.
+  assert {{ Δ ;; Γ0 ⊢ A0 : Type@i }} by mauto using lift_exp_max_left.
+  assert {{ Δ ;; Γ2 ⊢ A2 : Type@i }} by mauto using lift_exp_max_right.
+  assert {{ Δ ;; Γ0 ⊢ A0 ≈ A1 : Type@i }} by mauto using lift_exp_eq_max_left.
+  assert {{ Δ ;; Γ2 ⊢ A1 ≈ A2 : Type@i }} by mauto using lift_exp_eq_max_right.
+  assert {{ Δ ⊢ Γ0 ≈ Γ2 }} by mauto.
+  assert {{ Δ ;; Γ0 ⊢ A0 ≈ A2 : Type@i }} by mauto.
   econstructor...
 Qed.
 
@@ -61,7 +61,7 @@ Qed.
 Hint Resolve ctx_eq_trans : mctt.
 
 #[export]
-Instance wf_ctx_PER : PER wf_ctx_eq.
+Instance wf_ctx_PER Δ : PER (wf_ctx_eq Δ).
 Proof.
   split.
   - eauto using ctx_eq_sym.
@@ -69,37 +69,36 @@ Proof.
 Qed.
 
 
-
-Add Parametric Morphism : wf_exp
-  with signature wf_ctx_eq ==> eq ==> eq ==> iff as ctxeq_exp_morphism.
+Add Parametric Morphism Δ : (wf_exp Δ)
+  with signature (wf_ctx_eq Δ) ==> eq ==> eq ==> iff as ctxeq_exp_morphism.
 Proof.
   intros. split; mauto 3.
 Qed.
 
 
-Add Parametric Morphism : wf_exp_eq
-  with signature wf_ctx_eq ==> eq ==> eq ==> eq ==> iff as ctxeq_exp_eq_morphism.
+Add Parametric Morphism Δ : (wf_exp_eq Δ)
+  with signature (wf_ctx_eq Δ) ==> eq ==> eq ==> eq ==> iff as ctxeq_exp_eq_morphism.
 Proof.
   intros. split; mauto 3.
 Qed.
 
 
-Add Parametric Morphism : wf_sub
-  with signature wf_ctx_eq ==> eq ==> eq ==> iff as ctxeq_sub_morphism.
+Add Parametric Morphism Δ : (wf_sub Δ)
+  with signature (wf_ctx_eq Δ) ==> eq ==> eq ==> iff as ctxeq_sub_morphism.
 Proof.
   intros. split; mauto 3.
 Qed.
 
 
-Add Parametric Morphism : wf_sub_eq
-  with signature wf_ctx_eq ==> eq ==> eq ==> eq ==> iff as ctxeq_sub_eq_morphism.
+Add Parametric Morphism Δ : (wf_sub_eq Δ)
+  with signature (wf_ctx_eq Δ) ==> eq ==> eq ==> eq ==> iff as ctxeq_sub_eq_morphism.
 Proof.
   intros. split; mauto 3.
 Qed.
 
 
-Add Parametric Morphism : wf_subtyp
-  with signature wf_ctx_eq ==> eq ==> eq ==> iff as ctxeq_subtyp_morphism.
+Add Parametric Morphism Δ : (wf_subtyp Δ)
+  with signature (wf_ctx_eq Δ) ==> eq ==> eq ==> iff as ctxeq_subtyp_morphism.
 Proof.
   intros. split; mauto 3.
 Qed.
