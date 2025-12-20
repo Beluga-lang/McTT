@@ -1472,7 +1472,6 @@ Hint Resolve presub_exp_eq_helper : mctt.
 
 (* the weakening of gctx seems to need a mutual proof with multiple judgements *)
 
-
 #[export]
 Hint Resolve presup_ctx_lookup_typ : mctt.
 
@@ -1550,29 +1549,39 @@ Proof.
     try solve [econstructor; mauto 4].
 Qed.
 
+Lemma wf_ctx_weakening_gctx : forall {Δ Γ M A},
+    {{ Δ ;; Γ ⊢ M : A }} ->
+    forall Δ',
+      {{ ⊢ Δ ,++ Δ' }} ->
+      {{ Δ ,++ Δ' ;; Γ ⊢ M : A}}.
+Proof.
+  intros. eapply wf_weakening_gctx; mauto 3.
+Qed. 
+
+Lemma wf_ctx_weakeng_gctx_cons : forall {Δ A M Γ},
+    {{ Δ ;; Γ ⊢ M : A }} ->
+    forall x N B,
+      {{ ⊢ Δ , x := [ N ] :: B }} ->
+      {{ Δ , x := [ N ] :: B ;; Γ ⊢ M : A }}.
+Proof.
+  intros. 
+  replace {{{ Δ, x:=[^N]::B }}} with {{{ Δ ,++ (^nil,x:=[^N]::B) }}} by mauto 3.
+  eapply wf_weakening_gctx; mauto 3.
+Qed.
+
+#[export]
+Hint Resolve wf_ctx_weakening_gctx wf_ctx_weakeng_gctx_cons : mctt.
+
 Lemma presup_gctx_lookup_typ_nil : forall {Δ A x M},
     {{ ⊢ Δ }} ->
     {{ `#x := [ M ] :: A ∈ Δ }} ->
     exists i, {{ Δ ;; ⋅ ⊢ A : Type@i }}.
 Proof with mautosolve 4.
   intros * HΔ.
-  induction 1; inversion_clear HΔ.
-  - eexists.
-    replace {{{ Δ, x:=M0::A }}} with {{{ Δ ,++ (^nil,x:=M0::A) }}} by mauto 3.
-    eapply wf_weakening_gctx; mauto 3.
-    econstructor; mauto 3.
-  - eexists.
-    replace {{{ Δ, x:=∅::A }}} with {{{ Δ ,++ (^nil,x:=∅::A) }}} by mauto 3.
-    eapply wf_weakening_gctx; mauto 3.
-    econstructor; mauto 3.
-  - apply IHgctx_lookup in H1 as H1'. destruct H1' as [i' HIH]. eexists.
-    replace {{{ Δ, x:=M0::B }}} with {{{ Δ ,++ (^nil,x:=M0::B) }}} by mauto 3.
-    eapply wf_weakening_gctx; mauto 3.
-    econstructor; mauto 3.
-  - apply IHgctx_lookup in H1 as H1'. destruct H1' as [i' HIH]. eexists.
-    replace {{{ Δ, x:=∅::B }}} with {{{ Δ ,++ (^nil,x:=∅::B) }}} by mauto 3.
-    eapply wf_weakening_gctx; mauto 3.
-    econstructor; mauto 3.
+  induction 1; inversion_clear HΔ;
+    try assert (∃ i : nat, {{ Δ;; ⋅ ⊢ A : Type@i }}) by mauto 3; destruct_all;
+    eexists;
+    eapply wf_ctx_weakeng_gctx_cons; mauto 4; try solve [econstructor; mauto 3].
 Qed.
 
 Scheme 
@@ -1600,6 +1609,7 @@ Qed.
 #[export]
 Hint Resolve ctx_lookup_weakening : mctt.
 
+(* TODO: automate and speed up this *)
 Lemma wf_weakening_ctx : 
     (forall Δ Γ Γ', {{ Δ ⊢ Γ ⊆ Γ' }} -> forall Γ1, {{ ⊢ Δ ;; ^(Γ ++ Γ1) }} -> {{ Δ ⊢ ^(Γ ++ Γ1) ⊆ ^(Γ' ++ Γ1) }}) /\
     (forall Δ Γ A M, {{ Δ ;; Γ ⊢ M : A }} -> forall Γ', {{ ⊢ Δ ;; ^(Γ ++ Γ') }} -> {{ Δ ;; ^(Γ ++ Γ') ⊢ M : A }}) /\
@@ -1687,9 +1697,6 @@ Proof.
   eapply wf_weakening_ctx; mauto 3.
 Qed.
 
-(* TODO: to prove this, we may need the weakening of both gctx and ctx, some of which 
-   are stated below. the weakening of ctx, in the presence of explicit substitution,
-   is less clear to me *)
 Lemma presup_exp_typ : forall {Δ Γ M A},
     {{ Δ ;; Γ ⊢ M : A }} ->
     exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
@@ -1731,11 +1738,9 @@ Proof.
   mauto 4 using presup_exp_typ.
 Qed. 
 
-
 (** *** Consistency Helper *)
 
-(* TODO: needs a closer look, the conclusion could be possibly 
-   strengthened to any axiom free Δ *)
+(* TODO: the conclusion could be possibly strengthened to any axiom free Δ *)
 Lemma no_closed_neutral : forall {A} {W : ne},
     ~ {{ ⋅ ;; ⋅ ⊢ W : A }}.
 Proof.
