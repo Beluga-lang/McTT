@@ -3,9 +3,9 @@ From Mctt.Core Require Import Base.
 From Mctt.Core.Syntactic Require Export System.
 Import Syntax_Notations.
 
-Lemma ctx_sub_refl : forall {Γ},
-    {{ ⊢ Γ }} ->
-    {{ ⊢ Γ ⊆ Γ }}.
+Lemma ctx_sub_refl : forall {Δ Γ},
+    {{ Δ ⊢ Γ }} ->
+    {{ Δ ⊢ Γ ⊆ Γ }}.
 Proof with mautosolve.
   induction 1...
 Qed.

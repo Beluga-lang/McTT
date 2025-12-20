@@ -7,8 +7,8 @@ From Mctt.Core.Syntactic Require Export Syntax.
 Import Syntax_Notations.
 
 (* TODO: better notation to replace Δ ;; Γ *)
-Reserved Notation "⊢ Δ ;; Γ" (in custom judg at level 80, Γ custom exp, Δ custom exp).
-Reserved Notation "⊢ Δ " (in custom judg at level 80, Δ custom exp).
+Reserved Notation "⊢ Δ" (in custom judg at level 80, Δ custom exp).
+Reserved Notation "Δ ⊢ Γ" (in custom judg at level 80, Γ custom exp, Δ custom exp).
 Reserved Notation "Δ ⊢ Γ ≈ Γ' " (in custom judg at level 80, Δ custom exp, Γ custom exp, Γ' custom exp).
 Reserved Notation "Δ ;; Γ ⊢ M ≈ M' : A" (in custom judg at level 80, Δ custom exp, Γ custom exp, M custom exp, M' custom exp, A custom exp).
 Reserved Notation "Δ ;; Γ ⊢ M : A" (in custom judg at level 80, Δ custom exp, Γ custom exp, M custom exp, A custom exp).
@@ -53,12 +53,12 @@ where "⊢ Δ " := (wf_gctx Δ) (in custom judg) : type_scope
 with wf_ctx : gctx -> ctx -> Prop :=
 | wf_ctx_empty : 
   `( {{ ⊢ Δ }} ->
-     {{ ⊢ Δ ;; ⋅ }} )
+     {{ Δ ⊢ ⋅ }} )
 | wf_ctx_extend :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ Δ ;; Γ ⊢ A : Type@i }} ->
-     {{ ⊢ Δ ;; Γ, A }} )
-where "⊢ Δ ;; Γ" := (wf_ctx Δ Γ) (in custom judg) : type_scope
+     {{ Δ ⊢ Γ, A }} )
+where "Δ ⊢ Γ" := (wf_ctx Δ Γ) (in custom judg) : type_scope
 
 (* with wf_gctx_sub  *)
 
@@ -78,13 +78,13 @@ where "Δ ⊢ Γ ⊆ Γ' " := (wf_ctx_sub Δ Γ Γ') (in custom judg) : type_sco
 
 with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
 | wf_typ :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ Δ ;; Γ ⊢ Type@i : Type@(S i) }} )
 | wf_nat :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ Δ ;; Γ ⊢ ℕ : Type@0 }} )
 | wf_zero :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ Δ ;; Γ ⊢ zero : ℕ }} )
 | wf_succ :
   `( {{ Δ ;; Γ ⊢ M : ℕ }} ->
@@ -134,11 +134,11 @@ with wf_exp : gctx -> ctx -> typ -> exp -> Prop :=
      {{ Δ ;; Γ ⊢ snd M : B[Id,,fst M] }} )
 
 | wf_vlookup :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ #x : A ∈ Γ }} ->
      {{ Δ ;; Γ ⊢ #x : A }} )
 | wf_gvlookup :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ `#x := [ M ] :: A ∈ Δ }} ->
      (* feel like I have to weaken this A by len Γ explicitly *)
      {{ Δ ;; Γ ⊢ `#x : A }} )
@@ -186,10 +186,10 @@ where "Δ ;; Γ ⊢ M : A" := (wf_exp Δ Γ A M) (in custom judg) : type_scope
 
 with wf_sub : gctx -> ctx -> ctx -> sub -> Prop :=
 | wf_sub_id :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢  Γ }} ->
      {{ Δ ;; Γ ⊢s Id : Γ }} )
 | wf_sub_weaken :
-  `( {{ ⊢ Δ ;; Γ, A }} ->
+  `( {{ Δ ⊢ Γ, A }} ->
      {{ Δ ;; Γ, A ⊢s Wk : Γ }} )
 | wf_sub_compose :
   `( {{ Δ ;; Γ1 ⊢s σ2 : Γ2 }} ->
@@ -206,7 +206,7 @@ with wf_sub : gctx -> ctx -> ctx -> sub -> Prop :=
          for soundness. We don't need to keep it asymmetric,
          but do so to match with [wf_exp_subtyp].
       *)
-     {{ ⊢ Δ ;; Γ3 }} ->
+     {{ Δ ⊢ Γ3 }} ->
      {{ Δ ⊢ Γ2 ⊆ Γ3 }} ->
      {{ Δ ;; Γ1 ⊢s σ : Γ3 }} )
 where "Δ ;; Γ ⊢s σ : Γ' " := (wf_sub Δ Γ Γ' σ) (in custom judg) : type_scope
@@ -418,7 +418,7 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
          : B[Id,,M,,M,,refl A M] }} )
 
 | wf_exp_eq_var :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ #x : A ∈ Γ }} ->
      {{ Δ ;; Γ ⊢ #x ≈ #x : A }} )
 | wf_exp_eq_var_0_sub :
@@ -433,7 +433,7 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ #x : B ∈ Γ' }} ->
      {{ Δ ;; Γ ⊢ #(S x)[σ,,M] ≈ #x[σ] : B[σ] }} )
 | wf_exp_eq_var_weaken :
-  `( {{ ⊢ Δ ;; Γ, B }} ->
+  `( {{ Δ ⊢ Γ, B }} ->
      {{ #x : A ∈ Γ }} ->
      {{ Δ ;; Γ, B ⊢ #x[Wk] ≈ #(S x) : A[Wk] }} )
 | wf_exp_eq_sub_cong :
@@ -455,11 +455,11 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      (* in principle, A ≈ A[σ] for global defs *)
      {{ Δ ;; Γ ⊢ `#x[σ] ≈ `#x : A }} )
 | wf_exp_eq_delta :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ `#x := [ ^(Some M) ] :: A ∈ Δ }} ->
      {{ Δ ;; Γ ⊢ `#x ≈ M : A }} )
 | wf_exp_eq_gvar_ax_refl :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ `#x := [ ^None ] :: A ∈ Δ }} ->
      {{ Δ ;; Γ ⊢ `#x ≈ `#x : A }} )
 
@@ -483,10 +483,10 @@ where "Δ ;; Γ ⊢ M ≈ M' : A" := (wf_exp_eq Δ Γ A M M') (in custom judg) :
 
 with wf_sub_eq : gctx -> ctx -> ctx -> sub -> sub -> Prop :=
 | wf_sub_eq_id :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      {{ Δ ;; Γ ⊢s Id ≈ Id : Γ }} )
 | wf_sub_eq_weaken :
-  `( {{ ⊢ Δ ;; Γ, A }} ->
+  `( {{ Δ ⊢ Γ, A }} ->
      {{ Δ ;; Γ, A ⊢s Wk ≈ Wk : Γ }} )
 | wf_sub_eq_compose_cong :
   `( {{ Δ ;; Γ ⊢s τ ≈ τ' : Γ' }} ->
@@ -534,7 +534,7 @@ with wf_sub_eq : gctx -> ctx -> ctx -> sub -> sub -> Prop :=
      (** This extra argument is here to be consistent with
          [wf_sub_subtyp].
       *)
-     {{ ⊢ Δ ;; Γ'' }} ->
+     {{ Δ ⊢ Γ'' }} ->
      {{ Δ ⊢ Γ' ⊆ Γ'' }} ->
      {{ Δ ;; Γ ⊢s σ ≈ σ' : Γ'' }} )
 where "Δ ;; Γ ⊢s σ ≈ σ' : Γ'" := (wf_sub_eq Δ Γ Γ' σ σ') (in custom judg) : type_scope
@@ -558,7 +558,7 @@ with wf_subtyp : gctx -> ctx -> typ -> typ -> Prop :=
      {{ Δ ;; Γ ⊢ M' ⊆ M'' }} ->
      {{ Δ ;; Γ ⊢ M ⊆ M'' }} )
 | wf_subtyp_univ :
-  `( {{ ⊢ Δ ;; Γ }} ->
+  `( {{ Δ ⊢ Γ }} ->
      i < j ->
      {{ Δ ;; Γ ⊢ Type@i ⊆ Type@j }} )
 | wf_subtyp_pi :
@@ -658,7 +658,7 @@ Qed.
 
 (** Immediate & Independent Presuppositions *)
 
-Lemma presup_ctx_sub : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ ⊢ Δ }} /\ {{ ⊢ Δ ;; Γ }} /\ {{ ⊢ Δ ;; Γ' }}.
+Lemma presup_ctx_sub : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ ⊢ Δ }} /\ {{ Δ ⊢ Γ }} /\ {{ Δ ⊢ Γ' }}.
 Proof with mautosolve.
   induction 1; destruct_pairs; repeat split...
 Qed.
@@ -674,7 +674,7 @@ Qed.
 #[export]
 Hint Resolve presup_ctx_sub_gctx : mctt.
 
-Lemma presup_ctx_sub_left : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ ⊢ Δ ;; Γ }}.
+Lemma presup_ctx_sub_left : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ Δ ⊢ Γ }}.
 Proof with easy.
   intros * ?%presup_ctx_sub...
 Qed.
@@ -682,7 +682,7 @@ Qed.
 #[export]
 Hint Resolve presup_ctx_sub_left : mctt.
 
-Lemma presup_ctx_sub_right : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ ⊢ Δ ;; Γ' }}.
+Lemma presup_ctx_sub_right : forall {Δ Γ Γ'}, {{ Δ ⊢ Γ ⊆ Γ' }} -> {{ Δ ⊢ Γ' }}.
 Proof with easy.
   intros * ?%presup_ctx_sub...
 Qed.
