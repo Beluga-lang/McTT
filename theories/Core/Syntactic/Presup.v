@@ -1468,11 +1468,14 @@ Proof with mautosolve 4.
   (** gvar cases **)
 
   (* TODO: the first case is a bit problematic *)
-  - admit.
-  - admit.
-  - admit.
-  - admit.
-  - admit.
+  - eapply @presup_gctx_lookup_typ with (Γ:=Γ) in H1 as IH; mauto 3.
+    destruct_all. 
+    econstructor; mauto 3.
+    admit.
+  - eapply presup_gctx_lookup_typ; mauto 3.
+  - eapply presup_gctx_lookup_exp; mauto 3.
+  - eapply presup_gctx_lookup_typ; mauto 3.
+  - eapply presup_gctx_lookup_typ; mauto 3.
 
   (** presup_exp_eq cases *)
 

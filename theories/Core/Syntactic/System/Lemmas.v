@@ -1584,6 +1584,18 @@ Proof with mautosolve 4.
     eapply wf_ctx_weakeng_gctx_cons; mauto 4; try solve [econstructor; mauto 3].
 Qed.
 
+(* TODO: fix notation (minor: find a way to not use dependent induction) *)
+Lemma presup_gctx_lookup_exp_nil : forall {Δ A x M},
+    {{ ⊢ Δ }} ->
+    gctx_lookup x (Some M) A Δ ->
+    {{ Δ ;; ⋅ ⊢ M : A }}.
+Proof with mautosolve 4.
+  intros * HΔ Hin.
+  dependent induction Hin; inversion_clear HΔ;
+    eapply wf_ctx_weakeng_gctx_cons; mauto 4;
+    econstructor; mauto 3.
+Qed.
+
 Scheme 
 wf_ctx_sub_mut_ind3 := Induction for wf_ctx_sub Sort Prop
 with wf_exp_mut_ind3 := Induction for wf_exp Sort Prop
@@ -1701,6 +1713,19 @@ Proof.
   assert (exists i, {{ Δ ;; ⋅ ⊢ A : Type@i }}) by (eapply presup_gctx_lookup_typ_nil; eauto 3).
   destruct_all.
   exists i.
+  replace Γ with (nil ++ Γ) by mauto 3.
+  eapply wf_weakening_ctx; mauto 3.
+Qed.
+
+Lemma presup_gctx_lookup_exp : forall {Δ Γ A x M},
+    {{ Δ ⊢ Γ }} ->
+    gctx_lookup x (Some M) A Δ ->
+    {{ Δ ;; Γ ⊢ M : A }}.
+Proof with mautosolve 4.
+  intros.
+  assert {{ ⊢ Δ }} by mauto 4.
+  assert ({{ Δ ;; ⋅ ⊢ M : A }}) by (eapply presup_gctx_lookup_exp_nil; eauto 3).
+  destruct_all.
   replace Γ with (nil ++ Γ) by mauto 3.
   eapply wf_weakening_ctx; mauto 3.
 Qed.
