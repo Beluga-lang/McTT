@@ -40,11 +40,13 @@ Module ctxsub_judg.
       clear ctxsub_exp_helper ctxsub_exp_eq_helper ctxsub_sub_helper ctxsub_sub_eq_helper ctxsub_subtyp_helper;
       intros * HΓ1Γ; destruct (presup_ctx_sub HΓ1Γ); mauto 4;
       try (rename B into C); try (rename B' into C'); try (rename A0 into B); try (rename A' into B').
+    (** 35 cases remaining **)
+
     (** ctxsub_exp_helper & ctxsub_exp_eq_helper recursion cases *)
-    1,12-15: assert {{ Δ ⊢ Γ1, ℕ ⊆ Γ, ℕ }} by (econstructor; mautosolve);
+    1,12-14: assert {{ Δ ⊢ Γ1, ℕ ⊆ Γ, ℕ }} by (econstructor; mautosolve);
     assert {{ Δ ;; Γ1, ℕ ⊢ B : Type@i }} by eauto; econstructor...
     (** ctxsub_exp_helper & ctxsub_exp_eq_helper function cases *)
-    1-3,11-17: assert {{ Δ ;; Γ1 ⊢ B : Type@i }} by eauto; assert {{ Δ ⊢ Γ1, B ⊆ Γ, B }} by mauto;
+    1-3,11-15: assert {{ Δ ;; Γ1 ⊢ B : Type@i }} by eauto; assert {{ Δ ⊢ Γ1, B ⊆ Γ, B }} by mauto;
     try econstructor...
     (** equality type case *)
     6,15:idtac...

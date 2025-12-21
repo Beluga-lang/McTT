@@ -1239,7 +1239,7 @@ Proof with mautosolve 4.
   assert {{ Δ ;; Γ'' ⊢ #0[WkWksucc] ≈ succ #1 : ℕ }} by mauto.
   assert {{ Δ ;; Γ'' ⊢ succ #1[q (q σ)] ≈ succ #1 : ℕ }} by mauto 3.
   assert {{ Δ ;; Γ'' ⊢ #1 : ℕ }} by mauto 2.
-  assert {{ Δ ;; Γ'' ⊢ succ #1 ≈ (succ #1)[q (q σ)] : ℕ }} by mauto 4.
+  assert {{ Δ ;; Γ'' ⊢ succ #1 ≈ (succ #1)[q (q σ)] : ℕ }} by mauto 5.
   assert {{ Δ ;; Γ'' ⊢ #0[WkWksucc] ≈ (succ #1)[q (q σ)] : ℕ }} by mauto 2.
   assert {{ Δ ;; Γ'' ⊢s (σ∘Wk)∘WkWksucc : Γ' }} by mauto 3.
   assert {{ Δ ;; Γ'' ⊢s ((σ∘Wk)∘WkWksucc),,#0[WkWksucc] ≈ ((Wk∘Wk)∘q (q σ)),,(succ #1)[q (q σ)] : Γ', ℕ }} by mauto 3.
@@ -1579,7 +1579,7 @@ Lemma presup_gctx_lookup_typ_nil : forall {Δ A x M},
 Proof with mautosolve 4.
   intros * HΔ.
   induction 1; inversion_clear HΔ;
-    try assert (∃ i : nat, {{ Δ;; ⋅ ⊢ A : Type@i }}) by mauto 3; destruct_all;
+    try assert (∃ i : nat, {{ Δ ;; ⋅ ⊢ A : Type@i }}) by mauto 3; destruct_all;
     eexists;
     eapply wf_ctx_weakeng_gctx_cons; mauto 4; try solve [econstructor; mauto 3].
 Qed.
@@ -1636,8 +1636,10 @@ Proof.
     simpl. eapply H2.
     econstructor; mauto 4.
   - econstructor; mauto 4.
+    eapply H0. econstructor; mauto 4.
     eapply H2.
-    econstructor; mauto 4.
+    simpl; econstructor; mauto 4.
+    eapply H0. econstructor; mauto 4.
   - econstructor; mauto 4.
     eapply H1. econstructor; mauto 4.
   - econstructor; mauto 4.
@@ -1650,6 +1652,12 @@ Proof.
     econstructor; mauto 4.
   - econstructor; mauto 4.
     eapply H1.
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1. 
+    econstructor; mauto 4.
+  - econstructor; mauto 4.
+    eapply H1. 
     econstructor; mauto 4.
   - econstructor; mauto 4.
     eapply H1. 

@@ -224,7 +224,7 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ ⊢ zero[σ] ≈ zero : ℕ }} )
 | wf_exp_eq_succ_sub :
   `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
-     {{ Δ ;; Γ ⊢ M : ℕ }} ->
+     {{ Δ ;; Γ' ⊢ M : ℕ }} ->
      {{ Δ ;; Γ ⊢ (succ M)[σ] ≈ succ (M[σ]) : ℕ }} )
 | wf_exp_eq_succ_cong :
   `( {{ Δ ;; Γ ⊢ M ≈ M' : ℕ }} ->
@@ -238,10 +238,10 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ ⊢ rec M return A | zero -> MZ | succ -> MS end ≈ rec M' return A' | zero -> MZ' | succ -> MS' end : A[Id,,M] }} )
 | wf_exp_eq_natrec_sub :
   `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
-     {{ Δ ;; Γ, ℕ ⊢ A : Type@i }} ->
-     {{ Δ ;; Γ ⊢ MZ : A[Id,,zero] }} ->
-     {{ Δ ;; Γ, ℕ, A ⊢ MS : A[Wk∘Wk,,succ #1] }} ->
-     {{ Δ ;; Γ ⊢ M : ℕ }} ->
+     {{ Δ ;; Γ', ℕ ⊢ A : Type@i }} ->
+     {{ Δ ;; Γ' ⊢ MZ : A[Id,,zero] }} ->
+     {{ Δ ;; Γ', ℕ, A ⊢ MS : A[Wk∘Wk,,succ #1] }} ->
+     {{ Δ ;; Γ' ⊢ M : ℕ }} ->
      {{ Δ ;; Γ ⊢ rec M return A | zero -> MZ | succ -> MS end[σ] ≈ rec M[σ] return A[q σ] | zero -> MZ[σ] | succ -> MS[q (q σ)] end : A[σ,,M[σ]] }} )
 | wf_exp_eq_nat_beta_zero :
   `( {{ Δ ;; Γ, ℕ ⊢ A : Type@i }} ->
@@ -272,8 +272,8 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ ⊢ λ A M ≈ λ A' M' : Π A B }} )
 | wf_exp_eq_fn_sub :
   `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
-     {{ Δ ;; Γ ⊢ A : Type@i }} ->
-     {{ Δ ;; Γ, A ⊢ M : B }} ->
+     {{ Δ ;; Γ' ⊢ A : Type@i }} ->
+     {{ Δ ;; Γ', A ⊢ M : B }} ->
      {{ Δ ;; Γ ⊢ (λ A M)[σ] ≈ λ A[σ] M[q σ] : (Π A B)[σ] }} )
 | wf_exp_eq_app_cong :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
@@ -283,10 +283,10 @@ with wf_exp_eq : gctx -> ctx -> typ -> exp -> exp -> Prop :=
      {{ Δ ;; Γ ⊢ M N ≈ M' N' : B[Id,,N] }} )
 | wf_exp_eq_app_sub :
   `( {{ Δ ;; Γ ⊢s σ : Γ' }} ->
-     {{ Δ ;; Γ ⊢ A : Type@i }} ->
-     {{ Δ ;; Γ, A ⊢ B : Type@i }} ->
-     {{ Δ ;; Γ ⊢ M : Π A B }} ->
-     {{ Δ ;; Γ ⊢ N : A }} ->
+     {{ Δ ;; Γ' ⊢ A : Type@i }} ->
+     {{ Δ ;; Γ', A ⊢ B : Type@i }} ->
+     {{ Δ ;; Γ' ⊢ M : Π A B }} ->
+     {{ Δ ;; Γ' ⊢ N : A }} ->
      {{ Δ ;; Γ ⊢ (M N)[σ] ≈ M[σ] N[σ] : B[σ,,N[σ]] }} )
 | wf_exp_eq_pi_beta :
   `( {{ Δ ;; Γ ⊢ A : Type@i }} ->
