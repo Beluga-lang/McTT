@@ -1,3 +1,4 @@
+From Coq Require Import Nat.
 From Mctt Require Import LibTactics.
 From Mctt.Core Require Import Base.
 From Mctt.Core.Syntactic Require Export CtxEq.
@@ -1425,6 +1426,53 @@ Qed.
 #[local]
 Hint Resolve presup_exp_eq_sub_compose_right : mctt.
 
+Lemma wf_subst_sigma_wk : forall {Δ Γ Γ' Γ'' σ},
+  {{ Δ ;; Γ' ⊢s σ : Γ'' }} ->
+  {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) σ) : Γ'' ,++ Γ }}.
+Proof.
+Admitted.
+
+Lemma wf_subst_id_wk : forall {Δ Γ Γ'},
+  {{ Δ ⊢ Γ' }} ->
+  {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) {{{ Id }}}) : Γ' ,++ Γ }}.
+Proof.
+Admitted.
+
+#[local]
+Hint Resolve wf_subst_sigma_wk wf_subst_id_wk : mctt.
+
+Lemma subst_wk_exp_eq : forall {Δ Γ M A Γ' Γ'' σ},
+  {{ Δ ;; Γ ⊢ M : A }} ->
+  {{ Δ ;; Γ' ⊢s σ : Γ'' }} ->
+  {{ Δ ;; Γ' ,++ Γ ⊢ M[ ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) {{{ Id }}}) ] 
+                     ≈ M[ ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) σ) ] : A[ ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) {{{ Id }}}) ] }}.
+Proof.
+  induction 1; intros.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - (* I think the proof works as follows:
+       we know x < length Γ , and we can induction on x *)
+    admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - admit.
+  - (* we have to generalize the lemma to subtyping judgement, which 
+       may in turn require further generalization *)
+    admit.
+Admitted.
+
 #[local]
 Ltac gen_presup_IH presup_exp_eq presup_sub_eq presup_subtyp H :=
   match type of H with
@@ -1470,6 +1518,7 @@ Proof with mautosolve 4.
   (* TODO: the first case is a bit problematic *)
   - eapply @presup_gctx_lookup_typ with (Γ:=Γ) in H1 as IH; mauto 3.
     destruct_all. 
+    econstructor; mauto 3.
     econstructor; mauto 3.
     admit.
   - eapply presup_gctx_lookup_typ; mauto 3.

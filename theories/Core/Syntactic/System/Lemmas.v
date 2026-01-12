@@ -1621,6 +1621,9 @@ Qed.
 #[export]
 Hint Resolve ctx_lookup_weakening : mctt.
 
+
+
+
 (* TODO: automate and speed up this *)
 Lemma wf_weakening_ctx : 
     (forall Δ Γ Γ', {{ Δ ⊢ Γ ⊆ Γ' }} -> forall Γ1, {{ Δ ⊢ ^(Γ ++ Γ1) }} -> {{ Δ ⊢ ^(Γ ++ Γ1) ⊆ ^(Γ' ++ Γ1) }}) /\
@@ -1703,10 +1706,11 @@ Proof.
   - eapply wf_sub_eq_subtyp; mauto 5.
 Qed.
 
+
 Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
     {{ Δ ⊢ Γ }} ->
     {{ `#x := [ M ] :: A ∈ Δ }} ->
-    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
+    exists i, {{ Δ ;; Γ ⊢ A ≈ A[wk ^ len (Γ)] : Type@i }}.
 Proof.
   intros.
   assert {{ ⊢ Δ }} by mauto 4.
