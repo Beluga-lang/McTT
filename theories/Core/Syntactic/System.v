@@ -20,7 +20,7 @@ Hint Resolve weakening_lookup : mctt.
 
 Ltac simplify_ihs Γ' :=
   repeat match goal with
-  | H: forall {G' : ctx}, wf_ctx ?G -> ?H' |- _ =>
+  | H: forall {G' : ctx}, {{ ⊢ ^?G }} -> ?H' |- _ =>
       pose proof (H Γ' ltac:(mauto 3));
       fail_if_dup
   end.
