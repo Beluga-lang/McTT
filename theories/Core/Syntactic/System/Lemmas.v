@@ -1622,8 +1622,6 @@ Qed.
 Hint Resolve ctx_lookup_weakening : mctt.
 
 
-
-
 (* TODO: automate and speed up this *)
 Lemma wf_weakening_ctx : 
     (forall Δ Γ Γ', {{ Δ ⊢ Γ ⊆ Γ' }} -> forall Γ1, {{ Δ ⊢ ^(Γ ++ Γ1) }} -> {{ Δ ⊢ ^(Γ ++ Γ1) ⊆ ^(Γ' ++ Γ1) }}) /\
