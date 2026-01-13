@@ -4,6 +4,7 @@ From Mctt.Core Require Import Base.
 From Mctt.Core.Syntactic Require Export CtxEq.
 Import Syntax_Notations.
 
+
 Lemma presup_exp_eq_natrec_cong_right : forall {Δ Γ i A A' MZ' MS' M M'},
     {{ Δ ⊢ Γ, ℕ }} ->
     {{ Δ ;; Γ, ℕ ⊢ A : Type@i }} ->
@@ -1426,29 +1427,10 @@ Qed.
 #[local]
 Hint Resolve presup_exp_eq_sub_compose_right : mctt.
 
-Lemma wf_subst_eq_id_wk : forall {Δ Γ Γ'},
-  {{ Δ ⊢ Γ' }} ->
-  {{ Δ ⊢ Γ' ,++ Γ }} ->
-  {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (length Γ) (fun τ => {{{ q τ }}}) {{{ Id }}}) ≈ Id : Γ' ,++ Γ }}.
-Proof.
-  intros. induction Γ; simpl; mauto 3.
-  - inversion_clear H0; econstructor; mauto 3.
-Admitted.
-
-Lemma wf_subst_id_wk : forall {Δ Γ Γ'},
-  {{ Δ ⊢ Γ' }} ->
-  {{ Δ ⊢ Γ' ,++ Γ }} ->
-  {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (length Γ) (fun τ => {{{ q τ }}}) {{{ Id }}}) : Γ' ,++ Γ }}.
-Proof.
-  intros. induction Γ; simpl; mauto 3.
-  - inversion_clear H0; econstructor; mauto 3.
-    + econstructor; mauto 3.
-Admitted.
-
-Fixpoint iter_subst_sigma_wk (Γ : ctx) (σ : sub) :=
+(* Fixpoint iter_subst_sigma_wk (Γ : ctx) (σ : sub) :=
   match Γ with
   | nil => nil
-  | {{{ Γ , A }}} => {{{ ^(iter_subst_sigma_wk Γ σ) , A [ ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) ] }}} 
+  | {{{ Γ , A }}} => {{{ ^(iter_subst_sigma_wk Γ σ) , A[ ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) ] }}} 
   end.
 
 Lemma wf_subst_sigma_wk : forall {Δ Γ Γ' Γ'' σ},
@@ -1459,30 +1441,51 @@ Proof.
   intros. induction Γ; simpl; mauto 3.
   - inversion_clear H0. 
     assert {{ Δ ⊢ Γ',++^ (iter_subst_sigma_wk Γ σ), a[^ (iter (length Γ) (fun τ : sub => {{{ τ∘Wk,,#0 }}}) σ)] }} by (econstructor; mauto 3).
-    assert {{ Δ;; Γ',++^ (iter_subst_sigma_wk Γ σ), a[^ (iter (length Γ) (fun τ : sub => {{{ τ∘Wk,,#0 }}}) σ)] ⊢s Wk : Γ',++^ (iter_subst_sigma_wk Γ σ) }} by mauto 3.
+    assert {{ Δ ;; Γ',++^ (iter_subst_sigma_wk Γ σ), a[^ (iter (length Γ) (fun τ : sub => {{{ τ∘Wk,,#0 }}}) σ)] ⊢s Wk : Γ',++^ (iter_subst_sigma_wk Γ σ) }} by mauto 3.
     econstructor; mauto 4.
+Qed. *)
+
+Lemma wf_subst_eq_id_wk : forall {Δ Γ Γ'},
+  {{ Δ ⊢ Γ' }} ->
+  {{ Δ ⊢ Γ' ,++ Γ }} ->
+  {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (length Γ) (fun τ => {{{ q τ }}}) {{{ Id }}}) ≈ Id : Γ' ,++ Γ }}.
+Proof.
+  intros. induction Γ; simpl; mauto 3.
+  - inversion_clear H0; econstructor; mauto 3.
+    etransitivity; [eapply wf_sub_eq_extend |].
+    + econstructor; mauto 3.
+    + assert {{ Δ;; Γ',++Γ, a ⊢s Wk : Γ',++Γ }} by mauto 3.
+      assert {{ Δ;; Γ',++Γ, a ⊢s Wk∘Id : Γ',++Γ }} by mauto 4.
+      eapply wf_sub_eq_extend_cong; mauto 3.
+      * transitivity {{{ Id ∘ Wk}}}.
+        transitivity {{{ Wk }}}; mauto 3.
+        eapply wf_sub_eq_compose_cong; mauto 3.
+      * eapply wf_exp_eq_sub_id.
+        eapply wf_conv; mauto 3.
+        eapply wf_exp_eq_conv; mauto 3.
+        symmetry; eapply wf_exp_eq_sub_cong; mauto 3.
 Qed.
 
-#[local]
-Hint Resolve wf_subst_sigma_wk wf_subst_id_wk : mctt.
-
-Lemma subst_wk_subtyp : 
-  forall {Δ Γ A' A Γ'}, 
-    {{ Δ ;; Γ ⊢ A ⊆ A' }} ->
-    {{ Δ ⊢ Γ' ,++ Γ }} -> 
-    {{ Δ ;; Γ' ,++ Γ ⊢ A[ ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) {{{ Id }}}) ] 
-                     ⊆ A'[ ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) {{{ Id }}}) ] }}.
+Lemma wf_subst_id_wk : forall {Δ Γ Γ'},
+  {{ Δ ⊢ Γ' }} ->
+  {{ Δ ⊢ Γ' ,++ Γ }} ->
+  {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (length Γ) (fun τ => {{{ q τ }}}) {{{ Id }}}) : Γ' ,++ Γ }}.
 Proof.
+  intros. induction Γ; simpl; mauto 3.
+  - inversion_clear H0; econstructor; mauto 3.
+    + econstructor; mauto 3.
+    + eapply wf_conv; mauto 3.
 Admitted.
 
 #[local]
-Hint Resolve subst_wk_subtyp : mctt.
+Hint Resolve wf_subst_id_wk : mctt.
 
-Lemma subst_wk_wf_exp_eq : 
-  forall {Δ Γ M A Γ' Γ'' σ}, 
-    {{ Δ ;; Γ ⊢ M : A }} -> {{ Δ ;; Γ' ⊢s σ : Γ'' }} -> 
-    {{ Δ ;; Γ' ,++ Γ ⊢ M[ ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) {{{ Id }}}) ] 
-                     ≈ M[ ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) σ) ] : A[ ^(iter (S (length Γ)) (fun τ => {{{ q τ }}}) {{{ Id }}}) ] }}.
+Lemma subst_wk_wf_exp_eq : forall {Δ Γ M A Γ' Γ''}, 
+    {{ Δ ;; Γ ⊢ M : A }} -> 
+    forall {σ}, 
+    {{ Δ ;; Γ' ⊢s σ : Γ'' }} -> 
+    {{ Δ ;; Γ' ,++ Γ ⊢ M[ ^(iter (length Γ) (fun τ => {{{ q τ }}}) {{{ Id }}}) ] 
+                     ≈ M[ ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) ] : A }}.
 Proof.
   induction 1; intros.
   - admit.
@@ -1504,12 +1507,27 @@ Proof.
   - admit.
   - admit.
   - admit.
-  - admit.
-  - eapply wf_exp_eq_subtyp; mauto 4. admit.
-    eapply subst_wk_subtyp; mauto 3. (* we have to generalize the lemma to subtyping judgement, which 
-       may in turn require further generalization *)
+  - (* problematic, the IH does not work
+       maybe we should exclude M[σ] anyway, e.g. by forcing M and A to be in normal form
+    *)
     admit.
+  - eapply wf_exp_eq_subtyp; mauto 4.
+    eapply wf_weakening_ctx; mauto 3.
+    eapply wf_weakening_ctx; mauto 3.
 Admitted.
+
+Lemma subst_wk_wf_exp_eq_nil : forall {Δ Γ A i σ Γ'}, 
+    {{ Δ ;; ⋅ ⊢ A : Type@i }} -> 
+    {{ Δ ;; Γ ⊢s σ : Γ' }} -> 
+    {{ Δ ;; Γ ⊢ A[σ] ≈ A : Type@i }}.
+Proof.
+  intros. eapply subst_wk_wf_exp_eq in H as IH; mauto 3.
+  simpl in *.
+  symmetry. etransitivity; [symmetry|]; mauto 3.
+  eapply wf_exp_eq_sub_id.
+  replace Γ with {{{ Γ ,++ ⋅ }}} by mauto 3.
+  apply wf_weakening_ctx; mauto 3.
+Qed.
 
 #[local]
 Ltac gen_presup_IH presup_exp_eq presup_sub_eq presup_subtyp H :=

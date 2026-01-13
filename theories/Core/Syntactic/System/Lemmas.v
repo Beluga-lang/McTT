@@ -1708,7 +1708,7 @@ Qed.
 Lemma presup_gctx_lookup_typ : forall {Δ Γ A x M},
     {{ Δ ⊢ Γ }} ->
     {{ `#x := [ M ] :: A ∈ Δ }} ->
-    exists i, {{ Δ ;; Γ ⊢ A ≈ A[wk ^ len (Γ)] : Type@i }}.
+    exists i, {{ Δ ;; Γ ⊢ A : Type@i }}.
 Proof.
   intros.
   assert {{ ⊢ Δ }} by mauto 4.
