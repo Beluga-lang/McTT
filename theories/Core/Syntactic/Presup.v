@@ -1510,6 +1510,7 @@ Proof.
   - (* problematic, the IH does not work
        maybe we should exclude M[σ] anyway, e.g. by forcing M and A to be in normal form
     *)
+    apply IHwf_exp in H1 as IH; mauto 3.
     admit.
   - eapply wf_exp_eq_subtyp; mauto 4.
     eapply wf_weakening_ctx; mauto 3.
@@ -1572,11 +1573,17 @@ Proof with mautosolve 4.
   (** gvar cases **)
 
   (* TODO: the first case is a bit problematic *)
-  - eapply @presup_gctx_lookup_typ with (Γ:=Γ) in H1 as IH; mauto 3.
+  - eapply @presup_gctx_lookup_typ with (Γ:=nil) in H1 as IH; mauto 3.
+    (* eapply @presup_gctx_lookup_typ with (Γ:=Γ) in H1 as IH1; mauto 3. *)
     destruct_all. 
+    econstructor; mauto 3.  
+    replace Γ with {{{ Γ ,++ ⋅ }}} by mauto 3.
+    apply wf_weakening_ctx; mauto 3.
     econstructor; mauto 3.
+    replace Γ with {{{ Γ ,++ ⋅ }}} by mauto 3.
+    apply wf_weakening_ctx; mauto 3.
+    eapply subst_wk_wf_exp_eq_nil; mauto 3.
     econstructor; mauto 3.
-    admit.
   - eapply presup_gctx_lookup_typ; mauto 3.
   - eapply presup_gctx_lookup_exp; mauto 3.
   - eapply presup_gctx_lookup_typ; mauto 3.
