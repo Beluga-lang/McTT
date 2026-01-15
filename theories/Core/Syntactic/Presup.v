@@ -1427,7 +1427,7 @@ Qed.
 #[local]
 Hint Resolve presup_exp_eq_sub_compose_right : mctt.
 
-(* Fixpoint iter_subst_sigma_wk (Γ : ctx) (σ : sub) :=
+Fixpoint iter_subst_sigma_wk (Γ : ctx) (σ : sub) :=
   match Γ with
   | nil => nil
   | {{{ Γ , A }}} => {{{ ^(iter_subst_sigma_wk Γ σ) , A[ ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) ] }}} 
@@ -1443,7 +1443,13 @@ Proof.
     assert {{ Δ ⊢ Γ',++^ (iter_subst_sigma_wk Γ σ), a[^ (iter (length Γ) (fun τ : sub => {{{ τ∘Wk,,#0 }}}) σ)] }} by (econstructor; mauto 3).
     assert {{ Δ ;; Γ',++^ (iter_subst_sigma_wk Γ σ), a[^ (iter (length Γ) (fun τ : sub => {{{ τ∘Wk,,#0 }}}) σ)] ⊢s Wk : Γ',++^ (iter_subst_sigma_wk Γ σ) }} by mauto 3.
     econstructor; mauto 4.
-Qed. *)
+Qed.
+
+(* Given {{ Δ ;; Γ' ⊢s σ : Γ'' }}, are following properties true? *)
+(* {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) : Γ'' ,++ Γ }}. *)
+(* {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) : Γ' ,++ Γ }}. *)
+(* {{ Δ ;; Γ' ,++ Γ ⊢s ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) ≈ ^(iter (length Γ) (fun τ => {{{ q τ }}}) Id) : Γ' ,++ Γ }}. *)
+
 
 Lemma wf_subst_eq_id_wk : forall {Δ Γ Γ'},
   {{ Δ ⊢ Γ' }} ->
@@ -1480,6 +1486,24 @@ Admitted.
 #[local]
 Hint Resolve wf_subst_id_wk : mctt.
 
+Lemma subst_wk_wf_exp_subst_eq : 
+    (forall {Δ Γ M A}, 
+      {{ Δ ;; Γ ⊢ M : A }} -> 
+      forall {σ Γ1 Γ2}, 
+      {{ Δ ;; Γ1 ⊢s σ : Γ2 }} -> 
+      {{ Δ ;; Γ1 ,++ Γ ⊢ M[ ^(iter (length Γ) (fun τ => {{{ q τ }}}) {{{ Id }}}) ] 
+                      ≈ M[ ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) ] : A }}) /\
+    (forall {Δ Γ τ Γ'}, 
+      {{ Δ ;; Γ ⊢s τ : Γ' }} -> 
+      forall {σ Γ1 Γ2}, 
+      {{ Δ ;; Γ1 ⊢s σ : Γ2 }} -> 
+      (* this cannot be correct, as the Id part won't change Γ2 to Γ1, but make Γ1 and Γ2 the same
+         also looks weird to me *)
+      {{ Δ ;; Γ1 ,++ Γ ⊢s τ ∘ ^(iter (length Γ) (fun σ' => {{{ q τ }}}) {{{ Id }}}) ≈ 
+                          τ ∘ ^(iter (length Γ) (fun τ => {{{ q τ }}}) σ) : Γ2 ,++ Γ' }}).  
+Proof.
+Abort.
+
 Lemma subst_wk_wf_exp_eq : forall {Δ Γ M A Γ' Γ''}, 
     {{ Δ ;; Γ ⊢ M : A }} -> 
     forall {σ}, 
@@ -1495,8 +1519,27 @@ Proof.
   - admit.
   - admit.
   - admit.
-  - admit.
-  - admit.
+  - etransitivity; [|symmetry].
+    + eapply wf_exp_eq_conv; [eapply  wf_exp_eq_app_sub with (Γ':={{{ Γ',++Γ }}})| | ].
+      admit.
+      eapply wf_weakening_ctx; mauto 3.
+      replace {{{ Γ',++Γ, A  }}} with {{{ Γ',++(Γ, A) }}} by mauto 3.
+      eapply wf_weakening_ctx; mauto 3.
+      eapply wf_weakening_ctx; mauto 3.
+      eapply wf_weakening_ctx; mauto 3. admit. admit.
+    + assert {{ Δ ⊢ Γ'',++Γ }} by admit.
+      etransitivity. eapply wf_exp_eq_conv; [eapply wf_exp_eq_app_sub with (Γ':={{{ Γ'',++Γ }}}) (A:=A) | | ]; mauto 3.
+      admit.
+      eapply wf_weakening_ctx; mauto 3.
+      replace {{{ Γ'',++Γ, A  }}} with {{{ Γ'',++(Γ, A)  }}} by mauto 3.
+      eapply wf_weakening_ctx; mauto 3.
+      admit.
+       eapply wf_weakening_ctx; mauto 3.  eapply wf_weakening_ctx; mauto 3.
+      admit. admit. admit. admit.
+      eapply wf_exp_eq_conv; [eapply wf_exp_eq_app_cong | |]; mauto 3.
+      eapply wf_weakening_ctx; mauto 3.
+      replace {{{ Γ',++Γ, A  }}} with {{{ Γ',++(Γ, A)  }}} by mauto 3.
+      eapply wf_weakening_ctx; mauto 3. 
   - admit.
   - admit.
   - admit.
