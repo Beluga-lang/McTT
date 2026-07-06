@@ -1,1 +1,0 @@
-let ((x : Nat) := zero) in succ x : Nat

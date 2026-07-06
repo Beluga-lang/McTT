@@ -16,6 +16,8 @@ theories/**/Parser.v
 *.vok
 *.vos
 .lia.cache
+Makefile
+Makefile.conf
 CoqMakefile.mk*
 !CoqMakefile.mk.local
 !CoqMakefile.mk.local-late
