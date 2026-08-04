@@ -38,7 +38,7 @@ jobs:
       DOC_DEPLOY_DEST: ${{ (startsWith(github.ref_name, 'ext/') && github.ref_name) || (github.ref_name == 'icfp25' && github.ref_name) || '' }}
     steps:
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
+        uses: SimenB/github-actions-cpu-cores@v3
         id: cpu-cores
 
       - name: Checkout repo
